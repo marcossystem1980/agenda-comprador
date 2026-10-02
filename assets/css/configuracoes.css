@@ -1,0 +1,720 @@
+/* =========================================================
+   CONFIGURAÇÕES
+   AGENDA COMPRADOR
+========================================================= */
+
+
+/* =========================================================
+   CARDS PRINCIPAIS
+========================================================= */
+
+.settings-card {
+
+    margin-bottom: 20px;
+
+    padding: 22px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+}
+
+
+.settings-card-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+
+}
+
+
+.settings-kicker {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--primary-light);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+}
+
+
+.settings-card-header h2 {
+
+    margin: 0 0 6px 0;
+
+    color: var(--text);
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+}
+
+
+.settings-card-header p {
+
+    max-width: 760px;
+
+    margin: 0;
+
+    color: var(--text-light);
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+}
+
+
+
+/* =========================================================
+   PERFIL
+========================================================= */
+
+.profile-content {
+
+    display: grid;
+
+    grid-template-columns: 180px minmax(0, 1fr);
+
+    gap: 30px;
+
+    align-items: center;
+
+}
+
+
+.profile-photo-area {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.profile-avatar-large {
+
+    width: 108px;
+
+    height: 108px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--primary);
+
+    color: #ffffff;
+
+    font-size: 34px;
+
+    font-weight: 700;
+
+    overflow: hidden;
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+
+}
+
+
+.profile-photo-area small {
+
+    color: var(--text-light);
+
+    font-size: 10px;
+
+}
+
+
+.profile-fields {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+
+.settings-field {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+}
+
+
+.settings-field label {
+
+    color: var(--text-light);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.settings-field input {
+
+    width: 100%;
+
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    background: var(--surface-soft);
+
+    color: var(--text);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.settings-field input:hover {
+
+    border-color: var(--primary-light);
+
+}
+
+
+.settings-field input:focus {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface);
+
+    box-shadow:
+        0 0 0 3px rgba(114, 70, 19, .08);
+
+}
+
+
+.settings-field input[readonly] {
+
+    color: var(--text-light);
+
+    cursor: default;
+
+}
+
+
+.settings-field input[readonly]:hover {
+
+    border-color: var(--border);
+
+}
+
+
+
+/* =========================================================
+   GRID DE SELEÇÃO
+========================================================= */
+
+.selection-grid {
+
+    display: grid;
+
+    gap: 12px;
+
+}
+
+
+.group-grid {
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+}
+
+
+.classification-grid {
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+}
+
+
+
+/* =========================================================
+   CARTÕES DE SELEÇÃO
+========================================================= */
+
+.selection-card {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 56px;
+
+    padding: 11px 14px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: var(--radius-md);
+
+    background: var(--surface-soft);
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.selection-card:hover {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface);
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-sm);
+
+}
+
+
+.selection-card input {
+
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+}
+
+
+.selection-check {
+
+    position: relative;
+
+    width: 19px;
+
+    height: 19px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--border);
+
+    border-radius: 5px;
+
+    background: var(--surface);
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease;
+
+}
+
+
+.selection-card input:checked + .selection-check {
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+
+.selection-card input:checked + .selection-check::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 5px;
+
+    top: 2px;
+
+    width: 5px;
+
+    height: 9px;
+
+    border: solid #ffffff;
+
+    border-width: 0 2px 2px 0;
+
+    transform: rotate(45deg);
+
+}
+
+
+.selection-card:has(input:checked) {
+
+    border-color: var(--primary-light);
+
+    background: #fbf8f3;
+
+}
+
+
+.selection-card:has(input:checked):hover {
+
+    background: #ffffff;
+
+}
+
+
+
+/* =========================================================
+   CONTEÚDO DO CARTÃO
+========================================================= */
+
+.selection-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 3px;
+
+    min-width: 0;
+
+}
+
+
+.selection-content strong {
+
+    color: var(--text);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+}
+
+
+.selection-content small {
+
+    color: var(--text-light);
+
+    font-size: 10px;
+
+    line-height: 1.3;
+
+}
+
+
+
+/* =========================================================
+   BOTÃO PRINCIPAL
+========================================================= */
+
+.primary-btn {
+
+    min-height: 40px;
+
+    padding: 0 18px;
+
+    border: none;
+
+    border-radius: var(--radius-md);
+
+    background: var(--primary);
+
+    color: #ffffff;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.primary-btn:hover {
+
+    background: var(--primary-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-sm);
+
+}
+
+
+.primary-btn:active {
+
+    transform: translateY(0);
+
+    box-shadow: none;
+
+}
+
+
+
+/* =========================================================
+   BOTÃO SECUNDÁRIO
+========================================================= */
+
+.secondary-btn {
+
+    min-height: 34px;
+
+    padding: 0 13px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+
+    background: var(--surface);
+
+    color: var(--text-light);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        color .2s ease,
+        background-color .2s ease;
+
+}
+
+
+.secondary-btn:hover {
+
+    border-color: var(--primary-light);
+
+    color: var(--primary);
+
+    background: var(--surface-soft);
+
+}
+
+
+
+/* =========================================================
+   ÁREA DE AÇÕES
+========================================================= */
+
+.settings-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 22px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--border-light);
+
+}
+
+
+
+/* =========================================================
+   RESPONSIVO — TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .classification-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+    }
+
+}
+
+
+
+/* =========================================================
+   RESPONSIVO — MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .settings-card {
+
+        padding: 18px;
+
+    }
+
+
+    .profile-content {
+
+        grid-template-columns: 1fr;
+
+        gap: 22px;
+
+        align-items: start;
+
+    }
+
+
+    .profile-photo-area {
+
+        align-items: flex-start;
+
+    }
+
+
+    .profile-fields {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .group-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .classification-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+}
+
+
+
+/* =========================================================
+   RESPONSIVO — CELULAR
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .settings-card {
+
+        padding: 16px;
+
+        margin-bottom: 14px;
+
+    }
+
+
+    .settings-card-header {
+
+        margin-bottom: 17px;
+
+    }
+
+
+    .settings-card-header h2 {
+
+        font-size: 16px;
+
+    }
+
+
+    .settings-card-header p {
+
+        font-size: 11px;
+
+    }
+
+
+    .classification-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .settings-actions {
+
+        justify-content: stretch;
+
+    }
+
+
+    .primary-btn {
+
+        width: 100%;
+
+    }
+
+
+    .profile-avatar-large {
+
+        width: 96px;
+
+        height: 96px;
+
+    }
+
+}

@@ -50,3 +50,31 @@ if (
     );
 
 }
+
+/* =========================================================
+   FILTRO DE GRUPO
+========================================================= */
+
+const groupFilter =
+    document.getElementById("groupFilter");
+
+
+if (groupFilter) {
+
+    groupFilter.addEventListener(
+        "change",
+        () => {
+
+            const selectedGroup =
+                groupFilter.value;
+
+
+            console.log(
+                "Grupo selecionado:",
+                selectedGroup
+            );
+
+        }
+    );
+
+}

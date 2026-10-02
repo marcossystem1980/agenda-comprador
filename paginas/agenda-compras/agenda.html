@@ -1,17 +1,565 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda Compras</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Agenda Compras | Agenda Comprador</title>
+
+
+    <!-- =====================================================
+         CSS GERAL
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/style.css"
+    >
+
+
+    <!-- =====================================================
+         CSS ESPECÍFICO DA AGENDA
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/agenda.css"
+    >
+
 </head>
+
+
 <body>
-    <main>
-        <h1>Agenda Compras</h1>
-        <p>Calendário do comprador.</p>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+
+        <div class="sidebar-header">
+
+
+            <div class="sidebar-logo">
+
+                <img
+                    src="../../assets/img/logo.png"
+                    alt="Logo"
+                >
+
+            </div>
+
+
+            <div class="sidebar-title">
+
+                <strong>
+                    AGENDA COMPRADOR
+                </strong>
+
+                <span>
+                    Gestão inteligente de compras
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             NAVEGAÇÃO
+        ================================================== -->
+
+        <nav class="sidebar-navigation">
+
+
+            <a
+                href="../../index.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ⌂
+                </span>
+
+                <span>
+                    Inicial
+                </span>
+
+            </a>
+
+
+
+            <a
+                href="agenda.html"
+                class="nav-item active"
+            >
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                <span>
+                    Agenda Compras
+                </span>
+
+            </a>
+
+
+
+            <a
+                href="../agenda-ruptura/ruptura.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    !
+                </span>
+
+                <span>
+                    Agenda por Ruptura
+                </span>
+
+            </a>
+
+
+
+            <a
+                href="../configuracoes/configuracoes.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Configurações
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
+
+        <div class="sidebar-footer">
+
+
+            <a
+                href="../../login.html"
+                class="nav-item logout-button"
+            >
+
+                <span class="nav-icon">
+                    ↪
+                </span>
+
+                <span>
+                    Sair
+                </span>
+
+            </a>
+
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <div class="topbar">
+
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    class="mobile-menu-button"
+                    id="menuToggle"
+                    aria-label="Abrir menu"
+                >
+                    ☰
+                </button>
+
+            </div>
+
+
+
+            <div class="topbar-right">
+
+
+                <button
+                    type="button"
+                    class="notification-button"
+                    aria-label="Notificações"
+                >
+
+                    🔔
+
+                    <small>
+                        3
+                    </small>
+
+                </button>
+
+
+                <div class="user-area">
+
+
+                    <div class="user-avatar">
+                        M
+                    </div>
+
+
+                    <div class="user-info">
+
+                        <strong>
+                            Marcos
+                        </strong>
+
+                        <span>
+                            Comprador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             PÁGINA
+        ================================================== -->
+
+        <section class="page agenda-page">
+
+
+            <!-- =================================================
+                 CABEÇALHO
+            ================================================== -->
+
+            <div class="page-heading agenda-heading">
+
+
+                <div>
+
+                    <span class="section-label">
+                        AGENDA COMPRAS
+                    </span>
+
+
+                    <h1>
+                        Minha agenda
+                    </h1>
+
+
+                    <p>
+                        Organize seus fabricantes e acompanhe sua programação de compras.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="agenda-new-button"
+                    id="newAppointmentButton"
+                >
+                    + Novo agendamento
+                </button>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 BARRA DA AGENDA
+            ================================================== -->
+
+            <div class="agenda-toolbar">
+
+
+                <!-- =================================================
+                     NAVEGAÇÃO DE PERÍODO
+                ================================================== -->
+
+                <div class="agenda-period-navigation">
+
+
+                    <button
+                        type="button"
+                        class="agenda-nav-button"
+                        id="previousPeriod"
+                        aria-label="Período anterior"
+                    >
+                        ‹
+                    </button>
+
+
+                    <div class="agenda-period-title">
+
+                        <strong
+                            id="periodTitle"
+                        >
+                            Outubro 2026
+                        </strong>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="agenda-nav-button"
+                        id="nextPeriod"
+                        aria-label="Próximo período"
+                    >
+                        ›
+                    </button>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     AÇÕES
+                ================================================== -->
+
+                <div class="agenda-toolbar-actions">
+
+
+                    <!-- HOJE -->
+
+                    <button
+                        type="button"
+                        class="agenda-today-button"
+                        id="todayButton"
+                    >
+                        Hoje
+                    </button>
+
+
+
+                    <!-- GRUPO -->
+
+                    <div class="agenda-group-filter">
+
+
+                        <label
+                            for="agendaGroupFilter"
+                        >
+                            Grupo
+                        </label>
+
+
+                        <select
+                            id="agendaGroupFilter"
+                        >
+
+                            <option value="all">
+                                Todos os grupos
+                            </option>
+
+                            <option value="ZTT">
+                                ZTT
+                            </option>
+
+                            <option value="Cella">
+                                Cella
+                            </option>
+
+                            <option value="Fênix">
+                                Fênix
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- VISUALIZAÇÃO -->
+
+                    <div class="agenda-view-switcher">
+
+
+                        <button
+                            type="button"
+                            class="agenda-view-button active"
+                            data-view="month"
+                        >
+                            Mês
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="agenda-view-button"
+                            data-view="week"
+                        >
+                            Semana
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="agenda-view-button"
+                            data-view="day"
+                        >
+                            Dia
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CONTEÚDO
+            ================================================== -->
+
+            <div class="agenda-content">
+
+
+                <!-- =================================================
+                     MÊS
+                ================================================== -->
+
+                <section
+                    class="agenda-view active"
+                    id="monthView"
+                >
+
+                    <div
+                        class="month-calendar"
+                        id="monthCalendar"
+                    ></div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SEMANA
+                ================================================== -->
+
+                <section
+                    class="agenda-view"
+                    id="weekView"
+                >
+
+                    <div
+                        class="week-calendar"
+                        id="weekCalendar"
+                    ></div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     DIA
+                ================================================== -->
+
+                <section
+                    class="agenda-view"
+                    id="dayView"
+                >
+
+                    <div
+                        class="day-view-container"
+                        id="dayCalendar"
+                    ></div>
+
+                </section>
+
+
+            </div>
+
+
+        </section>
+
+
     </main>
 
-    <script src="../../assets/js/agenda.js"></script>
+
+
+    <!-- =====================================================
+         OVERLAY MOBILE
+    ====================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     JS GERAL
+====================================================== -->
+
+<script src="../../assets/js/app.js"></script>
+
+
+<!-- =====================================================
+     JS DA AGENDA
+====================================================== -->
+
+<script src="../../assets/js/agenda.js"></script>
+
+
 </body>
+
 </html>

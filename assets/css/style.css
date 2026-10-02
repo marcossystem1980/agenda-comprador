@@ -3422,3 +3422,111 @@ body.modal-open {
     }
 
 }
+
+/* =========================================================
+   FILTRO DE GRUPO — DASHBOARD
+========================================================= */
+
+.dashboard-filter {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+}
+
+.dashboard-filter-title {
+
+    color: var(--text-light);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+.group-select-wrapper {
+
+    width: 190px;
+
+}
+
+.group-select {
+
+    width: 100%;
+
+    height: 36px;
+
+    padding: 0 11px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+.group-select:hover {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface);
+
+}
+
+.group-select:focus {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface);
+
+    box-shadow: 0 0 0 3px rgba(114, 70, 19, .08);
+
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .dashboard-filter {
+
+        justify-content: flex-start;
+
+        margin-top: 4px;
+
+    }
+
+    .group-select-wrapper {
+
+        width: 180px;
+
+    }
+
+}

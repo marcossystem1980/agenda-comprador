@@ -1,17 +1,948 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurações</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurações | Agenda Comprador</title>
+
+
+    <!-- =====================================================
+         CSS GERAL
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/style.css"
+    >
+
+
+    <!-- =====================================================
+         CSS ESPECÍFICO
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../../assets/css/configuracoes.css"
+    >
+
 </head>
+
+
 <body>
-    <main>
-        <h1>Configurações</h1>
-        <p>Perfil e classificações do comprador.</p>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+
+        <!-- CABEÇALHO -->
+
+        <div class="sidebar-header">
+
+
+            <div class="sidebar-logo">
+
+                <img
+                    src="../../assets/img/logo.png"
+                    alt="Logo"
+                >
+
+            </div>
+
+
+            <div class="sidebar-title">
+
+                <strong>
+                    AGENDA COMPRADOR
+                </strong>
+
+                <span>
+                    Gestão inteligente de compras
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             NAVEGAÇÃO
+        ================================================== -->
+
+        <nav class="sidebar-navigation">
+
+
+            <!-- INICIAL -->
+
+            <a
+                href="../../index.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ⌂
+                </span>
+
+                <span>
+                    Inicial
+                </span>
+
+            </a>
+
+
+            <!-- AGENDA -->
+
+            <a
+                href="../agenda-compras/agenda.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                <span>
+                    Agenda Compras
+                </span>
+
+            </a>
+
+
+            <!-- RUPTURA -->
+
+            <a
+                href="../agenda-ruptura/ruptura.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    !
+                </span>
+
+                <span>
+                    Agenda por Ruptura
+                </span>
+
+            </a>
+
+
+            <!-- CONFIGURAÇÕES -->
+
+            <a
+                href="configuracoes.html"
+                class="nav-item active"
+            >
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Configurações
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+
+        <!-- =================================================
+             RODAPÉ
+        ================================================== -->
+
+        <div class="sidebar-footer">
+
+
+            <a
+                href="../../login.html"
+                class="nav-item logout-button"
+            >
+
+                <span class="nav-icon">
+                    ↪
+                </span>
+
+                <span>
+                    Sair
+                </span>
+
+            </a>
+
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         CONTEÚDO
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <div class="topbar">
+
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    class="mobile-menu-button"
+                    id="menuToggle"
+                    aria-label="Abrir menu"
+                >
+                    ☰
+                </button>
+
+            </div>
+
+
+
+            <div class="topbar-right">
+
+
+                <!-- NOTIFICAÇÕES -->
+
+                <button
+                    type="button"
+                    class="notification-button"
+                    aria-label="Notificações"
+                >
+
+                    🔔
+
+                    <small>
+                        3
+                    </small>
+
+                </button>
+
+
+
+                <!-- USUÁRIO -->
+
+                <div class="user-area">
+
+
+                    <div class="user-avatar">
+                        M
+                    </div>
+
+
+                    <div class="user-info">
+
+                        <strong>
+                            Marcos
+                        </strong>
+
+                        <span>
+                            Comprador
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             PÁGINA
+        ================================================== -->
+
+        <section class="page">
+
+
+            <!-- =================================================
+                 CABEÇALHO DA PÁGINA
+            ================================================== -->
+
+            <div class="page-heading">
+
+
+                <div>
+
+                    <span class="section-label">
+                        CONFIGURAÇÕES
+                    </span>
+
+
+                    <h1>
+                        Meu perfil
+                    </h1>
+
+
+                    <p>
+                        Gerencie suas informações e responsabilidades dentro da Agenda Comprador.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PERFIL
+            ================================================== -->
+
+            <section class="settings-card">
+
+
+                <div class="settings-card-header">
+
+                    <div>
+
+                        <span class="settings-kicker">
+                            PERFIL
+                        </span>
+
+                        <h2>
+                            Informações do comprador
+                        </h2>
+
+                        <p>
+                            Dados básicos utilizados na sua identificação dentro do sistema.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="profile-content">
+
+
+                    <!-- FOTO -->
+
+                    <div class="profile-photo-area">
+
+
+                        <div
+                            class="profile-avatar-large"
+                            id="profileAvatar"
+                        >
+                            M
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="secondary-btn"
+                            id="photoButton"
+                        >
+                            Alterar foto
+                        </button>
+
+
+                        <input
+                            type="file"
+                            id="photoInput"
+                            accept="image/png, image/jpeg, image/webp"
+                            hidden
+                        >
+
+
+                        <small>
+                            JPG, PNG ou WEBP
+                        </small>
+
+
+                    </div>
+
+
+
+                    <!-- DADOS -->
+
+                    <div class="profile-fields">
+
+
+                        <div class="settings-field">
+
+                            <label
+                                for="buyerName"
+                            >
+                                Nome do comprador
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="buyerName"
+                                value="Marcos"
+                                placeholder="Digite seu nome"
+                            >
+
+                        </div>
+
+
+
+                        <div class="settings-field">
+
+                            <label
+                                for="buyerProfile"
+                            >
+                                Perfil
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="buyerProfile"
+                                value="Comprador"
+                                readonly
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 GRUPOS
+            ================================================== -->
+
+            <section class="settings-card">
+
+
+                <div class="settings-card-header">
+
+                    <div>
+
+                        <span class="settings-kicker">
+                            GRUPOS
+                        </span>
+
+                        <h2>
+                            Grupos de atuação
+                        </h2>
+
+                        <p>
+                            Selecione os grupos pelos quais você é responsável.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="selection-grid group-grid">
+
+
+                    <!-- ZTT -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="groups"
+                            value="ZTT"
+                            checked
+                        >
+
+                        <span class="selection-check"></span>
+
+
+                        <span class="selection-content">
+
+                            <strong>
+                                ZTT
+                            </strong>
+
+                            <small>
+                                Grupo Zanol & Thomaz
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- CELLA -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="groups"
+                            value="Cella"
+                        >
+
+                        <span class="selection-check"></span>
+
+
+                        <span class="selection-content">
+
+                            <strong>
+                                Cella
+                            </strong>
+
+                            <small>
+                                Grupo Cella
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- FÊNIX -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="groups"
+                            value="Fênix"
+                        >
+
+                        <span class="selection-check"></span>
+
+
+                        <span class="selection-content">
+
+                            <strong>
+                                Fênix
+                            </strong>
+
+                            <small>
+                                Grupo Fênix
+                            </small>
+
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 CLASSIFICAÇÕES
+            ================================================== -->
+
+            <section class="settings-card">
+
+
+                <div class="settings-card-header">
+
+                    <div>
+
+                        <span class="settings-kicker">
+                            CLASSIFICAÇÕES
+                        </span>
+
+                        <h2>
+                            Responsabilidades
+                        </h2>
+
+                        <p>
+                            Selecione as classificações que fazem parte da sua rotina de compras.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="selection-grid classification-grid">
+
+
+                    <!-- PROPAGADO -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="PROPAGADO"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                PROPAGADO
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- PERFUMARIA -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="PERFUMARIA"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                PERFUMARIA
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- FRALDAS E LEITES -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="FRALDAS E LEITES"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                FRALDAS E LEITES
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- CONVENIENCIA -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="CONVENIENCIA"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                CONVENIENCIA
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- VAREJO -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="VAREJO"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                VAREJO
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- PBM -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="PBM"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                PBM
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- SIMILARES -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="SIMILARES"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                SIMILARES
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- GENERICOS -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="GENERICO"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                GENERICOS
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- SUPLEMENTO -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="SUPLEMENTO"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                SUPLEMENTO
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- NOSSAS MARCAS -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="NOSSAS MARCAS"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                NOSSAS MARCAS
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- PERFUMES -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="PERFUMES"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                PERFUMES
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+
+                    <!-- DERMOCOSMETICOS -->
+
+                    <label class="selection-card">
+
+                        <input
+                            type="checkbox"
+                            name="classifications"
+                            value="DERMOCOSMETICOS"
+                        >
+
+                        <span class="selection-check"></span>
+
+                        <span class="selection-content">
+
+                            <strong>
+                                DERMOCOSMETICOS
+                            </strong>
+
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+
+
+                <!-- AÇÕES -->
+
+                <div class="settings-actions">
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="saveSettings"
+                    >
+                        Salvar configurações
+                    </button>
+
+                </div>
+
+
+            </section>
+
+
+        </section>
+
+
     </main>
 
-    <script src="../../assets/js/configuracoes.js"></script>
+
+
+    <!-- =====================================================
+         OVERLAY MOBILE
+    ====================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     JS GERAL
+====================================================== -->
+
+<script src="../../assets/js/app.js"></script>
+
+
+<!-- =====================================================
+     JS ESPECÍFICO
+====================================================== -->
+
+<script src="../../assets/js/configuracoes.js"></script>
+
+
 </body>
+
 </html>
