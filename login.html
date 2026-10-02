@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Agenda Comprador</title>
+
+    <!-- CSS geral -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- CSS específico do login -->
+    <link rel="stylesheet" href="assets/css/login.css">
+</head>
+
+<body class="login-page">
+
+    <!-- Fundo -->
+    <div class="login-background"></div>
+
+    <!-- Conteúdo -->
+    <main class="login-container">
+
+        <section class="login-card">
+
+            <!-- Logo -->
+            <img
+                src="assets/img/logo.png"
+                alt="Logo da empresa"
+                class="login-logo"
+            >
+
+            <!-- Título -->
+            <div class="login-title">
+
+                <span>AGENDA COMPRADOR</span>
+
+                <h1>Bem-vindo</h1>
+
+                <p>
+                    Acesse sua agenda de compras
+                </p>
+
+            </div>
+
+            <!-- Formulário -->
+            <form id="loginForm">
+
+                <!-- Usuário -->
+                <div class="form-group">
+
+                    <label for="email">
+                        E-mail ou usuário
+                    </label>
+
+                    <input
+                        type="text"
+                        id="email"
+                        name="email"
+                        placeholder="Digite seu acesso"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+                <!-- Senha -->
+                <div class="form-group">
+
+                    <label for="password">
+                        Senha
+                    </label>
+
+                    <div class="password-box">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                        >
+                            Mostrar
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Mensagem -->
+                <div
+                    id="loginMessage"
+                    class="login-message"
+                ></div>
+
+                <!-- Botão -->
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    Entrar
+                </button>
+
+            </form>
+
+            <!-- Rodapé -->
+            <div class="login-footer">
+
+                Agenda Inteligente de Compras
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="assets/js/login.js"></script>
+
+</body>
+</html>

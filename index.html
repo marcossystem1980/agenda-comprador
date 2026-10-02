@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Agenda Comprador</title>
+
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="app">
+
+
+        <!-- =====================================================
+             MENU LATERAL
+        ====================================================== -->
+
+        <aside
+            class="sidebar"
+            id="sidebar"
+        >
+
+            <div class="sidebar-header">
+
+                <div class="sidebar-logo">
+
+                    <img
+                        src="assets/img/logo.png"
+                        alt="Grupo"
+                    >
+
+                </div>
+
+
+                <div class="sidebar-title">
+
+                    <strong>
+                        AGENDA COMPRADOR
+                    </strong>
+
+                    <span>
+                        Gestão inteligente de compras
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MENU
+            ================================================== -->
+
+            <nav class="sidebar-navigation">
+
+
+                <a
+                    href="index.html"
+                    class="nav-item active"
+                >
+
+                    <span class="nav-icon">
+                        ⌂
+                    </span>
+
+                    <span>
+                        Inicial
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="paginas/agenda-compras/agenda.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ▣
+                    </span>
+
+                    <span>
+                        Agenda Compras
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="paginas/agenda-ruptura/ruptura.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        !
+                    </span>
+
+                    <span>
+                        Agenda por Ruptura
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="paginas/configuracoes/configuracoes.html"
+                    class="nav-item"
+                >
+
+                    <span class="nav-icon">
+                        ⚙
+                    </span>
+
+                    <span>
+                        Configurações
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- =================================================
+                 RODAPÉ
+            ================================================== -->
+
+            <div class="sidebar-footer">
+
+                <button
+                    type="button"
+                    class="nav-item logout-button"
+                >
+
+                    <span class="nav-icon">
+                        ↪
+                    </span>
+
+                    <span>
+                        Sair
+                    </span>
+
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================================
+             CONTEÚDO PRINCIPAL
+        ====================================================== -->
+
+        <main class="main-content">
+
+
+            <!-- =================================================
+                 TOPO SIMPLES
+            ================================================== -->
+
+            <div class="topbar">
+
+                <div class="topbar-left">
+
+                    <button
+                        type="button"
+                        class="mobile-menu-button"
+                        id="menuToggle"
+                        aria-label="Abrir menu"
+                    >
+                        ☰
+                    </button>
+
+
+                    <div>
+
+                        <span class="page-subtitle">
+                            VISÃO GERAL
+                        </span>
+
+                        <h2>
+                            Dashboard
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="topbar-right">
+
+
+                    <!-- DATA -->
+
+                    <span class="current-date">
+                        02 de outubro de 2026
+                    </span>
+
+
+                    <!-- NOTIFICAÇÕES -->
+
+                    <button
+                        type="button"
+                        class="notification-button"
+                        aria-label="Notificações"
+                    >
+
+                        🔔
+
+                        <small>
+                            3
+                        </small>
+
+                    </button>
+
+
+                    <!-- USUÁRIO -->
+
+                    <div class="user-area">
+
+                        <div class="user-avatar">
+                            M
+                        </div>
+
+
+                        <div class="user-info">
+
+                            <strong>
+                                Marcos
+                            </strong>
+
+                            <span>
+                                Comprador
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PÁGINA
+            ================================================== -->
+
+            <section class="page">
+
+
+                <!-- =================================================
+                     CABEÇALHO
+                ================================================== -->
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <span class="section-label">
+                            INICIAL
+                        </span>
+
+                        <h1>
+                            Bom dia, Marcos
+                        </h1>
+
+                        <p>
+                            Aqui está o resumo da sua operação.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     INDICADORES
+                ================================================== -->
+
+<section class="dashboard-metrics">
+
+    <div class="metric-card metric-agenda">
+
+        <div class="metric-top">
+
+            <span class="metric-icon">
+                📅
+            </span>
+
+            <span class="metric-label">
+                Agendamentos hoje
+            </span>
+
+        </div>
+
+
+        <strong class="metric-value">
+            12
+        </strong>
+
+
+        <span class="metric-caption">
+            compromissos programados
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         URGENTES
+    ====================================================== -->
+
+    <div class="metric-card metric-urgent">
+
+        <div class="metric-top">
+
+            <span class="metric-icon">
+                !
+            </span>
+
+            <span class="metric-label">
+                Compras urgentes
+            </span>
+
+        </div>
+
+
+        <strong class="metric-value">
+            4
+        </strong>
+
+
+        <span class="metric-caption">
+            precisam de atenção
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         ATENÇÃO
+    ====================================================== -->
+
+    <div class="metric-card metric-attention">
+
+        <div class="metric-top">
+
+            <span class="metric-icon">
+                !
+            </span>
+
+            <span class="metric-label">
+                Em atenção
+            </span>
+
+        </div>
+
+
+        <strong class="metric-value">
+            7
+        </strong>
+
+
+        <span class="metric-caption">
+            acompanhamentos
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FORA DA AGENDA
+    ====================================================== -->
+
+    <div class="metric-card metric-outside">
+
+        <div class="metric-top">
+
+            <span class="metric-icon">
+                ↗
+            </span>
+
+            <span class="metric-label">
+                Fora da agenda
+            </span>
+
+        </div>
+
+
+        <strong class="metric-value">
+            3
+        </strong>
+
+
+        <span class="metric-caption">
+            fabricantes identificados
+        </span>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         RISCO DE RUPTURA
+    ====================================================== -->
+
+    <div class="metric-card metric-risk">
+
+        <div class="metric-top">
+
+            <span class="metric-icon">
+                ◉
+            </span>
+
+            <span class="metric-label">
+                Risco de ruptura
+            </span>
+
+        </div>
+
+
+        <strong class="metric-value">
+            6
+        </strong>
+
+
+        <span class="metric-caption">
+            em monitoramento
+        </span>
+
+    </div>
+
+
+</section>
+
+
+                <!-- =================================================
+                     ÁREA INFERIOR
+                ================================================== -->
+
+                <section class="dashboard-grid">
+
+
+<!-- =================================================
+     AGENDA DE HOJE
+================================================== -->
+
+<div class="dashboard-panel">
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Agenda de hoje
+            </h3>
+
+            <p>
+                Seus compromissos programados
+            </p>
+
+        </div>
+
+        <a
+            href="paginas/agenda-compras/agenda.html"
+            class="panel-link"
+        >
+            Ver agenda
+        </a>
+
+    </div>
+
+
+    <div class="today-list">
+
+
+        <!-- =================================================
+             AGENDAMENTO NORMAL
+        ================================================== -->
+
+        <div class="today-item normal">
+
+            <div class="today-time">
+                08:00
+            </div>
+
+
+            <div class="today-info">
+
+                <strong>
+                    CIMED
+                </strong>
+
+                <span>
+                    Perfumaria
+                </span>
+
+            </div>
+
+
+            <span class="today-status normal">
+                Agendado
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             AGENDAMENTO EM ATENÇÃO
+        ================================================== -->
+
+        <div class="today-item attention">
+
+            <div class="today-time">
+                10:00
+            </div>
+
+
+            <div class="today-info">
+
+                <strong>
+                    KRESS
+                </strong>
+
+                <span>
+                    Perfumaria
+                </span>
+
+            </div>
+
+
+            <span class="today-status attention">
+                Atenção
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             AGENDAMENTO URGENTE
+        ================================================== -->
+
+        <div class="today-item urgent">
+
+            <div class="today-time">
+                14:00
+            </div>
+
+
+            <div class="today-info">
+
+                <strong>
+                    L'ORÉAL
+                </strong>
+
+                <span>
+                    Cosméticos
+                </span>
+
+            </div>
+
+
+            <span class="today-status urgent">
+                Urgente
+            </span>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+                    <!-- =================================================
+                         ALERTAS
+                    ================================================== -->
+
+                    <div class="dashboard-panel">
+
+                        <div class="section-header">
+
+                            <div>
+
+                                <h3>
+                                    Alertas
+                                </h3>
+
+                                <p>
+                                    Pontos que merecem atenção
+                                </p>
+
+                            </div>
+
+                            <a
+                                href="paginas/agenda-ruptura/ruptura.html"
+                                class="panel-link"
+                            >
+                                Ver ruptura
+                            </a>
+
+                        </div>
+
+
+                        <div class="alert-list">
+
+
+                            <div class="alert-item danger">
+
+                                <div class="alert-icon">
+                                    !
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        L'ORÉAL
+                                    </strong>
+
+                                    <p>
+                                        Ruptura elevada antes
+                                        do agendamento.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="alert-item warning">
+
+                                <div class="alert-icon">
+                                    !
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        CIMED
+                                    </strong>
+
+                                    <p>
+                                        Avaliar antecipação
+                                        da compra.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="alert-item info">
+
+                                <div class="alert-icon">
+                                    i
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        KRESS
+                                    </strong>
+
+                                    <p>
+                                        Tendência de risco
+                                        identificada.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                </section>
+
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================================================
+         OVERLAY MOBILE
+    ========================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <script src="assets/js/app.js"></script>
+
+</body>
+
+</html>
