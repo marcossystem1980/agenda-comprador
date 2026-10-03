@@ -12,65 +12,105 @@ document.addEventListener(
            ELEMENTOS
         ================================================= */
 
+        /* =================================================
+           FILTROS
+        ================================================= */
+
+        const filterDropdowns =
+            document.querySelectorAll(
+                ".agenda-filter-dropdown"
+            );
+
+
+        const groupFilterOptions =
+            document.getElementById(
+                "groupFilterOptions"
+            );
+
+
+        const classificationFilterOptions =
+            document.getElementById(
+                "classificationFilterOptions"
+            );
+
+
+        const classificationModeButton =
+            document.getElementById(
+                "classificationModeButton"
+            );
+
+
+        const classificationModeIcon =
+            document.getElementById(
+                "classificationModeIcon"
+            );
+
+
         const viewButtons =
             document.querySelectorAll(
                 ".agenda-view-button"
             );
+
 
         const periodTitle =
             document.getElementById(
                 "periodTitle"
             );
 
+
         const previousPeriod =
             document.getElementById(
                 "previousPeriod"
             );
+
 
         const nextPeriod =
             document.getElementById(
                 "nextPeriod"
             );
 
+
         const todayButton =
             document.getElementById(
                 "todayButton"
             );
 
-        const groupFilter =
-            document.getElementById(
-                "agendaGroupFilter"
-            );
 
         const newAppointmentButton =
             document.getElementById(
                 "newAppointmentButton"
             );
 
+
         const monthView =
             document.getElementById(
                 "monthView"
             );
+
 
         const weekView =
             document.getElementById(
                 "weekView"
             );
 
+
         const dayView =
             document.getElementById(
                 "dayView"
             );
+
 
         const monthCalendar =
             document.getElementById(
                 "monthCalendar"
             );
 
+
         const weekCalendar =
             document.getElementById(
                 "weekCalendar"
             );
+
 
         const dayCalendar =
             document.getElementById(
@@ -136,6 +176,30 @@ document.addEventListener(
 
         let currentDate =
             new Date(today);
+
+
+
+        /* =================================================
+           MODO DE CLASSIFICAÇÃO
+           grouped = agrupado
+           separated = separado
+        ================================================= */
+
+        let classificationDisplayMode =
+            localStorage.getItem(
+                "agendaComprador_classificationMode"
+            );
+
+
+        if (
+            classificationDisplayMode !== "grouped" &&
+            classificationDisplayMode !== "separated"
+        ) {
+
+            classificationDisplayMode =
+                "separated";
+
+        }
 
 
 
@@ -243,9 +307,1004 @@ document.addEventListener(
                 classification: "Genéricos",
                 status: "attention",
                 statusLabel: "Atenção"
+            },
+
+            {
+                date: "2026-10-14",
+                time: "11:00",
+                manufacturer: "EMS",
+                group: "ZTT",
+                classification: "GENERICO",
+                status: "risk",
+                statusLabel: "Risco"
             }
 
         ];
+
+
+
+        /* =================================================
+           CLASSIFICAÇÕES DISPONÍVEIS
+        ================================================= */
+
+        const classificationCatalog = [
+
+            {
+                value: "PROPAGADO",
+                label: "Propagado"
+            },
+
+            {
+                value: "PERFUMARIA",
+                label: "Perfumaria"
+            },
+
+            {
+                value: "FRALDAS E LEITES",
+                label: "Fraldas e Leites"
+            },
+
+            {
+                value: "CONVENIENCIA",
+                label: "Conveniência"
+            },
+
+            {
+                value: "VAREJO",
+                label: "Varejo"
+            },
+
+            {
+                value: "PBM",
+                label: "PBM"
+            },
+
+            {
+                value: "SIMILARES",
+                label: "Similares"
+            },
+
+            {
+                value: "GENERICO",
+                label: "Genéricos"
+            },
+
+            {
+                value: "SUPLEMENTO",
+                label: "Suplemento"
+            },
+
+            {
+                value: "NOSSAS MARCAS",
+                label: "Nossas Marcas"
+            },
+
+            {
+                value: "PERFUMES",
+                label: "Perfumes"
+            },
+
+            {
+                value: "DERMOCOSMETICOS",
+                label: "Dermocosméticos"
+            }
+
+        ];
+
+
+
+        /* =================================================
+           ESTADO DOS FILTROS
+        ================================================= */
+
+        const filterState = {
+
+            groups: [
+                "all"
+            ],
+
+            classifications: [
+                "all"
+            ],
+
+            situations: [
+                "all"
+            ]
+
+        };
+
+
+
+        /* =================================================
+           CONFIGURAÇÕES DO COMPRADOR
+        ================================================= */
+
+        function getBuyerSettings() {
+
+            const saved =
+                localStorage.getItem(
+                    "agendaComprador_configuracoes"
+                );
+
+
+            if (!saved) {
+
+                return {
+
+                    groups: [
+                        "ZTT",
+                        "Cella",
+                        "Fênix"
+                    ],
+
+                    classifications:
+                        classificationCatalog.map(
+                            item => item.value
+                        )
+
+                };
+
+            }
+
+
+            try {
+
+                const data =
+                    JSON.parse(
+                        saved
+                    );
+
+
+                return {
+
+                    groups:
+                        Array.isArray(data.groups)
+                            ? data.groups
+                            : [],
+
+                    classifications:
+                        Array.isArray(
+                            data.classifications
+                        )
+                            ? data.classifications
+                            : []
+
+                };
+
+            } catch (error) {
+
+                console.error(
+                    "Erro ao carregar configurações:",
+                    error
+                );
+
+
+                return {
+
+                    groups: [],
+
+                    classifications: []
+
+                };
+
+            }
+
+        }
+
+
+
+        /* =================================================
+           RENDERIZAR GRUPOS
+        ================================================= */
+
+        function renderGroupFilter() {
+
+            if (!groupFilterOptions) {
+                return;
+            }
+
+
+            const settings =
+                getBuyerSettings();
+
+
+            const groups =
+                settings.groups;
+
+
+            let html = `
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="groupFilter"
+                        value="all"
+                        checked
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Todos os grupos
+                    </span>
+
+                </label>
+
+            `;
+
+
+            groups.forEach(
+                group => {
+
+                    html += `
+
+                        <label class="agenda-filter-option">
+
+                            <input
+                                type="checkbox"
+                                name="groupFilter"
+                                value="${group}"
+                            >
+
+                            <span class="agenda-filter-check"></span>
+
+                            <span class="agenda-filter-option-text">
+                                ${group}
+                            </span>
+
+                        </label>
+
+                    `;
+
+                }
+            );
+
+
+            groupFilterOptions.innerHTML =
+                html;
+
+        }
+
+
+
+        /* =================================================
+           RENDERIZAR CLASSIFICAÇÕES
+        ================================================= */
+
+        function renderClassificationFilter() {
+
+            if (!classificationFilterOptions) {
+                return;
+            }
+
+
+            const settings =
+                getBuyerSettings();
+
+
+            const allowed =
+                settings.classifications;
+
+
+            let html = `
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="classificationFilter"
+                        value="all"
+                        checked
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Todas as classificações
+                    </span>
+
+                </label>
+
+            `;
+
+
+            classificationCatalog.forEach(
+                item => {
+
+                    if (
+                        !allowed.includes(
+                            item.value
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    html += `
+
+                        <label class="agenda-filter-option">
+
+                            <input
+                                type="checkbox"
+                                name="classificationFilter"
+                                value="${item.value}"
+                            >
+
+                            <span class="agenda-filter-check"></span>
+
+                            <span class="agenda-filter-option-text">
+                                ${item.label}
+                            </span>
+
+                        </label>
+
+                    `;
+
+                }
+            );
+
+
+            classificationFilterOptions.innerHTML =
+                html;
+
+        }
+
+
+
+        /* =================================================
+           NORMALIZAR TEXTO
+        ================================================= */
+
+        function normalizeText(
+            value
+        ) {
+
+            return String(
+                value || ""
+            )
+                .normalize("NFD")
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ""
+                )
+                .toUpperCase()
+                .trim();
+
+        }
+
+
+
+        /* =================================================
+           CONFIGURAR CHECKBOXES
+        ================================================= */
+
+        function setupFilterOptions(
+            selector,
+            stateKey
+        ) {
+
+            document
+                .querySelectorAll(
+                    selector
+                )
+                .forEach(
+                    input => {
+
+                        input.addEventListener(
+                            "change",
+                            () => {
+
+                                const allInput =
+                                    document.querySelector(
+                                        `${selector}[value="all"]`
+                                    );
+
+
+                                const specificInputs =
+                                    [
+                                        ...document.querySelectorAll(
+                                            `${selector}:not([value="all"])`
+                                        )
+                                    ];
+
+
+                                /* -----------------------------------------
+                                   CLICOU EM "TODOS"
+                                ------------------------------------------ */
+
+                                if (
+                                    input.value === "all" &&
+                                    input.checked
+                                ) {
+
+                                    specificInputs.forEach(
+                                        item => {
+
+                                            item.checked =
+                                                false;
+
+                                        }
+                                    );
+
+                                }
+
+
+                                /* -----------------------------------------
+                                   CLICOU EM UMA OPÇÃO ESPECÍFICA
+                                ------------------------------------------ */
+
+                                else if (
+                                    input.value !== "all" &&
+                                    input.checked
+                                ) {
+
+                                    if (allInput) {
+
+                                        allInput.checked =
+                                            false;
+
+                                    }
+
+                                }
+
+
+                                /* -----------------------------------------
+                                   NENHUMA OPÇÃO
+                                ------------------------------------------ */
+
+                                const checkedSpecific =
+                                    specificInputs.filter(
+                                        item =>
+                                            item.checked
+                                    );
+
+
+                                if (
+                                    checkedSpecific.length === 0 &&
+                                    allInput
+                                ) {
+
+                                    allInput.checked =
+                                        true;
+
+                                }
+
+
+                                /* -----------------------------------------
+                                   SALVAR ESTADO
+                                ------------------------------------------ */
+
+                                filterState[
+                                    stateKey
+                                ] =
+                                    [
+                                        ...document
+                                            .querySelectorAll(
+                                                `${selector}:checked`
+                                            )
+                                    ]
+                                    .map(
+                                        item =>
+                                            item.value
+                                    );
+
+
+                                updateFilterLabels();
+
+                                renderCurrentView();
+
+                            }
+                        );
+
+                    }
+                );
+
+        }
+
+
+
+        /* =================================================
+           ATUALIZAR TEXTO DOS FILTROS
+        ================================================= */
+
+        function updateFilterLabels() {
+
+            const labels = {
+
+                group:
+                    document.querySelector(
+                        '[data-filter-label="group"]'
+                    ),
+
+                classification:
+                    document.querySelector(
+                        '[data-filter-label="classification"]'
+                    ),
+
+                situation:
+                    document.querySelector(
+                        '[data-filter-label="situation"]'
+                    )
+
+            };
+
+
+
+            /* GRUPO */
+
+            if (labels.group) {
+
+                const values =
+                    filterState.groups;
+
+
+                labels.group.textContent =
+                    values.includes("all")
+                        ? "Todos"
+                        : values.length === 1
+                            ? values[0]
+                            : `${values.length} selecionados`;
+
+            }
+
+
+
+            /* CLASSIFICAÇÃO */
+
+            if (labels.classification) {
+
+                const values =
+                    filterState.classifications;
+
+
+                labels.classification.textContent =
+                    values.includes("all")
+                        ? "Todas"
+                        : values.length === 1
+                            ? getClassificationLabel(
+                                values[0]
+                            )
+                            : `${values.length} selecionadas`;
+
+            }
+
+
+
+            /* SITUAÇÃO */
+
+            if (labels.situation) {
+
+                const values =
+                    filterState.situations;
+
+
+                if (
+                    values.includes("all")
+                ) {
+
+                    labels.situation.textContent =
+                        "Todas";
+
+                } else {
+
+                    const labelsMap = {
+
+                        normal: "Normal",
+
+                        attention: "Atenção",
+
+                        urgent: "Urgente",
+
+                        risk: "Risco"
+
+                    };
+
+
+                    labels.situation.textContent =
+                        values.length === 1
+                            ? labelsMap[
+                                values[0]
+                            ]
+                            : `${values.length} selecionadas`;
+
+                }
+
+            }
+
+        }
+
+
+
+        /* =================================================
+           NOME DA CLASSIFICAÇÃO
+        ================================================= */
+
+        function getClassificationLabel(
+            value
+        ) {
+
+            const normalized =
+                normalizeText(
+                    value
+                );
+
+
+            const item =
+                classificationCatalog.find(
+                    classification =>
+                        normalizeText(
+                            classification.value
+                        ) === normalized
+                        ||
+                        normalizeText(
+                            classification.label
+                        ) === normalized
+                );
+
+
+            return item
+                ? item.label
+                : value;
+
+        }
+
+
+
+        /* =================================================
+           FORMATAR CLASSIFICAÇÕES PARA EXIBIÇÃO
+        ================================================= */
+
+        function formatClassificationList(
+            labels
+        ) {
+
+            const uniqueLabels = [
+                ...new Set(
+                    labels
+                        .filter(Boolean)
+                        .map(
+                            label =>
+                                getClassificationLabel(
+                                    label
+                                )
+                        )
+                )
+            ];
+
+
+            /* ---------------------------------------------
+               ORDENAR CONFORME O CATÁLOGO
+            ---------------------------------------------- */
+
+            uniqueLabels.sort(
+                (a, b) => {
+
+                    const indexA =
+                        classificationCatalog.findIndex(
+                            item =>
+                                normalizeText(
+                                    item.label
+                                ) ===
+                                normalizeText(
+                                    a
+                                )
+                        );
+
+
+                    const indexB =
+                        classificationCatalog.findIndex(
+                            item =>
+                                normalizeText(
+                                    item.label
+                                ) ===
+                                normalizeText(
+                                    b
+                                )
+                        );
+
+
+                    return (
+                        (indexA === -1 ? 999 : indexA)
+                        -
+                        (indexB === -1 ? 999 : indexB)
+                    );
+
+                }
+            );
+
+
+            if (
+                uniqueLabels.length === 0
+            ) {
+
+                return {
+
+                    display: "",
+
+                    full: ""
+
+                };
+
+            }
+
+
+            if (
+                uniqueLabels.length === 1
+            ) {
+
+                return {
+
+                    display:
+                        uniqueLabels[0],
+
+                    full:
+                        uniqueLabels[0]
+
+                };
+
+            }
+
+
+            if (
+                uniqueLabels.length === 2
+            ) {
+
+                return {
+
+                    display:
+                        `${uniqueLabels[0]} • ${uniqueLabels[1]}`,
+
+                    full:
+                        `${uniqueLabels[0]} • ${uniqueLabels[1]}`
+
+                };
+
+            }
+
+
+            return {
+
+                display:
+                    `${uniqueLabels[0]} • ${uniqueLabels[1]}...`,
+
+                full:
+                    uniqueLabels.join(
+                        " • "
+                    )
+
+            };
+
+        }
+
+
+
+        /* =================================================
+           ATUALIZAR BOTÃO AGRUPAR / SEPARAR
+        ================================================= */
+
+        function updateClassificationModeButton() {
+
+            if (
+                !classificationModeButton
+            ) {
+
+                return;
+
+            }
+
+
+            const grouped =
+                classificationDisplayMode ===
+                "grouped";
+
+
+            classificationModeButton.classList.toggle(
+                "grouped",
+                grouped
+            );
+
+
+            classificationModeButton.classList.toggle(
+                "separated",
+                !grouped
+            );
+
+
+            classificationModeButton.setAttribute(
+                "aria-pressed",
+                grouped
+                    ? "true"
+                    : "false"
+            );
+
+
+            if (
+                classificationModeIcon
+            ) {
+
+                classificationModeIcon.textContent =
+                    grouped
+                        ? "⧉"
+                        : "≡";
+
+            }
+
+
+            classificationModeButton.title =
+                grouped
+                    ? "Agrupado — clicar para separar classificações"
+                    : "Separado — clicar para agrupar classificações";
+
+
+            classificationModeButton.setAttribute(
+                "aria-label",
+                grouped
+                    ? "Separar classificações"
+                    : "Agrupar classificações"
+            );
+
+        }
+
+
+
+        /* =================================================
+           AGRUPAR AGENDAMENTOS
+        ================================================= */
+
+        function prepareAppointmentsForDisplay(
+            appointmentList
+        ) {
+
+            if (
+                classificationDisplayMode !==
+                "grouped"
+            ) {
+
+                return appointmentList.map(
+                    appointment => {
+
+                        const classification =
+                            formatClassificationList(
+                                [
+                                    appointment.classification
+                                ]
+                            );
+
+
+                        return {
+
+                            ...appointment,
+
+                            displayClassification:
+                                classification.display,
+
+                            fullClassification:
+                                classification.full
+
+                        };
+
+                    }
+                );
+
+            }
+
+
+
+            /* =================================================
+               MODO AGRUPADO
+            ================================================= */
+
+            const groups =
+                new Map();
+
+
+            appointmentList.forEach(
+                appointment => {
+
+                    /*
+                       O GRUPO faz parte da chave.
+
+                       Portanto:
+
+                       CIMED + ZTT
+                       CIMED + Cella
+
+                       continuam separados.
+                    */
+
+                    const key =
+                        [
+                            appointment.date,
+
+                            appointment.time,
+
+                            normalizeText(
+                                appointment.manufacturer
+                            ),
+
+                            normalizeText(
+                                appointment.group
+                            ),
+
+                            normalizeText(
+                                appointment.status
+                            )
+                        ].join("|");
+
+
+                    if (
+                        !groups.has(key)
+                    ) {
+
+                        groups.set(
+                            key,
+                            {
+
+                                base:
+                                    appointment,
+
+                                appointments:
+                                    []
+
+                            }
+                        );
+
+                    }
+
+
+                    groups
+                        .get(key)
+                        .appointments
+                        .push(
+                            appointment
+                        );
+
+                }
+            );
+
+
+            return [
+                ...groups.values()
+            ]
+            .map(
+                group => {
+
+                    const base =
+                        group.base;
+
+
+                    const classificationLabels =
+                        group.appointments.map(
+                            appointment =>
+                                appointment.classification
+                        );
+
+
+                    const classification =
+                        formatClassificationList(
+                            classificationLabels
+                        );
+
+
+                    return {
+
+                        ...base,
+
+                        displayClassification:
+                            classification.display,
+
+                        fullClassification:
+                            classification.full
+
+                    };
+
+                }
+            );
+
+        }
 
 
 
@@ -451,22 +1510,318 @@ document.addEventListener(
                 );
 
 
+
+            /* =================================================
+               FILTRO DE GRUPO
+            ================================================= */
+
             if (
-                groupFilter &&
-                groupFilter.value !== "all"
+                !filterState.groups.includes(
+                    "all"
+                )
             ) {
 
                 result =
                     result.filter(
-                        appointment =>
-                            appointment.group ===
-                            groupFilter.value
+                        appointment => {
+
+                            return filterState.groups
+                                .includes(
+                                    appointment.group
+                                );
+
+                        }
                     );
 
             }
 
 
-            return result;
+
+            /* =================================================
+               FILTRO DE CLASSIFICAÇÃO
+            ================================================= */
+
+            if (
+                !filterState.classifications.includes(
+                    "all"
+                )
+            ) {
+
+                result =
+                    result.filter(
+                        appointment => {
+
+                            const classification =
+                                normalizeText(
+                                    appointment.classification
+                                );
+
+
+                            return filterState.classifications
+                                .some(
+                                    selected => {
+
+                                        return (
+                                            normalizeText(
+                                                selected
+                                            )
+                                            ===
+                                            classification
+                                        );
+
+                                    }
+                                );
+
+                        }
+                    );
+
+            }
+
+
+
+            /* =================================================
+               FILTRO DE SITUAÇÃO
+            ================================================= */
+
+            if (
+                !filterState.situations.includes(
+                    "all"
+                )
+            ) {
+
+                result =
+                    result.filter(
+                        appointment => {
+
+                            return filterState.situations
+                                .includes(
+                                    appointment.status
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            /*
+               Agora aplicamos a forma de exibição.
+
+               O filtro continua selecionando os dados.
+               O agrupamento apenas define como eles
+               serão apresentados na agenda.
+            */
+
+            return prepareAppointmentsForDisplay(
+                result
+            );
+
+        }
+
+
+
+        /* =================================================
+           ABRIR / FECHAR FILTROS
+        ================================================= */
+
+        filterDropdowns.forEach(
+            dropdown => {
+
+                const trigger =
+                    dropdown.querySelector(
+                        ".agenda-filter-trigger"
+                    );
+
+
+                if (!trigger) {
+                    return;
+                }
+
+
+                trigger.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+
+                        filterDropdowns.forEach(
+                            item => {
+
+                                if (
+                                    item !==
+                                    dropdown
+                                ) {
+
+                                    item.classList.remove(
+                                        "open"
+                                    );
+
+
+                                    const otherTrigger =
+                                        item.querySelector(
+                                            ".agenda-filter-trigger"
+                                        );
+
+
+                                    if (otherTrigger) {
+
+                                        otherTrigger.setAttribute(
+                                            "aria-expanded",
+                                            "false"
+                                        );
+
+                                    }
+
+                                }
+
+                            }
+                        );
+
+
+                        const isOpen =
+                            dropdown.classList.toggle(
+                                "open"
+                            );
+
+
+                        trigger.setAttribute(
+                            "aria-expanded",
+                            isOpen
+                                ? "true"
+                                : "false"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           FECHAR AO CLICAR FORA
+        ================================================= */
+
+        document.addEventListener(
+            "click",
+            () => {
+
+                filterDropdowns.forEach(
+                    dropdown => {
+
+                        dropdown.classList.remove(
+                            "open"
+                        );
+
+
+                        const trigger =
+                            dropdown.querySelector(
+                                ".agenda-filter-trigger"
+                            );
+
+
+                        if (trigger) {
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           ESC
+        ================================================= */
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !==
+                    "Escape"
+                ) {
+
+                    return;
+
+                }
+
+
+                filterDropdowns.forEach(
+                    dropdown => {
+
+                        dropdown.classList.remove(
+                            "open"
+                        );
+
+
+                        const trigger =
+                            dropdown.querySelector(
+                                ".agenda-filter-trigger"
+                            );
+
+
+                        if (trigger) {
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           MODO AGRUPADO / SEPARADO
+        ================================================= */
+
+        if (
+            classificationModeButton
+        ) {
+
+            classificationModeButton.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    classificationDisplayMode =
+                        classificationDisplayMode ===
+                        "grouped"
+                            ? "separated"
+                            : "grouped";
+
+
+                    localStorage.setItem(
+                        "agendaComprador_classificationMode",
+                        classificationDisplayMode
+                    );
+
+
+                    updateClassificationModeButton();
+
+                    renderCurrentView();
+
+                }
+            );
 
         }
 
@@ -640,6 +1995,7 @@ document.addEventListener(
             let html = "";
 
 
+
             /* ---------------------------------------------
                TÍTULO
             ---------------------------------------------- */
@@ -659,6 +2015,7 @@ document.addEventListener(
                 </div>
 
             `;
+
 
 
             /* ---------------------------------------------
@@ -682,6 +2039,7 @@ document.addEventListener(
             `;
 
 
+
             /* ---------------------------------------------
                GRADE
             ---------------------------------------------- */
@@ -689,6 +2047,7 @@ document.addEventListener(
             html += `
                 <div class="calendar-grid">
             `;
+
 
 
             /* ---------------------------------------------
@@ -779,8 +2138,17 @@ document.addEventListener(
                                             <div
                                                 class="calendar-appointment ${appointment.status}"
                                                 data-date="${appointment.date}"
+                                                title="${appointment.fullClassification || ""}"
                                             >
-                                                ${appointment.time} · ${appointment.manufacturer}
+
+                                                <span class="calendar-appointment-primary">
+                                                    ${appointment.time} · ${appointment.manufacturer}
+                                                </span>
+
+                                                <span class="calendar-appointment-classification">
+                                                    ${appointment.displayClassification || ""}
+                                                </span>
+
                                             </div>
 
                                         `
@@ -866,6 +2234,7 @@ document.addEventListener(
 
             const weekDays = [];
 
+
             for (
                 let i = 0;
                 i < 5;
@@ -907,6 +2276,7 @@ document.addEventListener(
             `;
 
 
+
             /* HORÁRIOS */
 
             for (
@@ -931,6 +2301,7 @@ document.addEventListener(
             html += `
                     </div>
             `;
+
 
 
             /* DIAS */
@@ -993,6 +2364,7 @@ document.addEventListener(
 
                                                 <div
                                                     class="week-appointment ${appointment.status}"
+                                                    title="${appointment.fullClassification || ""}"
                                                 >
 
                                                     <strong>
@@ -1000,7 +2372,7 @@ document.addEventListener(
                                                     </strong>
 
                                                     <span>
-                                                        ${appointment.classification}
+                                                        ${appointment.displayClassification || ""}
                                                     </span>
 
                                                 </div>
@@ -1087,6 +2459,7 @@ document.addEventListener(
             `;
 
 
+
             for (
                 let hour = 8;
                 hour <= 18;
@@ -1106,7 +2479,6 @@ document.addEventListener(
                 html += `
 
                     <div class="day-timeline-row">
-
 
                         <div class="day-timeline-time">
 
@@ -1146,6 +2518,7 @@ document.addEventListener(
 
                                 <div
                                     class="day-appointment ${appointment.status}"
+                                    title="${appointment.fullClassification || ""}"
                                 >
 
                                     <div class="day-appointment-main">
@@ -1160,7 +2533,7 @@ document.addEventListener(
                                             </strong>
 
                                             <small>
-                                                ${appointment.group} · ${appointment.classification}
+                                                ${appointment.group} · ${appointment.displayClassification || ""}
                                             </small>
 
                                         </div>
@@ -1422,12 +2795,6 @@ document.addEventListener(
                     currentMonday >= lastMonday;
 
 
-                /*
-                   Mantemos essas variáveis calculadas
-                   para preservar o conceito da semana
-                   inteira dentro do horizonte.
-                */
-
                 void currentFriday;
 
             }
@@ -1666,25 +3033,6 @@ document.addEventListener(
 
 
         /* =================================================
-           FILTRO DE GRUPO
-        ================================================= */
-
-        if (groupFilter) {
-
-            groupFilter.addEventListener(
-                "change",
-                () => {
-
-                    renderCurrentView();
-
-                }
-            );
-
-        }
-
-
-
-        /* =================================================
            NOVO AGENDAMENTO
         ================================================= */
 
@@ -1704,6 +3052,39 @@ document.addEventListener(
             );
 
         }
+
+
+
+        /* =================================================
+           INICIALIZAR FILTROS
+        ================================================= */
+
+        renderGroupFilter();
+
+        renderClassificationFilter();
+
+
+        setupFilterOptions(
+            'input[name="groupFilter"]',
+            "groups"
+        );
+
+
+        setupFilterOptions(
+            'input[name="classificationFilter"]',
+            "classifications"
+        );
+
+
+        setupFilterOptions(
+            'input[name="situationFilter"]',
+            "situations"
+        );
+
+
+        updateFilterLabels();
+
+        updateClassificationModeButton();
 
 
 

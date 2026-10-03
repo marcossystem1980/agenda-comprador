@@ -362,100 +362,321 @@
 
 
 
-                <!-- =================================================
-                     AÇÕES
-                ================================================== -->
-
-                <div class="agenda-toolbar-actions">
+<div class="agenda-toolbar-actions">
 
 
-                    <!-- HOJE -->
+    <!-- =================================================
+         HOJE
+    ================================================== -->
 
-                    <button
-                        type="button"
-                        class="agenda-today-button"
-                        id="todayButton"
+    <button
+        type="button"
+        class="agenda-today-button"
+        id="todayButton"
+    >
+        Hoje
+    </button>
+
+
+
+    <!-- =================================================
+         FILTRO — GRUPO
+    ================================================== -->
+
+    <div
+        class="agenda-filter-dropdown"
+        data-filter="group"
+    >
+
+        <button
+            type="button"
+            class="agenda-filter-trigger"
+            data-filter-trigger="group"
+            aria-expanded="false"
+        >
+
+            <span>
+                Grupo
+            </span>
+
+            <strong
+                data-filter-label="group"
+            >
+                Todos
+            </strong>
+
+            <span class="agenda-filter-arrow">
+                ▾
+            </span>
+
+        </button>
+
+
+        <div
+            class="agenda-filter-menu"
+            data-filter-menu="group"
+        >
+
+            <div
+                class="agenda-filter-options"
+                id="groupFilterOptions"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+<!-- =================================================
+     FILTRO — CLASSIFICAÇÃO
+================================================== -->
+
+<div class="agenda-classification-filter">
+
+    <div
+        class="agenda-filter-dropdown"
+        data-filter="classification"
+    >
+
+        <button
+            type="button"
+            class="agenda-filter-trigger"
+            data-filter-trigger="classification"
+            aria-expanded="false"
+        >
+
+            <span>
+                Classificação
+            </span>
+
+            <strong
+                data-filter-label="classification"
+            >
+                Todas
+            </strong>
+
+            <span class="agenda-filter-arrow">
+                ▾
+            </span>
+
+        </button>
+
+
+        <div
+            class="agenda-filter-menu classification-menu"
+            data-filter-menu="classification"
+        >
+
+            <div
+                class="agenda-filter-options"
+                id="classificationFilterOptions"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         MODO DE EXIBIÇÃO DAS CLASSIFICAÇÕES
+    ================================================== -->
+
+    <button
+        type="button"
+        class="agenda-classification-mode-button"
+        id="classificationModeButton"
+        aria-label="Agrupar classificações"
+        aria-pressed="false"
+        title="Agrupar classificações"
+    >
+
+        <span
+            id="classificationModeIcon"
+            aria-hidden="true"
+        >
+            ⧉
+        </span>
+
+    </button>
+
+</div>
+
+
+
+    <!-- =================================================
+         FILTRO — SITUAÇÃO
+    ================================================== -->
+
+    <div
+        class="agenda-filter-dropdown"
+        data-filter="situation"
+    >
+
+        <button
+            type="button"
+            class="agenda-filter-trigger"
+            data-filter-trigger="situation"
+            aria-expanded="false"
+        >
+
+            <span>
+                Situação
+            </span>
+
+            <strong
+                data-filter-label="situation"
+            >
+                Todas
+            </strong>
+
+            <span class="agenda-filter-arrow">
+                ▾
+            </span>
+
+        </button>
+
+
+        <div
+            class="agenda-filter-menu"
+            data-filter-menu="situation"
+        >
+
+            <div class="agenda-filter-options">
+
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="situationFilter"
+                        value="all"
+                        checked
                     >
-                        Hoje
-                    </button>
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Todas as situações
+                    </span>
+
+                </label>
+
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="situationFilter"
+                        value="normal"
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Normal
+                    </span>
+
+                </label>
+
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="situationFilter"
+                        value="attention"
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Atenção
+                    </span>
+
+                </label>
+
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="situationFilter"
+                        value="urgent"
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Urgente
+                    </span>
+
+                </label>
+
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="situationFilter"
+                        value="risk"
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Risco de ruptura
+                    </span>
+
+                </label>
+
+
+            </div>
+
+        </div>
+
+    </div>
 
 
 
-                    <!-- GRUPO -->
+    <!-- =================================================
+         VISUALIZAÇÃO
+    ================================================== -->
 
-                    <div class="agenda-group-filter">
-
-
-                        <label
-                            for="agendaGroupFilter"
-                        >
-                            Grupo
-                        </label>
+    <div class="agenda-view-switcher">
 
 
-                        <select
-                            id="agendaGroupFilter"
-                        >
-
-                            <option value="all">
-                                Todos os grupos
-                            </option>
-
-                            <option value="ZTT">
-                                ZTT
-                            </option>
-
-                            <option value="Cella">
-                                Cella
-                            </option>
-
-                            <option value="Fênix">
-                                Fênix
-                            </option>
-
-                        </select>
+        <button
+            type="button"
+            class="agenda-view-button active"
+            data-view="month"
+        >
+            Mês
+        </button>
 
 
-                    </div>
+        <button
+            type="button"
+            class="agenda-view-button"
+            data-view="week"
+        >
+            Semana
+        </button>
 
 
-
-                    <!-- VISUALIZAÇÃO -->
-
-                    <div class="agenda-view-switcher">
-
-
-                        <button
-                            type="button"
-                            class="agenda-view-button active"
-                            data-view="month"
-                        >
-                            Mês
-                        </button>
+        <button
+            type="button"
+            class="agenda-view-button"
+            data-view="day"
+        >
+            Dia
+        </button>
 
 
-                        <button
-                            type="button"
-                            class="agenda-view-button"
-                            data-view="week"
-                        >
-                            Semana
-                        </button>
+    </div>
 
 
-                        <button
-                            type="button"
-                            class="agenda-view-button"
-                            data-view="day"
-                        >
-                            Dia
-                        </button>
-
-
-                    </div>
-
-
-                </div>
+</div>
 
 
             </div>

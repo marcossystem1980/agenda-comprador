@@ -225,10 +225,21 @@
 
 
 /* =========================================================
-   FILTRO DE GRUPO
+   FILTROS COM MULTI-SELEÇÃO
 ========================================================= */
 
-.agenda-group-filter {
+.agenda-filter-dropdown {
+
+    position: relative;
+
+}
+
+
+.agenda-filter-trigger {
+
+    min-width: 150px;
+
+    height: 34px;
 
     display: flex;
 
@@ -236,12 +247,70 @@
 
     gap: 7px;
 
+    padding: 0 10px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 8px;
+
+    background: var(--surface);
+
+    color: var(--text-light);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
+
 }
 
 
-.agenda-group-filter label {
+.agenda-filter-trigger:hover {
 
-    color: var(--text-light);
+    border-color: var(--primary-light);
+
+    background: var(--surface-soft);
+
+    color: var(--primary);
+
+}
+
+
+.agenda-filter-dropdown.open
+.agenda-filter-trigger {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface-soft);
+
+    color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(114, 70, 19, .08);
+
+}
+
+
+.agenda-filter-trigger strong {
+
+    max-width: 95px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: var(--text);
 
     font-size: 10px;
 
@@ -250,52 +319,519 @@
 }
 
 
-.agenda-group-filter select {
+.agenda-filter-arrow {
+
+    margin-left: auto;
+
+    color: var(--text-light);
+
+    font-size: 11px;
+
+    transition:
+        transform .2s ease;
+
+}
+
+
+.agenda-filter-dropdown.open
+.agenda-filter-arrow {
+
+    transform:
+        rotate(180deg);
+
+}
+
+/* =========================================================
+   FILTRO DE CLASSIFICAÇÃO + MODO DE EXIBIÇÃO
+========================================================= */
+
+.agenda-classification-filter {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    flex: 0 0 auto;
+
+    min-width: 0;
+
+}
+
+
+.agenda-classification-filter .agenda-filter-dropdown {
+
+    min-width: 0;
+
+}
+
+
+/* =========================================================
+   BOTÃO AGRUPAR / SEPARAR
+========================================================= */
+
+.agenda-classification-mode-button {
+
+    width: 30px;
 
     height: 34px;
 
-    min-width: 155px;
+    display: flex;
 
-    padding: 0 10px;
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 0;
 
     border: 1px solid var(--border-light);
 
     border-radius: 8px;
 
-    background: transparent;
+    background: var(--surface);
 
-    color: var(--text);
+    color: var(--text-light);
 
     font-family: Arial, sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease;
+
+}
+
+
+.agenda-classification-mode-button:hover {
+
+    border-color: var(--primary-light);
+
+    background: var(--surface-soft);
+
+    color: var(--primary);
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   MODO AGRUPADO
+========================================================= */
+
+.agenda-classification-mode-button.grouped {
+
+    background: #f7f1e9;
+
+    border-color: var(--primary-light);
+
+    color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(114, 70, 19, .06);
+
+}
+
+
+/* =========================================================
+   MODO SEPARADO
+========================================================= */
+
+.agenda-classification-mode-button.separated {
+
+    background: var(--surface);
+
+    border-color: var(--border-light);
+
+    color: var(--text-light);
+
+}
+
+
+/* =========================================================
+   CONTEÚDO DOS AGENDAMENTOS — MÊS
+========================================================= */
+
+.calendar-appointment {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: center;
+
+    gap: 2px;
+
+}
+
+
+.calendar-appointment-primary {
+
+    display: block;
+
+    width: 100%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+}
+
+
+.calendar-appointment-classification {
+
+    display: block;
+
+    width: 100%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    opacity: .90;
+
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE DO NOVO CONTROLE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .agenda-classification-filter {
+
+        flex: 1;
+
+        min-width: 0;
+
+    }
+
+
+    .agenda-classification-filter .agenda-filter-dropdown {
+
+        flex: 1;
+
+    }
+
+
+    .agenda-classification-filter
+    .agenda-filter-trigger {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .agenda-classification-filter {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+
+    .agenda-classification-mode-button {
+
+        width: 34px;
+
+    }
+
+}
+
+/* =========================================================
+   MENU DO FILTRO
+========================================================= */
+
+.agenda-filter-menu {
+
+    position: absolute;
+
+    top: calc(100% + 6px);
+
+    left: 0;
+
+    z-index: 300;
+
+    width: 220px;
+
+    display: none;
+
+    padding: 7px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-md);
+
+}
+
+
+.agenda-filter-dropdown.open
+.agenda-filter-menu {
+
+    display: block;
+
+}
+
+
+.classification-menu {
+
+    width: 245px;
+
+    max-height: 330px;
+
+    overflow-y: auto;
+
+}
+
+
+/* =========================================================
+   OPÇÕES
+========================================================= */
+
+.agenda-filter-options {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+
+.agenda-filter-option {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-height: 34px;
+
+    padding: 6px 8px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition:
+        background-color .2s ease;
+
+}
+
+
+.agenda-filter-option:hover {
+
+    background: var(--surface-soft);
+
+}
+
+
+.agenda-filter-option input {
+
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+}
+
+
+.agenda-filter-check {
+
+    position: relative;
+
+    width: 17px;
+
+    height: 17px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+    background: var(--surface);
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease;
+
+}
+
+
+.agenda-filter-option
+input:checked
++
+.agenda-filter-check {
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+
+.agenda-filter-option
+input:checked
++
+.agenda-filter-check::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 4px;
+
+    top: 2px;
+
+    width: 5px;
+
+    height: 9px;
+
+    border: solid #ffffff;
+
+    border-width: 0 2px 2px 0;
+
+    transform: rotate(45deg);
+
+}
+
+
+.agenda-filter-option-text {
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    color: var(--text);
 
     font-size: 10px;
 
     font-weight: 600;
 
-    outline: none;
+}
 
-    cursor: pointer;
+
+/* =========================================================
+   FILTRO ATIVO
+========================================================= */
+
+.agenda-filter-option:has(input:checked) {
+
+    background:
+        #fbf8f3;
 
 }
 
 
-.agenda-group-filter select:hover {
+.agenda-filter-option:has(
+    input[value="all"]:checked
+) {
 
-    border-color: var(--primary-light);
-
-    background: var(--surface);
+    background:
+        #f7f3ed;
 
 }
 
 
-.agenda-group-filter select:focus {
 
-    border-color: var(--primary-light);
+/* =========================================================
+   RISCO DE RUPTURA
+========================================================= */
 
-    background: var(--surface);
+.calendar-appointment.risk {
 
-    box-shadow:
-        0 0 0 3px rgba(114, 70, 19, .08);
+    background: var(--risk-soft);
+
+    border-left-color: var(--risk);
+
+    color: var(--risk);
+
+}
+
+
+.week-appointment.risk {
+
+    background: var(--risk-soft);
+
+    border-left-color: var(--risk);
+
+    color: var(--risk);
+
+}
+
+
+.day-appointment.risk {
+
+    background: var(--risk-soft);
+
+    border-color: #f0d0aa;
+
+    border-left-color: var(--risk);
+
+}
+
+
+.day-appointment.risk
+.day-status-dot {
+
+    background: var(--risk);
+
+}
+
+
+.day-appointment.risk
+.day-status {
+
+    background: #f8dfc2;
+
+    color: var(--risk);
 
 }
 
@@ -423,9 +959,9 @@
 
     padding: 15px;
 
-    background: var(--primary);
+    background:#2d1a01;
 
-    color: #ffffff;
+    border-bottom: 2px solid #fffde8;
 
 }
 
@@ -463,9 +999,9 @@
     grid-template-columns:
         repeat(7, minmax(0, 1fr));
 
-    background: var(--primary-light);
+    background: #442804;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #fffde8;
 
 }
 
@@ -483,6 +1019,8 @@
     font-weight: 800;
 
     text-transform: uppercase;
+
+    border: 1px solid #fffde8;
 
     letter-spacing: .3px;
 
@@ -554,7 +1092,7 @@
 .calendar-day.previous-month,
 .calendar-day.next-month {
 
-    background: #faf9f6;
+    background: #faf8f4;
 
 }
 
@@ -562,7 +1100,7 @@
 .calendar-day.previous-month .calendar-day-number,
 .calendar-day.next-month .calendar-day-number {
 
-    color: #bdb8b0;
+    color: #faf8f4;
 
 }
 
@@ -632,7 +1170,7 @@
 
     white-space: nowrap;
 
-    font-size: 9px;
+    font-size: 10px;
 
     font-weight: 700;
 
@@ -734,11 +1272,11 @@
 
     gap: 2px;
 
-    background: var(--primary);
+    background: #2d1a01;
 
-    border-bottom: 1px solid rgba(255, 255, 255, .14);
+    border-bottom: 2px solid rgb(241, 234, 227);
 
-    border-right: 1px solid rgba(255, 255, 255, .12);
+    border-right: 2px solid rgba(244, 240, 234, 0.975);
 
     color: #ffffff;
 
@@ -773,7 +1311,7 @@
 
 .week-time-column .week-column-header {
 
-    background: var(--primary-light);
+    background: #2d1a01;
 
 }
 
@@ -784,26 +1322,23 @@
 
     display: flex;
 
+    align-items: center;
+
     justify-content: center;
-
-    align-items: flex-start;
-
-    padding-top: 10px;
 
     background: #f0e8dd;
 
-    border-right: 1px solid var(--border);
-
-    border-bottom: 1px solid var(--border-light);
+    border: 1px solid #cbb8a3;
 
     color: var(--primary);
 
-    font-size: 9px;
+    font-size: 12px;
 
-    font-weight: 700;
+    font-weight: 800;
+
+    text-align: center;
 
 }
-
 
 /* =========================================================
    ESPAÇOS DA SEMANA
@@ -952,12 +1487,18 @@
 
     padding: 16px 20px;
 
-    background: var(--primary);
+    background: #2d1a01;
 
-    border-bottom: 1px solid rgba(255, 255, 255, .14);
+    border-bottom: 2px solid rgb(241, 234, 227);
+
+    color: #ffffff;
 
 }
 
+
+/* =========================================================
+   TEXTO DO CABEÇALHO
+========================================================= */
 
 .day-view-header span {
 
@@ -965,7 +1506,7 @@
 
     margin-bottom: 4px;
 
-    color: rgba(255, 255, 255, .82);
+    color: rgba(255, 255, 255, .86);
 
     font-size: 9px;
 
@@ -982,11 +1523,13 @@
 
     font-size: 19px;
 
+    font-weight: 800;
+
 }
 
 
 /* =========================================================
-   LINHA DO TEMPO — DIA
+   LINHA DO TEMPO
 ========================================================= */
 
 .day-timeline-row {
@@ -1017,28 +1560,34 @@
 
 .day-timeline-time {
 
-    padding: 10px;
+    min-height: 66px;
 
     display: flex;
 
-    align-items: flex-start;
+    align-items: center;
 
-    justify-content: flex-end;
+    justify-content: center;
+
+    padding: 10px;
 
     background: #f0e8dd;
 
-    border-right: 1px solid var(--border);
+    border: 1px solid #cbb8a3;
 
     color: var(--primary);
 
-    font-size: 10px;
+    font-size: 12px;
 
-    font-weight: 700;
+    font-weight: 800;
 
-    text-align: right;
+    text-align: center;
 
 }
 
+
+/* =========================================================
+   ÁREA DO AGENDAMENTO
+========================================================= */
 
 .day-timeline-content {
 
@@ -1048,6 +1597,10 @@
 
 }
 
+
+/* =========================================================
+   AGENDAMENTO
+========================================================= */
 
 .day-appointment {
 
@@ -1074,6 +1627,10 @@
 }
 
 
+/* =========================================================
+   NORMAL
+========================================================= */
+
 .day-appointment.normal {
 
     background: var(--success-soft);
@@ -1084,6 +1641,10 @@
 
 }
 
+
+/* =========================================================
+   ATENÇÃO
+========================================================= */
 
 .day-appointment.attention {
 
@@ -1096,6 +1657,10 @@
 }
 
 
+/* =========================================================
+   URGENTE
+========================================================= */
+
 .day-appointment.urgent {
 
     background: var(--danger-soft);
@@ -1106,6 +1671,10 @@
 
 }
 
+
+/* =========================================================
+   CONTEÚDO DO AGENDAMENTO
+========================================================= */
 
 .day-appointment-main {
 
@@ -1119,6 +1688,10 @@
 
 }
 
+
+/* =========================================================
+   PONTO DE STATUS
+========================================================= */
 
 .day-status-dot {
 
@@ -1154,6 +1727,10 @@
 }
 
 
+/* =========================================================
+   TEXTO
+========================================================= */
+
 .day-appointment-main strong {
 
     display: block;
@@ -1177,6 +1754,10 @@
 
 }
 
+
+/* =========================================================
+   STATUS
+========================================================= */
 
 .day-status {
 
@@ -1219,6 +1800,10 @@
 
 }
 
+
+/* =========================================================
+   DIA SEM AGENDAMENTO
+========================================================= */
 
 .day-empty {
 
@@ -1271,6 +1856,21 @@
 
 
 @media (max-width: 800px) {
+
+    .agenda-filter-dropdown {
+
+    flex: 1;
+
+}
+
+
+.agenda-filter-trigger {
+
+    width: 100%;
+
+    min-width: 0;
+
+}
 
     .agenda-heading {
 
@@ -1338,6 +1938,23 @@
 
 
 @media (max-width: 520px) {
+
+    .agenda-filter-menu {
+
+    left: auto;
+
+    right: 0;
+
+    width: 220px;
+
+}
+
+
+.classification-menu {
+
+    width: min(245px, 90vw);
+
+}
 
     .agenda-toolbar {
 
