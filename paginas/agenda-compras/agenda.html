@@ -765,21 +765,374 @@
 
 </div>
 
+<!-- =========================================================
+     MODAL — NOVO AGENDAMENTO
+========================================================= -->
+
+<div
+    id="appointmentModal"
+    class="agendamento-modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="appointmentModalTitle"
+>
+
+    <div class="agendamento-modal">
+
+        <!-- =================================================
+             CABEÇALHO
+        ================================================== -->
+
+        <div class="agendamento-modal-header">
+
+            <div>
+
+                <span class="section-label">
+                    CADASTRO
+                </span>
+
+                <h2 id="appointmentModalTitle">
+                    Novo agendamento
+                </h2>
+
+                <p>
+                    Configure o fabricante e os dados da sua agenda.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="agendamento-modal-close"
+                id="closeAppointmentModal"
+                aria-label="Fechar"
+            >
+                ×
+            </button>
+
+        </div>
 
 
-<!-- =====================================================
-     JS GERAL
-====================================================== -->
+        <!-- =================================================
+             CONTEÚDO
+        ================================================== -->
+
+        <form
+            id="appointmentForm"
+            class="agendamento-form"
+        >
+
+            <!-- =============================================
+                 GRUPO
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label for="appointmentGroup">
+                    Grupo
+                </label>
+
+                <select
+                    id="appointmentGroup"
+                    name="grupo"
+                    required
+                >
+
+                    <option value="">
+                        Selecione o grupo
+                    </option>
+
+                </select>
+
+                <small>
+                    Mostrando somente os grupos configurados para este comprador.
+                </small>
+
+            </div>
+
+
+            <!-- =============================================
+                 CLASSIFICAÇÕES
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label>
+                    Classificações
+                </label>
+
+                <small>
+                    Selecione uma ou várias classificações.
+                </small>
+
+                <div
+                    id="appointmentClassifications"
+                    class="agendamento-check-list"
+                >
+
+                    <div class="agendamento-empty">
+                        Selecione um grupo primeiro.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 FABRICANTE
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label for="appointmentManufacturerSearch">
+                    Fabricante
+                </label>
+
+                <div class="agendamento-search-box">
+
+                    <input
+                        type="search"
+                        id="appointmentManufacturerSearch"
+                        placeholder="Digite o nome do fabricante..."
+                        autocomplete="off"
+                        disabled
+                    >
+
+                </div>
+
+                <small>
+                    A busca considera somente fabricantes cadastrados para o grupo escolhido.
+                </small>
+
+                <div
+                    id="appointmentManufacturerResults"
+                    class="agendamento-search-results"
+                ></div>
+
+            </div>
+
+
+            <!-- =============================================
+                 FABRICANTES SELECIONADOS
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label>
+                    Fabricantes selecionados
+                </label>
+
+                <div
+                    id="appointmentSelectedManufacturers"
+                    class="agendamento-selected-list"
+                >
+
+                    <div class="agendamento-empty">
+                        Nenhum fabricante selecionado.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 NOME VISUAL
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label for="appointmentVisualName">
+                    Nome na agenda
+                </label>
+
+                <input
+                    type="text"
+                    id="appointmentVisualName"
+                    name="nome_visual"
+                    maxlength="100"
+                    placeholder="Ex.: CIMED"
+                    required
+                >
+
+                <small>
+                    Este é o nome que aparecerá no calendário.
+                </small>
+
+            </div>
+
+
+            <!-- =============================================
+                 MODO DAS CLASSIFICAÇÕES
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label>
+                    Visualização das classificações
+                </label>
+
+                <div class="agendamento-radio-group">
+
+                    <label class="agendamento-radio-option">
+
+                        <input
+                            type="radio"
+                            name="modo_classificacao"
+                            value="SEPARADAS"
+                        >
+
+                        <span>
+                            Separadas
+                        </span>
+
+                    </label>
+
+
+                    <label class="agendamento-radio-option">
+
+                        <input
+                            type="radio"
+                            name="modo_classificacao"
+                            value="JUNTAS"
+                            checked
+                        >
+
+                        <span>
+                            Juntas
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 DIA FIXO
+            ============================================== -->
+
+            <div class="agendamento-form-row">
+
+                <div class="agendamento-form-group">
+
+                    <label for="appointmentDay">
+                        Dia fixo
+                    </label>
+
+                    <input
+                        type="number"
+                        id="appointmentDay"
+                        name="dia_fixo"
+                        min="1"
+                        max="31"
+                        placeholder="Ex.: 05"
+                        required
+                    >
+
+                    <small>
+                        Regra recorrente mensal.
+                    </small>
+
+                </div>
+
+
+                <!-- =========================================
+                     HORÁRIO
+                ========================================== -->
+
+                <div class="agendamento-form-group">
+
+                    <label for="appointmentTime">
+                        Horário
+                    </label>
+
+                    <input
+                        type="time"
+                        id="appointmentTime"
+                        name="hora_inicio"
+                        value="08:00"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 OBSERVAÇÃO
+            ============================================== -->
+
+            <div class="agendamento-form-group">
+
+                <label for="appointmentObservation">
+                    Observação
+                </label>
+
+                <textarea
+                    id="appointmentObservation"
+                    name="observacao"
+                    rows="4"
+                    maxlength="500"
+                    placeholder="Informações adicionais..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- =============================================
+                 MENSAGEM
+            ============================================== -->
+
+            <div
+                id="appointmentFormMessage"
+                class="agendamento-form-message hidden"
+                role="alert"
+            ></div>
+
+
+            <!-- =============================================
+                 AÇÕES
+            ============================================== -->
+
+            <div class="agendamento-form-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="cancelAppointmentButton"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="saveAppointmentButton"
+                >
+                    Salvar agendamento
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../../assets/js/supabase.js"></script>
 
 <script src="../../assets/js/app.js"></script>
 
-
-<!-- =====================================================
-     JS DA AGENDA
-====================================================== -->
-
 <script src="../../assets/js/agenda.js"></script>
 
+<script src="../../assets/js/novo-agendamento.js"></script>
 
 </body>
 

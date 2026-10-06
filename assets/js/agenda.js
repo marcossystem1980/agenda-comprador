@@ -7,13 +7,8 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-
         /* =================================================
            ELEMENTOS
-        ================================================= */
-
-        /* =================================================
-           FILTROS
         ================================================= */
 
         const filterDropdowns =
@@ -76,12 +71,6 @@ document.addEventListener(
             );
 
 
-        const newAppointmentButton =
-            document.getElementById(
-                "newAppointmentButton"
-            );
-
-
         const monthView =
             document.getElementById(
                 "monthView"
@@ -117,6 +106,13 @@ document.addEventListener(
                 "dayCalendar"
             );
 
+/* =================================================
+   COMPRADOR ATUAL
+   TEMPORÁRIO — SERÁ SUBSTITUÍDO PELO LOGIN
+================================================= */
+
+const COMPRADOR_ID =
+    "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
 
 
         /* =================================================
@@ -133,7 +129,6 @@ document.addEventListener(
             0,
             0
         );
-
 
 
         /* =================================================
@@ -165,7 +160,6 @@ document.addEventListener(
         );
 
 
-
         /* =================================================
            ESTADO
         ================================================= */
@@ -178,11 +172,8 @@ document.addEventListener(
             new Date(today);
 
 
-
         /* =================================================
            MODO DE CLASSIFICAÇÃO
-           grouped = agrupado
-           separated = separado
         ================================================= */
 
         let classificationDisplayMode =
@@ -200,7 +191,6 @@ document.addEventListener(
                 "separated";
 
         }
-
 
 
         /* =================================================
@@ -238,93 +228,29 @@ document.addEventListener(
         ];
 
 
-        const weekdayShort = [
+const weekdayShort = [
 
-            "Dom",
-            "Seg",
-            "Ter",
-            "Qua",
-            "Qui",
-            "Sex",
-            "Sáb"
+    "Dom",
+    "Seg",
+    "Ter",
+    "Qua",
+    "Qui",
+    "Sex",
+    "Sáb"
 
-        ];
+];
 
 
+/* =================================================
+   AGENDAMENTOS REAIS
+   CARREGADOS DO SUPABASE
+================================================= */
 
-        /* =================================================
-           DADOS DE DEMONSTRAÇÃO
-           SERÃO SUBSTITUÍDOS PELO SUPABASE
-        ================================================= */
-
-        const appointments = [
-
-            {
-                date: "2026-10-05",
-                time: "08:00",
-                manufacturer: "CIMED",
-                group: "ZTT",
-                classification: "Perfumaria",
-                status: "normal",
-                statusLabel: "Normal"
-            },
-
-            {
-                date: "2026-10-06",
-                time: "10:00",
-                manufacturer: "ACHE",
-                group: "ZTT",
-                classification: "Propagado",
-                status: "attention",
-                statusLabel: "Atenção"
-            },
-
-            {
-                date: "2026-10-08",
-                time: "14:00",
-                manufacturer: "UNILEVER",
-                group: "Cella",
-                classification: "Dermocosméticos",
-                status: "urgent",
-                statusLabel: "Urgente"
-            },
-
-            {
-                date: "2026-10-15",
-                time: "09:00",
-                manufacturer: "EMS",
-                group: "ZTT",
-                classification: "Genéricos",
-                status: "normal",
-                statusLabel: "Normal"
-            },
-
-            {
-                date: "2026-11-05",
-                time: "10:00",
-                manufacturer: "CIMED",
-                group: "ZTT",
-                classification: "Genéricos",
-                status: "attention",
-                statusLabel: "Atenção"
-            },
-
-            {
-                date: "2026-10-14",
-                time: "11:00",
-                manufacturer: "EMS",
-                group: "ZTT",
-                classification: "GENERICO",
-                status: "risk",
-                statusLabel: "Risco"
-            }
-
-        ];
-
+let appointments = [];
 
 
         /* =================================================
-           CLASSIFICAÇÕES DISPONÍVEIS
+           CATÁLOGO DE CLASSIFICAÇÕES
         ================================================= */
 
         const classificationCatalog = [
@@ -392,7 +318,6 @@ document.addEventListener(
         ];
 
 
-
         /* =================================================
            ESTADO DOS FILTROS
         ================================================= */
@@ -412,7 +337,6 @@ document.addEventListener(
             ]
 
         };
-
 
 
         /* =================================================
@@ -439,7 +363,8 @@ document.addEventListener(
 
                     classifications:
                         classificationCatalog.map(
-                            item => item.value
+                            item =>
+                                item.value
                         )
 
                 };
@@ -458,15 +383,25 @@ document.addEventListener(
                 return {
 
                     groups:
-                        Array.isArray(data.groups)
-                            ? data.groups
+                        Array.isArray(
+                            data.groups
+                        )
+                            ? [
+                                ...new Set(
+                                    data.groups
+                                )
+                            ]
                             : [],
 
                     classifications:
                         Array.isArray(
                             data.classifications
                         )
-                            ? data.classifications
+                            ? [
+                                ...new Set(
+                                    data.classifications
+                                )
+                            ]
                             : []
 
                 };
@@ -492,9 +427,8 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
-           RENDERIZAR GRUPOS
+           RENDERIZAR FILTRO DE GRUPOS
         ================================================= */
 
         function renderGroupFilter() {
@@ -509,7 +443,12 @@ document.addEventListener(
 
 
             const groups =
-                settings.groups;
+                [
+                    ...new Set(
+                        settings.groups
+                            .filter(Boolean)
+                    )
+                ];
 
 
             let html = `
@@ -544,13 +483,13 @@ document.addEventListener(
                             <input
                                 type="checkbox"
                                 name="groupFilter"
-                                value="${group}"
+                                value="${escapeHtml(group)}"
                             >
 
                             <span class="agenda-filter-check"></span>
 
                             <span class="agenda-filter-option-text">
-                                ${group}
+                                ${escapeHtml(group)}
                             </span>
 
                         </label>
@@ -567,14 +506,15 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
-           RENDERIZAR CLASSIFICAÇÕES
+           RENDERIZAR FILTRO DE CLASSIFICAÇÕES
         ================================================= */
 
         function renderClassificationFilter() {
 
-            if (!classificationFilterOptions) {
+            if (
+                !classificationFilterOptions
+            ) {
                 return;
             }
 
@@ -613,8 +553,14 @@ document.addEventListener(
                 item => {
 
                     if (
-                        !allowed.includes(
-                            item.value
+                        !allowed.some(
+                            classification =>
+                                normalizeText(
+                                    classification
+                                ) ===
+                                normalizeText(
+                                    item.value
+                                )
                         )
                     ) {
 
@@ -630,13 +576,13 @@ document.addEventListener(
                             <input
                                 type="checkbox"
                                 name="classificationFilter"
-                                value="${item.value}"
+                                value="${escapeHtml(item.value)}"
                             >
 
                             <span class="agenda-filter-check"></span>
 
                             <span class="agenda-filter-option-text">
-                                ${item.label}
+                                ${escapeHtml(item.label)}
                             </span>
 
                         </label>
@@ -651,7 +597,6 @@ document.addEventListener(
                 html;
 
         }
-
 
 
         /* =================================================
@@ -675,6 +620,40 @@ document.addEventListener(
 
         }
 
+
+        /* =================================================
+           ESCAPE HTML
+        ================================================= */
+
+        function escapeHtml(
+            value
+        ) {
+
+            return String(
+                value || ""
+            )
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
 
 
         /* =================================================
@@ -711,10 +690,6 @@ document.addEventListener(
                                     ];
 
 
-                                /* -----------------------------------------
-                                   CLICOU EM "TODOS"
-                                ------------------------------------------ */
-
                                 if (
                                     input.value === "all" &&
                                     input.checked
@@ -732,10 +707,6 @@ document.addEventListener(
                                 }
 
 
-                                /* -----------------------------------------
-                                   CLICOU EM UMA OPÇÃO ESPECÍFICA
-                                ------------------------------------------ */
-
                                 else if (
                                     input.value !== "all" &&
                                     input.checked
@@ -750,10 +721,6 @@ document.addEventListener(
 
                                 }
 
-
-                                /* -----------------------------------------
-                                   NENHUMA OPÇÃO
-                                ------------------------------------------ */
 
                                 const checkedSpecific =
                                     specificInputs.filter(
@@ -773,13 +740,7 @@ document.addEventListener(
                                 }
 
 
-                                /* -----------------------------------------
-                                   SALVAR ESTADO
-                                ------------------------------------------ */
-
-                                filterState[
-                                    stateKey
-                                ] =
+                                filterState[stateKey] =
                                     [
                                         ...document
                                             .querySelectorAll(
@@ -790,6 +751,19 @@ document.addEventListener(
                                         item =>
                                             item.value
                                     );
+
+
+                                if (
+                                    filterState[stateKey]
+                                        .length === 0
+                                ) {
+
+                                    filterState[stateKey] =
+                                        [
+                                            "all"
+                                        ];
+
+                                }
 
 
                                 updateFilterLabels();
@@ -805,43 +779,39 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
-           ATUALIZAR TEXTO DOS FILTROS
+           ATUALIZAR TEXTOS DOS FILTROS
         ================================================= */
 
         function updateFilterLabels() {
 
-            const labels = {
+            const groupLabel =
+                document.querySelector(
+                    '[data-filter-label="group"]'
+                );
 
-                group:
-                    document.querySelector(
-                        '[data-filter-label="group"]'
-                    ),
 
-                classification:
-                    document.querySelector(
-                        '[data-filter-label="classification"]'
-                    ),
+            const classificationLabel =
+                document.querySelector(
+                    '[data-filter-label="classification"]'
+                );
 
-                situation:
-                    document.querySelector(
-                        '[data-filter-label="situation"]'
-                    )
 
-            };
-
+            const situationLabel =
+                document.querySelector(
+                    '[data-filter-label="situation"]'
+                );
 
 
             /* GRUPO */
 
-            if (labels.group) {
+            if (groupLabel) {
 
                 const values =
                     filterState.groups;
 
 
-                labels.group.textContent =
+                groupLabel.textContent =
                     values.includes("all")
                         ? "Todos"
                         : values.length === 1
@@ -851,16 +821,17 @@ document.addEventListener(
             }
 
 
-
             /* CLASSIFICAÇÃO */
 
-            if (labels.classification) {
+            if (
+                classificationLabel
+            ) {
 
                 const values =
                     filterState.classifications;
 
 
-                labels.classification.textContent =
+                classificationLabel.textContent =
                     values.includes("all")
                         ? "Todas"
                         : values.length === 1
@@ -872,10 +843,9 @@ document.addEventListener(
             }
 
 
-
             /* SITUAÇÃO */
 
-            if (labels.situation) {
+            if (situationLabel) {
 
                 const values =
                     filterState.situations;
@@ -885,7 +855,7 @@ document.addEventListener(
                     values.includes("all")
                 ) {
 
-                    labels.situation.textContent =
+                    situationLabel.textContent =
                         "Todas";
 
                 } else {
@@ -903,11 +873,14 @@ document.addEventListener(
                     };
 
 
-                    labels.situation.textContent =
+                    situationLabel.textContent =
                         values.length === 1
-                            ? labelsMap[
+                            ? (
+                                labelsMap[
+                                    values[0]
+                                ] ||
                                 values[0]
-                            ]
+                            )
                             : `${values.length} selecionadas`;
 
                 }
@@ -915,7 +888,6 @@ document.addEventListener(
             }
 
         }
-
 
 
         /* =================================================
@@ -934,14 +906,19 @@ document.addEventListener(
 
             const item =
                 classificationCatalog.find(
-                    classification =>
-                        normalizeText(
-                            classification.value
-                        ) === normalized
-                        ||
-                        normalizeText(
-                            classification.label
-                        ) === normalized
+                    classification => {
+
+                        return (
+                            normalizeText(
+                                classification.value
+                            ) === normalized
+                            ||
+                            normalizeText(
+                                classification.label
+                            ) === normalized
+                        );
+
+                    }
                 );
 
 
@@ -952,32 +929,114 @@ document.addEventListener(
         }
 
 
+        /* =================================================
+           ORDEM DE PRIORIDADE DAS SITUAÇÕES
+        ================================================= */
+
+        function getSituationWeight(
+            status
+        ) {
+
+            const weights = {
+
+                normal: 1,
+
+                attention: 2,
+
+                urgent: 3,
+
+                risk: 4
+
+            };
+
+
+            return (
+                weights[status] ||
+                0
+            );
+
+        }
+
 
         /* =================================================
-           FORMATAR CLASSIFICAÇÕES PARA EXIBIÇÃO
+           OBTER SITUAÇÃO MAIS CRÍTICA
+        ================================================= */
+
+        function getMostCriticalSituation(
+            appointmentList
+        ) {
+
+            if (
+                !appointmentList ||
+                appointmentList.length === 0
+            ) {
+
+                return {
+
+                    status: "normal",
+
+                    statusLabel: "Normal"
+
+                };
+
+            }
+
+
+            const ordered =
+                [
+                    ...appointmentList
+                ]
+                .sort(
+                    (a, b) =>
+                        getSituationWeight(
+                            b.status
+                        )
+                        -
+                        getSituationWeight(
+                            a.status
+                        )
+                );
+
+
+            const critical =
+                ordered[0];
+
+
+            return {
+
+                status:
+                    critical.status,
+
+                statusLabel:
+                    critical.statusLabel
+
+            };
+
+        }
+
+
+        /* =================================================
+           FORMATAR LISTA DE CLASSIFICAÇÕES
         ================================================= */
 
         function formatClassificationList(
             labels
         ) {
 
-            const uniqueLabels = [
-                ...new Set(
-                    labels
-                        .filter(Boolean)
-                        .map(
-                            label =>
-                                getClassificationLabel(
-                                    label
-                                )
-                        )
-                )
-            ];
+            const uniqueLabels =
+                [
+                    ...new Set(
+                        labels
+                            .filter(Boolean)
+                            .map(
+                                label =>
+                                    getClassificationLabel(
+                                        label
+                                    )
+                            )
+                    )
+                ];
 
-
-            /* ---------------------------------------------
-               ORDENAR CONFORME O CATÁLOGO
-            ---------------------------------------------- */
 
             uniqueLabels.sort(
                 (a, b) => {
@@ -1007,9 +1066,17 @@ document.addEventListener(
 
 
                     return (
-                        (indexA === -1 ? 999 : indexA)
+                        (
+                            indexA === -1
+                                ? 999
+                                : indexA
+                        )
                         -
-                        (indexB === -1 ? 999 : indexB)
+                        (
+                            indexB === -1
+                                ? 999
+                                : indexB
+                        )
                     );
 
                 }
@@ -1080,9 +1147,938 @@ document.addEventListener(
         }
 
 
+        /* =================================================
+           AGRUPAR AGENDAMENTOS
+        ================================================= */
+
+        function prepareAppointmentsForDisplay(
+            appointmentList
+        ) {
+
+            if (
+                !Array.isArray(
+                    appointmentList
+                )
+            ) {
+
+                return [];
+
+            }
+
+
+            /* =================================================
+               MODO SEPARADO
+            ================================================= */
+
+            if (
+                classificationDisplayMode ===
+                "separated"
+            ) {
+
+                return appointmentList.map(
+                    appointment => {
+
+                        const classification =
+                            formatClassificationList(
+                                [
+                                    appointment.classification
+                                ]
+                            );
+
+
+                        return {
+
+                            ...appointment,
+
+                            displayClassification:
+                                classification.display,
+
+                            fullClassification:
+                                classification.full
+
+                        };
+
+                    }
+                );
+
+            }
+
+
+            /* =================================================
+               MODO AGRUPADO
+            ================================================= */
+
+            const groups =
+                new Map();
+
+
+            appointmentList.forEach(
+                appointment => {
+
+                    /*
+                       O GRUPO faz parte da chave.
+
+                       Exemplo:
+
+                       CIMED + ZTT
+                       CIMED + CELLA
+
+                       continuam separados.
+                    */
+
+const key =
+    [
+        appointment.date,
+
+        appointment.time,
+
+        appointment.manufacturerId ||
+            normalizeText(
+                appointment.manufacturer
+            ),
+
+        normalizeText(
+            appointment.group
+        ),
+
+        appointment.ruleId ||
+            ""
+    ]
+    .join("|");
+
+
+                    if (
+                        !groups.has(
+                            key
+                        )
+                    ) {
+
+                        groups.set(
+                            key,
+                            []
+                        );
+
+                    }
+
+
+                    groups
+                        .get(key)
+                        .push(
+                            appointment
+                        );
+
+                }
+            );
+
+
+            return [
+                ...groups.values()
+            ]
+            .map(
+                groupedAppointments => {
+
+                    const base =
+                        groupedAppointments[0];
+
+
+                    const classification =
+                        formatClassificationList(
+                            groupedAppointments.map(
+                                appointment =>
+                                    appointment.classification
+                            )
+                        );
+
+
+                    const situation =
+                        getMostCriticalSituation(
+                            groupedAppointments
+                        );
+
+
+                    return {
+
+                        ...base,
+
+                        status:
+                            situation.status,
+
+                        statusLabel:
+                            situation.statusLabel,
+
+                        displayClassification:
+                            classification.display,
+
+                        fullClassification:
+                            classification.full
+
+                    };
+
+                }
+            );
+
+        }
+
 
         /* =================================================
-           ATUALIZAR BOTÃO AGRUPAR / SEPARAR
+           DATA → ISO
+        ================================================= */
+
+        function dateToISO(
+            date
+        ) {
+
+            const year =
+                date.getFullYear();
+
+
+            const month =
+                String(
+                    date.getMonth() + 1
+                )
+                .padStart(
+                    2,
+                    "0"
+                );
+
+
+            const day =
+                String(
+                    date.getDate()
+                )
+                .padStart(
+                    2,
+                    "0"
+                );
+
+
+            return `${year}-${month}-${day}`;
+
+        }
+
+
+        /* =================================================
+           ISO → DATE
+        ================================================= */
+
+        function parseISODate(
+            value
+        ) {
+
+            const parts =
+                String(
+                    value || ""
+                )
+                .split("-")
+                .map(Number);
+
+
+            if (
+                parts.length !== 3 ||
+                parts.some(
+                    Number.isNaN
+                )
+            ) {
+
+                return null;
+
+            }
+
+
+            const [
+                year,
+                month,
+                day
+            ] =
+                parts;
+
+
+            return new Date(
+                year,
+                month - 1,
+                day
+            );
+
+        }
+
+
+        /* =================================================
+           COMPARAR DATAS
+        ================================================= */
+
+        function isSameDate(
+            dateA,
+            dateB
+        ) {
+
+            if (
+                !dateA ||
+                !dateB
+            ) {
+
+                return false;
+
+            }
+
+
+            return (
+                dateA.getFullYear() ===
+                dateB.getFullYear()
+
+                &&
+
+                dateA.getMonth() ===
+                dateB.getMonth()
+
+                &&
+
+                dateA.getDate() ===
+                dateB.getDate()
+            );
+
+        }
+
+
+        /* =================================================
+           HORIZONTE
+        ================================================= */
+
+        function isInsideHorizon(
+            date
+        ) {
+
+            if (!date) {
+                return false;
+            }
+
+
+            return (
+                date >= horizonStart &&
+                date <= horizonEnd
+            );
+
+        }
+
+
+        /* =================================================
+           SEGUNDA-FEIRA
+        ================================================= */
+
+        function getMonday(
+            date
+        ) {
+
+            const result =
+                new Date(
+                    date
+                );
+
+
+            const day =
+                result.getDay();
+
+
+            const difference =
+                day === 0
+                    ? -6
+                    : 1 - day;
+
+
+            result.setDate(
+                result.getDate() +
+                difference
+            );
+
+
+            result.setHours(
+                0,
+                0,
+                0,
+                0
+            );
+
+
+            return result;
+
+        }
+
+
+        /* =================================================
+           SEXTA-FEIRA
+        ================================================= */
+
+        function getFriday(
+            date
+        ) {
+
+            const monday =
+                getMonday(
+                    date
+                );
+
+
+            const friday =
+                new Date(
+                    monday
+                );
+
+
+            friday.setDate(
+                friday.getDate() +
+                4
+            );
+
+
+            return friday;
+
+        }
+
+
+/* =================================================
+   CARREGAR AGENDAMENTOS DO SUPABASE
+================================================= */
+
+async function loadAppointments() {
+
+    try {
+
+        console.log(
+            "Carregando agendamentos do Supabase..."
+        );
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+
+                .from(
+                    "vw_agenda_compras"
+                )
+
+                .select(
+                    `
+                    agendamento_id,
+                    regra_agendamento_id,
+                    comprador_id,
+                    grupo_id,
+                    data_agendamento,
+                    hora_inicio,
+                    hora_fim,
+                    grupo_codigo,
+                    grupo_nome,
+                    nome_visual,
+                    modo_classificacao,
+                    recorrente,
+                    regra_ativa,
+                    regra_observacao,
+                    fabricante_id,
+                    nome_fabricante,
+                    classificacao_id,
+                    classificacao_codigo,
+                    classificacao_nome,
+                    status,
+                    status_label
+                    `
+                )
+
+                .eq(
+                    "comprador_id",
+                    COMPRADOR_ID
+                )
+
+                .gte(
+                    "data_agendamento",
+                    dateToISO(
+                        horizonStart
+                    )
+                )
+
+                .lte(
+                    "data_agendamento",
+                    dateToISO(
+                        horizonEnd
+                    )
+
+                )
+
+                .order(
+                    "data_agendamento",
+                    {
+                        ascending: true
+                    }
+                )
+
+                .order(
+                    "hora_inicio",
+                    {
+                        ascending: true
+                    }
+                )
+
+                .order(
+                    "nome_fabricante",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        /* =================================================
+           TRANSFORMAR RETORNO DO SUPABASE
+           PARA O FORMATO DO CALENDÁRIO
+        ================================================= */
+
+        appointments =
+            (
+                data || []
+            )
+            .map(
+                item => {
+
+                    return {
+
+                        id:
+                            item.agendamento_id,
+
+                        ruleId:
+                            item.regra_agendamento_id,
+
+                        manufacturerId:
+                            item.fabricante_id,
+
+                        date:
+                            item.data_agendamento,
+
+                        time:
+                            String(
+                                item.hora_inicio ||
+                                ""
+                            )
+                            .slice(
+                                0,
+                                5
+                            ),
+
+                        manufacturer:
+                            item.nome_visual ||
+                            item.nome_fabricante ||
+                            "Fabricante",
+
+                        manufacturerReal:
+                            item.nome_fabricante ||
+                            "",
+
+                        group:
+                            item.grupo_codigo ||
+                            item.grupo_nome ||
+                            "",
+
+                        classification:
+                            item.classificacao_nome ||
+                            item.classificacao_codigo ||
+                            "",
+
+                        status:
+                            item.status ||
+                            "normal",
+
+                        statusLabel:
+                            item.status_label ||
+                            "Normal",
+
+                        observation:
+                            item.regra_observacao ||
+                            "",
+
+                        mode:
+                            item.modo_classificacao ||
+                            "JUNTAS",
+
+                        recurring:
+                            item.recorrente === true
+
+                    };
+
+                }
+            );
+
+
+        console.log(
+            "Agendamentos carregados:",
+            appointments
+        );
+
+
+        /* =================================================
+           ATUALIZAR CALENDÁRIO
+        ================================================= */
+
+        renderCurrentView();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar agendamentos:",
+            error
+        );
+
+
+        appointments = [];
+
+
+        renderCurrentView();
+
+    }
+
+}
+
+        /* =================================================
+           AGENDAMENTOS DO DIA
+        ================================================= */
+
+        function getAppointmentsForDate(
+            date
+        ) {
+
+            const iso =
+                dateToISO(
+                    date
+                );
+
+
+            let result =
+                appointments.filter(
+                    appointment =>
+                        appointment.date ===
+                        iso
+                );
+
+
+            /* =================================================
+               FILTRO DE GRUPO
+            ================================================= */
+
+            if (
+                !filterState.groups.includes(
+                    "all"
+                )
+            ) {
+
+                result =
+                    result.filter(
+                        appointment => {
+
+                            const appointmentGroup =
+                                normalizeText(
+                                    appointment.group
+                                );
+
+
+                            return filterState.groups
+                                .some(
+                                    selectedGroup =>
+                                        normalizeText(
+                                            selectedGroup
+                                        ) ===
+                                        appointmentGroup
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            /* =================================================
+               FILTRO DE CLASSIFICAÇÃO
+            ================================================= */
+
+            if (
+                !filterState.classifications.includes(
+                    "all"
+                )
+            ) {
+
+                result =
+                    result.filter(
+                        appointment => {
+
+                            const classification =
+                                normalizeText(
+                                    appointment.classification
+                                );
+
+
+                            return filterState.classifications
+                                .some(
+                                    selected => {
+
+                                        return (
+                                            normalizeText(
+                                                selected
+                                            ) ===
+                                            classification
+                                        );
+
+                                    }
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            /* =================================================
+               FILTRO DE SITUAÇÃO
+            ================================================= */
+
+            if (
+                !filterState.situations.includes(
+                    "all"
+                )
+            ) {
+
+                result =
+                    result.filter(
+                        appointment => {
+
+                            return filterState.situations
+                                .includes(
+                                    appointment.status
+                                );
+
+                        }
+                    );
+
+            }
+
+
+            return prepareAppointmentsForDisplay(
+                result
+            );
+
+        }
+
+
+        /* =================================================
+           ABRIR / FECHAR FILTROS
+        ================================================= */
+
+        filterDropdowns.forEach(
+            dropdown => {
+
+                const trigger =
+                    dropdown.querySelector(
+                        ".agenda-filter-trigger"
+                    );
+
+
+                if (!trigger) {
+                    return;
+                }
+
+
+                trigger.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+
+                        filterDropdowns.forEach(
+                            item => {
+
+                                if (
+                                    item ===
+                                    dropdown
+                                ) {
+
+                                    return;
+
+                                }
+
+
+                                item.classList.remove(
+                                    "open"
+                                );
+
+
+                                const otherTrigger =
+                                    item.querySelector(
+                                        ".agenda-filter-trigger"
+                                    );
+
+
+                                if (
+                                    otherTrigger
+                                ) {
+
+                                    otherTrigger.setAttribute(
+                                        "aria-expanded",
+                                        "false"
+                                    );
+
+                                }
+
+                            }
+                        );
+
+
+                        const isOpen =
+                            dropdown.classList.toggle(
+                                "open"
+                            );
+
+
+                        trigger.setAttribute(
+                            "aria-expanded",
+                            isOpen
+                                ? "true"
+                                : "false"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           FECHAR FILTROS AO CLICAR FORA
+        ================================================= */
+
+        document.addEventListener(
+            "click",
+            () => {
+
+                filterDropdowns.forEach(
+                    dropdown => {
+
+                        dropdown.classList.remove(
+                            "open"
+                        );
+
+
+                        const trigger =
+                            dropdown.querySelector(
+                                ".agenda-filter-trigger"
+                            );
+
+
+                        if (trigger) {
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           ESC — FECHAR FILTROS
+        ================================================= */
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !==
+                    "Escape"
+                ) {
+
+                    return;
+
+                }
+
+
+                filterDropdowns.forEach(
+                    dropdown => {
+
+                        dropdown.classList.remove(
+                            "open"
+                        );
+
+
+                        const trigger =
+                            dropdown.querySelector(
+                                ".agenda-filter-trigger"
+                            );
+
+
+                        if (trigger) {
+
+                            trigger.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           MODO AGRUPADO / SEPARADO
+        ================================================= */
+
+        if (
+            classificationModeButton
+        ) {
+
+            classificationModeButton.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+
+                    classificationDisplayMode =
+                        classificationDisplayMode ===
+                        "grouped"
+                            ? "separated"
+                            : "grouped";
+
+
+                    localStorage.setItem(
+                        "agendaComprador_classificationMode",
+                        classificationDisplayMode
+                    );
+
+
+                    updateClassificationModeButton();
+
+                    renderCurrentView();
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           BOTÃO AGRUPAR / SEPARAR
         ================================================= */
 
         function updateClassificationModeButton() {
@@ -1149,686 +2145,8 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
-           AGRUPAR AGENDAMENTOS
-        ================================================= */
-
-        function prepareAppointmentsForDisplay(
-            appointmentList
-        ) {
-
-            if (
-                classificationDisplayMode !==
-                "grouped"
-            ) {
-
-                return appointmentList.map(
-                    appointment => {
-
-                        const classification =
-                            formatClassificationList(
-                                [
-                                    appointment.classification
-                                ]
-                            );
-
-
-                        return {
-
-                            ...appointment,
-
-                            displayClassification:
-                                classification.display,
-
-                            fullClassification:
-                                classification.full
-
-                        };
-
-                    }
-                );
-
-            }
-
-
-
-            /* =================================================
-               MODO AGRUPADO
-            ================================================= */
-
-            const groups =
-                new Map();
-
-
-            appointmentList.forEach(
-                appointment => {
-
-                    /*
-                       O GRUPO faz parte da chave.
-
-                       Portanto:
-
-                       CIMED + ZTT
-                       CIMED + Cella
-
-                       continuam separados.
-                    */
-
-                    const key =
-                        [
-                            appointment.date,
-
-                            appointment.time,
-
-                            normalizeText(
-                                appointment.manufacturer
-                            ),
-
-                            normalizeText(
-                                appointment.group
-                            ),
-
-                            normalizeText(
-                                appointment.status
-                            )
-                        ].join("|");
-
-
-                    if (
-                        !groups.has(key)
-                    ) {
-
-                        groups.set(
-                            key,
-                            {
-
-                                base:
-                                    appointment,
-
-                                appointments:
-                                    []
-
-                            }
-                        );
-
-                    }
-
-
-                    groups
-                        .get(key)
-                        .appointments
-                        .push(
-                            appointment
-                        );
-
-                }
-            );
-
-
-            return [
-                ...groups.values()
-            ]
-            .map(
-                group => {
-
-                    const base =
-                        group.base;
-
-
-                    const classificationLabels =
-                        group.appointments.map(
-                            appointment =>
-                                appointment.classification
-                        );
-
-
-                    const classification =
-                        formatClassificationList(
-                            classificationLabels
-                        );
-
-
-                    return {
-
-                        ...base,
-
-                        displayClassification:
-                            classification.display,
-
-                        fullClassification:
-                            classification.full
-
-                    };
-
-                }
-            );
-
-        }
-
-
-
-        /* =================================================
-           FORMATAR DATA ISO
-        ================================================= */
-
-        function dateToISO(
-            date
-        ) {
-
-            const year =
-                date.getFullYear();
-
-
-            const month =
-                String(
-                    date.getMonth() + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            const day =
-                String(
-                    date.getDate()
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            return `${year}-${month}-${day}`;
-
-        }
-
-
-
-        /* =================================================
-           DATA DE UMA STRING
-        ================================================= */
-
-        function parseISODate(
-            value
-        ) {
-
-            const [
-                year,
-                month,
-                day
-            ] =
-                value
-                    .split("-")
-                    .map(Number);
-
-
-            return new Date(
-                year,
-                month - 1,
-                day
-            );
-
-        }
-
-
-
-        /* =================================================
-           COMPARAR DATAS
-        ================================================= */
-
-        function isSameDate(
-            dateA,
-            dateB
-        ) {
-
-            return (
-                dateA.getFullYear() ===
-                dateB.getFullYear()
-
-                &&
-
-                dateA.getMonth() ===
-                dateB.getMonth()
-
-                &&
-
-                dateA.getDate() ===
-                dateB.getDate()
-            );
-
-        }
-
-
-
-        /* =================================================
-           DATA DENTRO DO HORIZONTE
-        ================================================= */
-
-        function isInsideHorizon(
-            date
-        ) {
-
-            return (
-                date >= horizonStart &&
-                date <= horizonEnd
-            );
-
-        }
-
-
-
-        /* =================================================
-           SEGUNDA-FEIRA DA SEMANA
-        ================================================= */
-
-        function getMonday(
-            date
-        ) {
-
-            const result =
-                new Date(date);
-
-
-            const day =
-                result.getDay();
-
-
-            const difference =
-                day === 0
-                    ? -6
-                    : 1 - day;
-
-
-            result.setDate(
-                result.getDate() +
-                difference
-            );
-
-
-            result.setHours(
-                0,
-                0,
-                0,
-                0
-            );
-
-
-            return result;
-
-        }
-
-
-
-        /* =================================================
-           SEXTA-FEIRA DA SEMANA
-        ================================================= */
-
-        function getFriday(
-            date
-        ) {
-
-            const monday =
-                getMonday(date);
-
-
-            const friday =
-                new Date(
-                    monday
-                );
-
-
-            friday.setDate(
-                friday.getDate() + 4
-            );
-
-
-            return friday;
-
-        }
-
-
-
-        /* =================================================
-           PEGAR AGENDAMENTOS
-        ================================================= */
-
-        function getAppointmentsForDate(
-            date
-        ) {
-
-            const iso =
-                dateToISO(
-                    date
-                );
-
-
-            let result =
-                appointments.filter(
-                    appointment =>
-                        appointment.date ===
-                        iso
-                );
-
-
-
-            /* =================================================
-               FILTRO DE GRUPO
-            ================================================= */
-
-            if (
-                !filterState.groups.includes(
-                    "all"
-                )
-            ) {
-
-                result =
-                    result.filter(
-                        appointment => {
-
-                            return filterState.groups
-                                .includes(
-                                    appointment.group
-                                );
-
-                        }
-                    );
-
-            }
-
-
-
-            /* =================================================
-               FILTRO DE CLASSIFICAÇÃO
-            ================================================= */
-
-            if (
-                !filterState.classifications.includes(
-                    "all"
-                )
-            ) {
-
-                result =
-                    result.filter(
-                        appointment => {
-
-                            const classification =
-                                normalizeText(
-                                    appointment.classification
-                                );
-
-
-                            return filterState.classifications
-                                .some(
-                                    selected => {
-
-                                        return (
-                                            normalizeText(
-                                                selected
-                                            )
-                                            ===
-                                            classification
-                                        );
-
-                                    }
-                                );
-
-                        }
-                    );
-
-            }
-
-
-
-            /* =================================================
-               FILTRO DE SITUAÇÃO
-            ================================================= */
-
-            if (
-                !filterState.situations.includes(
-                    "all"
-                )
-            ) {
-
-                result =
-                    result.filter(
-                        appointment => {
-
-                            return filterState.situations
-                                .includes(
-                                    appointment.status
-                                );
-
-                        }
-                    );
-
-            }
-
-
-            /*
-               Agora aplicamos a forma de exibição.
-
-               O filtro continua selecionando os dados.
-               O agrupamento apenas define como eles
-               serão apresentados na agenda.
-            */
-
-            return prepareAppointmentsForDisplay(
-                result
-            );
-
-        }
-
-
-
-        /* =================================================
-           ABRIR / FECHAR FILTROS
-        ================================================= */
-
-        filterDropdowns.forEach(
-            dropdown => {
-
-                const trigger =
-                    dropdown.querySelector(
-                        ".agenda-filter-trigger"
-                    );
-
-
-                if (!trigger) {
-                    return;
-                }
-
-
-                trigger.addEventListener(
-                    "click",
-                    event => {
-
-                        event.stopPropagation();
-
-
-                        filterDropdowns.forEach(
-                            item => {
-
-                                if (
-                                    item !==
-                                    dropdown
-                                ) {
-
-                                    item.classList.remove(
-                                        "open"
-                                    );
-
-
-                                    const otherTrigger =
-                                        item.querySelector(
-                                            ".agenda-filter-trigger"
-                                        );
-
-
-                                    if (otherTrigger) {
-
-                                        otherTrigger.setAttribute(
-                                            "aria-expanded",
-                                            "false"
-                                        );
-
-                                    }
-
-                                }
-
-                            }
-                        );
-
-
-                        const isOpen =
-                            dropdown.classList.toggle(
-                                "open"
-                            );
-
-
-                        trigger.setAttribute(
-                            "aria-expanded",
-                            isOpen
-                                ? "true"
-                                : "false"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-
-        /* =================================================
-           FECHAR AO CLICAR FORA
-        ================================================= */
-
-        document.addEventListener(
-            "click",
-            () => {
-
-                filterDropdowns.forEach(
-                    dropdown => {
-
-                        dropdown.classList.remove(
-                            "open"
-                        );
-
-
-                        const trigger =
-                            dropdown.querySelector(
-                                ".agenda-filter-trigger"
-                            );
-
-
-                        if (trigger) {
-
-                            trigger.setAttribute(
-                                "aria-expanded",
-                                "false"
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-
-
-        /* =================================================
-           ESC
-        ================================================= */
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !==
-                    "Escape"
-                ) {
-
-                    return;
-
-                }
-
-
-                filterDropdowns.forEach(
-                    dropdown => {
-
-                        dropdown.classList.remove(
-                            "open"
-                        );
-
-
-                        const trigger =
-                            dropdown.querySelector(
-                                ".agenda-filter-trigger"
-                            );
-
-
-                        if (trigger) {
-
-                            trigger.setAttribute(
-                                "aria-expanded",
-                                "false"
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-
-
-        /* =================================================
-           MODO AGRUPADO / SEPARADO
-        ================================================= */
-
-        if (
-            classificationModeButton
-        ) {
-
-            classificationModeButton.addEventListener(
-                "click",
-                event => {
-
-                    event.stopPropagation();
-
-
-                    classificationDisplayMode =
-                        classificationDisplayMode ===
-                        "grouped"
-                            ? "separated"
-                            : "grouped";
-
-
-                    localStorage.setItem(
-                        "agendaComprador_classificationMode",
-                        classificationDisplayMode
-                    );
-
-
-                    updateClassificationModeButton();
-
-                    renderCurrentView();
-
-                }
-            );
-
-        }
-
-
-
-        /* =================================================
-           TÍTULO
+           TÍTULO DO PERÍODO
         ================================================= */
 
         function updatePeriodTitle() {
@@ -1838,10 +2156,7 @@ document.addEventListener(
             }
 
 
-
-            /* ---------------------------------------------
-               MÊS
-            ---------------------------------------------- */
+            /* MÊS */
 
             if (
                 currentView ===
@@ -1856,10 +2171,7 @@ document.addEventListener(
             }
 
 
-
-            /* ---------------------------------------------
-               SEMANA
-            ---------------------------------------------- */
+            /* SEMANA */
 
             if (
                 currentView ===
@@ -1886,10 +2198,7 @@ document.addEventListener(
             }
 
 
-
-            /* ---------------------------------------------
-               DIA
-            ---------------------------------------------- */
+            /* DIA */
 
             if (
                 currentView ===
@@ -1911,7 +2220,6 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            DATA CURTA
         ================================================= */
@@ -1923,7 +2231,8 @@ document.addEventListener(
             return (
                 String(
                     date.getDate()
-                ).padStart(
+                )
+                .padStart(
                     2,
                     "0"
                 )
@@ -1932,14 +2241,14 @@ document.addEventListener(
                 +
                 String(
                     date.getMonth() + 1
-                ).padStart(
+                )
+                .padStart(
                     2,
                     "0"
                 )
             );
 
         }
-
 
 
         /* =================================================
@@ -1981,11 +2290,6 @@ document.addEventListener(
                 firstDay.getDay();
 
 
-            /*
-                Domingo = 0
-                Segunda = 1
-            */
-
             startPosition =
                 startPosition === 0
                     ? 6
@@ -1994,11 +2298,6 @@ document.addEventListener(
 
             let html = "";
 
-
-
-            /* ---------------------------------------------
-               TÍTULO
-            ---------------------------------------------- */
 
             html += `
 
@@ -2017,11 +2316,6 @@ document.addEventListener(
             `;
 
 
-
-            /* ---------------------------------------------
-               SEMANA
-            ---------------------------------------------- */
-
             html += `
 
                 <div class="calendar-header">
@@ -2039,20 +2333,10 @@ document.addEventListener(
             `;
 
 
-
-            /* ---------------------------------------------
-               GRADE
-            ---------------------------------------------- */
-
             html += `
                 <div class="calendar-grid">
             `;
 
-
-
-            /* ---------------------------------------------
-               DIAS ANTERIORES
-            ---------------------------------------------- */
 
             for (
                 let i = 0;
@@ -2064,8 +2348,7 @@ document.addEventListener(
 
                     <div class="calendar-day previous-month">
 
-                        <span class="calendar-day-number">
-                        </span>
+                        <span class="calendar-day-number"></span>
 
                     </div>
 
@@ -2073,11 +2356,6 @@ document.addEventListener(
 
             }
 
-
-
-            /* ---------------------------------------------
-               DIAS DO MÊS
-            ---------------------------------------------- */
 
             for (
                 let day = 1;
@@ -2136,17 +2414,27 @@ document.addEventListener(
                                         appointment => `
 
                                             <div
-                                                class="calendar-appointment ${appointment.status}"
-                                                data-date="${appointment.date}"
-                                                title="${appointment.fullClassification || ""}"
+                                                class="calendar-appointment ${escapeHtml(appointment.status)}"
+                                                data-date="${escapeHtml(appointment.date)}"
+                                                title="${escapeHtml(
+                                                    appointment.fullClassification ||
+                                                    ""
+                                                )}"
                                             >
 
                                                 <span class="calendar-appointment-primary">
-                                                    ${appointment.time} · ${appointment.manufacturer}
+                                                    ${escapeHtml(
+                                                        appointment.time
+                                                    )} · ${escapeHtml(
+                                                        appointment.manufacturer
+                                                    )}
                                                 </span>
 
                                                 <span class="calendar-appointment-classification">
-                                                    ${appointment.displayClassification || ""}
+                                                    ${escapeHtml(
+                                                        appointment.displayClassification ||
+                                                        ""
+                                                    )}
                                                 </span>
 
                                             </div>
@@ -2165,11 +2453,6 @@ document.addEventListener(
             }
 
 
-
-            /* ---------------------------------------------
-               DIAS RESTANTES
-            ---------------------------------------------- */
-
             const totalCells =
                 startPosition +
                 lastDay.getDate();
@@ -2178,9 +2461,10 @@ document.addEventListener(
             const remaining =
                 totalCells % 7 === 0
                     ? 0
-                    : 7 - (
-                        totalCells % 7
-                    );
+                    : 7 -
+                        (
+                            totalCells % 7
+                        );
 
 
             for (
@@ -2193,8 +2477,7 @@ document.addEventListener(
 
                     <div class="calendar-day next-month">
 
-                        <span class="calendar-day-number">
-                        </span>
+                        <span class="calendar-day-number"></span>
 
                     </div>
 
@@ -2212,7 +2495,6 @@ document.addEventListener(
                 html;
 
         }
-
 
 
         /* =================================================
@@ -2248,7 +2530,8 @@ document.addEventListener(
 
 
                 date.setDate(
-                    monday.getDate() + i
+                    monday.getDate() +
+                    i
                 );
 
 
@@ -2276,9 +2559,6 @@ document.addEventListener(
             `;
 
 
-
-            /* HORÁRIOS */
-
             for (
                 let hour = 8;
                 hour <= 18;
@@ -2288,9 +2568,7 @@ document.addEventListener(
                 html += `
 
                     <div class="week-time">
-
                         ${String(hour).padStart(2, "0")}:00
-
                     </div>
 
                 `;
@@ -2302,9 +2580,6 @@ document.addEventListener(
                     </div>
             `;
 
-
-
-            /* DIAS */
 
             weekDays.forEach(
                 date => {
@@ -2344,11 +2619,15 @@ document.addEventListener(
                         const appointmentsOfHour =
                             getAppointmentsForDate(
                                 date
-                            ).filter(
+                            )
+                            .filter(
                                 appointment =>
                                     Number(
-                                        appointment.time
-                                            .split(":")[0]
+                                        String(
+                                            appointment.time ||
+                                            ""
+                                        )
+                                        .split(":")[0]
                                     ) === hour
                             );
 
@@ -2363,16 +2642,26 @@ document.addEventListener(
                                             appointment => `
 
                                                 <div
-                                                    class="week-appointment ${appointment.status}"
-                                                    title="${appointment.fullClassification || ""}"
+                                                    class="week-appointment ${escapeHtml(
+                                                        appointment.status
+                                                    )}"
+                                                    title="${escapeHtml(
+                                                        appointment.fullClassification ||
+                                                        ""
+                                                    )}"
                                                 >
 
                                                     <strong>
-                                                        ${appointment.manufacturer}
+                                                        ${escapeHtml(
+                                                            appointment.manufacturer
+                                                        )}
                                                     </strong>
 
                                                     <span>
-                                                        ${appointment.displayClassification || ""}
+                                                        ${escapeHtml(
+                                                            appointment.displayClassification ||
+                                                            ""
+                                                        )}
                                                     </span>
 
                                                 </div>
@@ -2408,7 +2697,6 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            RENDERIZAR DIA
         ================================================= */
@@ -2433,9 +2721,11 @@ document.addEventListener(
                     <div>
 
                         <span>
-                            ${weekdayNames[
-                                currentDate.getDay()
-                            ].toUpperCase()}
+                            ${escapeHtml(
+                                weekdayNames[
+                                    currentDate.getDay()
+                                ].toUpperCase()
+                            )}
                         </span>
 
                         <strong>
@@ -2459,7 +2749,6 @@ document.addEventListener(
             `;
 
 
-
             for (
                 let hour = 8;
                 hour <= 18;
@@ -2467,13 +2756,17 @@ document.addEventListener(
             ) {
 
                 const hourAppointments =
-                    appointmentsOfDay.filter(
-                        appointment =>
-                            Number(
-                                appointment.time
+                    appointmentsOfDay
+                        .filter(
+                            appointment =>
+                                Number(
+                                    String(
+                                        appointment.time ||
+                                        ""
+                                    )
                                     .split(":")[0]
-                            ) === hour
-                    );
+                                ) === hour
+                        );
 
 
                 html += `
@@ -2517,8 +2810,13 @@ document.addEventListener(
                             html += `
 
                                 <div
-                                    class="day-appointment ${appointment.status}"
-                                    title="${appointment.fullClassification || ""}"
+                                    class="day-appointment ${escapeHtml(
+                                        appointment.status
+                                    )}"
+                                    title="${escapeHtml(
+                                        appointment.fullClassification ||
+                                        ""
+                                    )}"
                                 >
 
                                     <div class="day-appointment-main">
@@ -2529,11 +2827,20 @@ document.addEventListener(
                                         <div>
 
                                             <strong>
-                                                ${appointment.manufacturer}
+                                                ${escapeHtml(
+                                                    appointment.manufacturer
+                                                )}
                                             </strong>
 
                                             <small>
-                                                ${appointment.group} · ${appointment.displayClassification || ""}
+                                                ${escapeHtml(
+                                                    appointment.group
+                                                )}
+                                                ·
+                                                ${escapeHtml(
+                                                    appointment.displayClassification ||
+                                                    ""
+                                                )}
                                             </small>
 
                                         </div>
@@ -2542,7 +2849,9 @@ document.addEventListener(
 
 
                                     <span class="day-status">
-                                        ${appointment.statusLabel}
+                                        ${escapeHtml(
+                                            appointment.statusLabel
+                                        )}
                                     </span>
 
                                 </div>
@@ -2577,7 +2886,6 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            RENDERIZAR TELA
         ================================================= */
@@ -2593,8 +2901,7 @@ document.addEventListener(
 
             }
 
-
-            if (
+            else if (
                 currentView ===
                 "week"
             ) {
@@ -2603,8 +2910,7 @@ document.addEventListener(
 
             }
 
-
-            if (
+            else if (
                 currentView ===
                 "day"
             ) {
@@ -2621,7 +2927,6 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            TROCAR VISUALIZAÇÃO
         ================================================= */
@@ -2629,6 +2934,21 @@ document.addEventListener(
         function changeView(
             view
         ) {
+
+            if (
+                ![
+                    "month",
+                    "week",
+                    "day"
+                ].includes(
+                    view
+                )
+            ) {
+
+                return;
+
+            }
+
 
             currentView =
                 view;
@@ -2639,29 +2959,42 @@ document.addEventListener(
 
                     button.classList.toggle(
                         "active",
-                        button.dataset.view === view
+                        button.dataset.view ===
+                        view
                     );
 
                 }
             );
 
 
-            monthView.classList.toggle(
-                "active",
-                view === "month"
-            );
+            if (monthView) {
+
+                monthView.classList.toggle(
+                    "active",
+                    view === "month"
+                );
+
+            }
 
 
-            weekView.classList.toggle(
-                "active",
-                view === "week"
-            );
+            if (weekView) {
+
+                weekView.classList.toggle(
+                    "active",
+                    view === "week"
+                );
+
+            }
 
 
-            dayView.classList.toggle(
-                "active",
-                view === "day"
-            );
+            if (dayView) {
+
+                dayView.classList.toggle(
+                    "active",
+                    view === "day"
+                );
+
+            }
 
 
             renderCurrentView();
@@ -2669,12 +3002,21 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            LIMITES DOS BOTÕES
         ================================================= */
 
         function updateNavigationButtons() {
+
+            if (
+                !previousPeriod ||
+                !nextPeriod
+            ) {
+
+                return;
+
+            }
+
 
             if (
                 currentView ===
@@ -2704,17 +3046,18 @@ document.addEventListener(
 
 
                 previousPeriod.disabled =
-                    currentMonth <= startMonth;
+                    currentMonth <=
+                    startMonth;
 
 
                 nextPeriod.disabled =
-                    currentMonth >= nextMonth;
+                    currentMonth >=
+                    nextMonth;
 
 
                 return;
 
             }
-
 
 
             if (
@@ -2729,7 +3072,8 @@ document.addEventListener(
 
 
                 previousDay.setDate(
-                    previousDay.getDate() - 1
+                    previousDay.getDate() -
+                    1
                 );
 
 
@@ -2740,22 +3084,24 @@ document.addEventListener(
 
 
                 nextDay.setDate(
-                    nextDay.getDate() + 1
+                    nextDay.getDate() +
+                    1
                 );
 
 
                 previousPeriod.disabled =
-                    previousDay < horizonStart;
+                    previousDay <
+                    horizonStart;
 
 
                 nextPeriod.disabled =
-                    nextDay > horizonEnd;
+                    nextDay >
+                    horizonEnd;
 
 
                 return;
 
             }
-
 
 
             if (
@@ -2765,12 +3111,6 @@ document.addEventListener(
 
                 const currentMonday =
                     getMonday(
-                        currentDate
-                    );
-
-
-                const currentFriday =
-                    getFriday(
                         currentDate
                     );
 
@@ -2788,23 +3128,21 @@ document.addEventListener(
 
 
                 previousPeriod.disabled =
-                    currentMonday <= firstMonday;
+                    currentMonday <=
+                    firstMonday;
 
 
                 nextPeriod.disabled =
-                    currentMonday >= lastMonday;
-
-
-                void currentFriday;
+                    currentMonday >=
+                    lastMonday;
 
             }
 
         }
 
 
-
         /* =================================================
-           MÊS / SEMANA / DIA
+           VISUALIZAÇÃO
         ================================================= */
 
         viewButtons.forEach(
@@ -2825,7 +3163,6 @@ document.addEventListener(
         );
 
 
-
         /* =================================================
            HOJE
         ================================================= */
@@ -2837,7 +3174,10 @@ document.addEventListener(
                 () => {
 
                     currentDate =
-                        new Date(today);
+                        new Date(
+                            today
+                        );
+
 
                     changeView(
                         "day"
@@ -2847,7 +3187,6 @@ document.addEventListener(
             );
 
         }
-
 
 
         /* =================================================
@@ -2863,11 +3202,11 @@ document.addEventListener(
                     if (
                         previousPeriod.disabled
                     ) {
+
                         return;
+
                     }
 
-
-                    /* MÊS */
 
                     if (
                         currentView ===
@@ -2883,9 +3222,6 @@ document.addEventListener(
 
                     }
 
-
-                    /* SEMANA */
-
                     else if (
                         currentView ===
                         "week"
@@ -2898,7 +3234,8 @@ document.addEventListener(
 
 
                         newDate.setDate(
-                            newDate.getDate() - 7
+                            newDate.getDate() -
+                            7
                         );
 
 
@@ -2906,9 +3243,6 @@ document.addEventListener(
                             newDate;
 
                     }
-
-
-                    /* DIA */
 
                     else if (
                         currentView ===
@@ -2922,7 +3256,8 @@ document.addEventListener(
 
 
                         newDate.setDate(
-                            newDate.getDate() - 1
+                            newDate.getDate() -
+                            1
                         );
 
 
@@ -2938,7 +3273,6 @@ document.addEventListener(
             );
 
         }
-
 
 
         /* =================================================
@@ -2954,11 +3288,11 @@ document.addEventListener(
                     if (
                         nextPeriod.disabled
                     ) {
+
                         return;
+
                     }
 
-
-                    /* MÊS */
 
                     if (
                         currentView ===
@@ -2974,9 +3308,6 @@ document.addEventListener(
 
                     }
 
-
-                    /* SEMANA */
-
                     else if (
                         currentView ===
                         "week"
@@ -2989,7 +3320,8 @@ document.addEventListener(
 
 
                         newDate.setDate(
-                            newDate.getDate() + 7
+                            newDate.getDate() +
+                            7
                         );
 
 
@@ -2997,9 +3329,6 @@ document.addEventListener(
                             newDate;
 
                     }
-
-
-                    /* DIA */
 
                     else if (
                         currentView ===
@@ -3013,7 +3342,8 @@ document.addEventListener(
 
 
                         newDate.setDate(
-                            newDate.getDate() + 1
+                            newDate.getDate() +
+                            1
                         );
 
 
@@ -3029,30 +3359,6 @@ document.addEventListener(
             );
 
         }
-
-
-
-        /* =================================================
-           NOVO AGENDAMENTO
-        ================================================= */
-
-        if (
-            newAppointmentButton
-        ) {
-
-            newAppointmentButton.addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        "O cadastro de novo agendamento será construído na próxima etapa."
-                    );
-
-                }
-            );
-
-        }
-
 
 
         /* =================================================
@@ -3087,7 +3393,6 @@ document.addEventListener(
         updateClassificationModeButton();
 
 
-
         /* =================================================
            INICIALIZAÇÃO
         ================================================= */
@@ -3095,6 +3400,6 @@ document.addEventListener(
         changeView(
             "month"
         );
-
+loadAppointments();
     }
 );

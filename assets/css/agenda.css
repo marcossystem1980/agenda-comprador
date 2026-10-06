@@ -2014,3 +2014,1588 @@ input:checked
     }
 
 }
+
+/* =========================================================
+   MODAL — NOVO AGENDAMENTO
+========================================================= */
+
+.agendamento-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: rgba(20, 17, 14, 0.45);
+
+    overflow-y: auto;
+}
+
+
+.agendamento-modal-overlay.hidden {
+    display: none;
+}
+
+
+.agendamento-modal {
+    width: min(720px, 100%);
+
+    max-height: calc(100vh - 48px);
+
+    background: #ffffff;
+
+    border: 1px solid #ddd7ce;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.16);
+
+    overflow: hidden;
+}
+
+
+.agendamento-modal-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 24px 28px;
+
+    border-bottom: 1px solid #ebe7df;
+}
+
+
+.agendamento-modal-header h2 {
+    margin: 4px 0 6px;
+
+    font-size: 24px;
+
+    color: #1a1919;
+}
+
+
+.agendamento-modal-header p {
+    margin: 0;
+
+    color: #807261;
+
+    font-size: 14px;
+}
+
+
+.agendamento-modal-close {
+    width: 38px;
+    height: 38px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: #f5f3ee;
+
+    color: #55320d;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+
+.agendamento-form {
+    padding: 24px 28px 28px;
+
+    overflow-y: auto;
+}
+
+
+.agendamento-form-group {
+    margin-bottom: 20px;
+}
+
+
+.agendamento-form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #342820;
+}
+
+
+.agendamento-form-group small {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #807261;
+
+    font-size: 12px;
+
+    line-height: 1.4;
+}
+
+
+.agendamento-form-group input,
+.agendamento-form-group select,
+.agendamento-form-group textarea {
+    width: 100%;
+
+    border: 1px solid #ddd7ce;
+
+    border-radius: 10px;
+
+    padding: 11px 12px;
+
+    background: #ffffff;
+
+    color: #1a1919;
+
+    font: inherit;
+
+    outline: none;
+}
+
+
+.agendamento-form-group input:focus,
+.agendamento-form-group select:focus,
+.agendamento-form-group textarea:focus {
+    border-color: #9e7a50;
+
+    box-shadow:
+        0 0 0 3px rgba(158, 122, 80, 0.12);
+}
+
+
+.agendamento-form-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 16px;
+}
+
+
+/* =========================================================
+   CHECKBOXES
+========================================================= */
+
+.agendamento-check-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(190px, 1fr)
+        );
+
+    gap: 8px;
+
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    padding: 4px;
+}
+
+
+.agendamento-check-option {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 11px 12px;
+
+    border: 1px solid #ebe7df;
+
+    border-radius: 10px;
+
+    background: #f8f6f1;
+
+    cursor: pointer;
+}
+
+
+.agendamento-check-option:hover {
+    border-color: #9e7a50;
+}
+
+
+.agendamento-check-option input {
+    width: auto !important;
+
+    accent-color: #724613;
+}
+
+
+/* =========================================================
+   BUSCA DE FABRICANTES
+========================================================= */
+
+.agendamento-search-results {
+    margin-top: 10px;
+
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    border: 1px solid #ebe7df;
+
+    border-radius: 10px;
+}
+
+
+.agendamento-search-result {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 11px 12px;
+
+    border-bottom: 1px solid #ebe7df;
+
+    cursor: pointer;
+
+    background: #ffffff;
+}
+
+
+.agendamento-search-result:last-child {
+    border-bottom: 0;
+}
+
+
+.agendamento-search-result:hover {
+    background: #f8f6f1;
+}
+
+
+.agendamento-search-result strong {
+    color: #342820;
+
+    font-size: 13px;
+}
+
+
+.agendamento-search-result small {
+    margin: 0;
+
+    color: #807261;
+}
+
+
+.agendamento-search-result.selected {
+    background: #f5efe7;
+}
+
+
+/* =========================================================
+   FABRICANTES SELECIONADOS
+========================================================= */
+
+.agendamento-selected-list {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    min-height: 44px;
+
+    padding: 8px;
+
+    border: 1px solid #ebe7df;
+
+    border-radius: 10px;
+
+    background: #f8f6f1;
+}
+
+
+.agendamento-selected-item {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    background: #ffc800;
+
+    color: #3d2307;
+
+    border: 1px solid #4a2206;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.agendamento-selected-remove {
+    border: 0;
+
+    background: transparent;
+
+    color: #724613;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+.agendamento-radio-group {
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+.agendamento-radio-option {
+    display: flex !important;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #ddd7ce;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+}
+
+
+.agendamento-radio-option input {
+    width: auto !important;
+
+    accent-color: #724613;
+}
+
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.agendamento-empty {
+    padding: 16px;
+
+    color: #807261;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+
+.agendamento-form-message {
+    margin-bottom: 16px;
+
+    padding: 11px 12px;
+
+    border-radius: 10px;
+
+    background: #fbeaea;
+
+    color: #c43b3b;
+
+    font-size: 13px;
+}
+
+
+.agendamento-form-message.hidden {
+    display: none;
+}
+
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+
+.agendamento-form-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding-top: 8px;
+}
+
+
+@media (max-width: 700px) {
+
+    .agendamento-modal-overlay {
+        align-items: flex-start;
+
+        padding: 12px;
+    }
+
+
+    .agendamento-modal {
+        max-height: calc(100vh - 24px);
+
+        border-radius: 14px;
+    }
+
+
+    .agendamento-modal-header,
+    .agendamento-form {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+
+    .agendamento-form-row {
+        grid-template-columns: 1fr;
+    }
+
+
+    .agendamento-form-actions {
+        flex-direction: column-reverse;
+    }
+
+
+    .agendamento-form-actions button {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   MODAL — NOVO AGENDAMENTO
+========================================================= */
+
+.agendamento-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 24px 16px;
+
+    background: rgba(25, 21, 17, 0.48);
+
+    overflow-y: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =========================================================
+   OCULTAR MODAL
+========================================================= */
+
+.agendamento-modal-overlay.hidden {
+    display: none;
+}
+
+
+/* =========================================================
+   CAIXA PRINCIPAL
+========================================================= */
+
+.agendamento-modal {
+    width: min(600px, 100%);
+
+    max-height: calc(100dvh - 48px);
+
+    display: flex;
+    flex-direction: column;
+
+    background: #f2efec;
+
+    border: 1px solid #f09104;
+    border-radius: 18px;
+
+    box-shadow:
+        0 18px 50px rgba(52, 37, 29, 0.18),
+        0 4px 14px rgba(52, 37, 29, 0.08);
+
+    overflow: hidden;
+
+    animation: agendamentoModalEntrada 0.18s ease-out;
+}
+
+
+/* =========================================================
+   ANIMAÇÃO
+========================================================= */
+
+@keyframes agendamentoModalEntrada {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.agendamento-modal-header {
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 24px 28px 20px;
+
+    background: #5f360b;
+
+    border-bottom: 1px solid #ebe7df;
+}
+
+
+.agendamento-modal-header h2 {
+
+    margin: 4px 0 6px;
+
+    font-size: 24px;
+    line-height: 1.15;
+    font-weight: 700;
+
+    color: #ffffff;
+
+}
+
+
+.agendamento-modal-header p {
+
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #f8f8f7;
+
+}
+
+
+/* =========================================================
+   BOTÃO FECHAR
+========================================================= */
+
+.agendamento-modal-close {
+
+    flex: 0 0 auto;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 11px;
+
+    background: #ebdbc2;
+
+    color: #55320d;
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.agendamento-modal-close:hover {
+
+    background: #eee7dd;
+
+    transform: scale(1.03);
+
+}
+
+
+.agendamento-modal-close:active {
+
+    transform: scale(0.96);
+
+}
+
+
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
+
+.agendamento-form {
+
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-y: auto;
+
+    padding: 24px 28px 28px;
+
+    scrollbar-width: thin;
+    scrollbar-color: #cfc5b8 transparent;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.agendamento-form::-webkit-scrollbar {
+
+    width: 8px;
+
+}
+
+
+.agendamento-form::-webkit-scrollbar-track {
+
+    background: transparent;
+
+}
+
+
+.agendamento-form::-webkit-scrollbar-thumb {
+
+    background: #d0c6ba;
+
+    border-radius: 20px;
+
+}
+
+
+.agendamento-form::-webkit-scrollbar-thumb:hover {
+
+    background: #b9ab9c;
+
+}
+
+
+/* =========================================================
+   GRUPOS DE FORMULÁRIO
+========================================================= */
+
+.agendamento-form-group {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.agendamento-form-group:last-of-type {
+
+    margin-bottom: 0;
+
+}
+
+
+.agendamento-form-group > label {
+
+    font-size: 14px;
+    font-weight: 700;
+
+    color: #3a1b06;
+
+}
+
+
+.agendamento-form-group > small {
+
+    font-size: 12px;
+    line-height: 1.10;
+
+    color: #4e3e29;
+
+}
+
+
+/* =========================================================
+   INPUT / SELECT / TEXTAREA
+========================================================= */
+
+.agendamento-form input[type="text"],
+.agendamento-form input[type="search"],
+.agendamento-form input[type="number"],
+.agendamento-form input[type="time"],
+.agendamento-form select,
+.agendamento-form textarea {
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 11px 13px;
+
+    border: 1px solid #d9d1c7;
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #1a1919;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        background-color 0.15s ease;
+
+}
+
+
+.agendamento-form select {
+
+    cursor: pointer;
+
+    appearance: auto;
+
+}
+
+
+.agendamento-form textarea {
+
+    min-height: 100px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+
+}
+
+
+.agendamento-form input::placeholder,
+.agendamento-form textarea::placeholder {
+
+    color: #a0968b;
+
+}
+
+
+.agendamento-form input:focus,
+.agendamento-form select:focus,
+.agendamento-form textarea:focus {
+
+    border-color: #9e7a50;
+
+    box-shadow:
+        0 0 0 3px rgba(158, 122, 80, 0.12);
+
+}
+
+
+/* =========================================================
+   GRUPO
+========================================================= */
+
+#appointmentGroup {
+
+    background: #ffffff;
+
+}
+
+
+/* =========================================================
+   CLASSIFICAÇÕES
+========================================================= */
+
+.agendamento-check-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(190px, 1fr)
+        );
+
+    gap: 10px;
+
+    padding: 2px 0;
+
+}
+
+
+.agendamento-check-list label {
+
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px 13px;
+
+    border: 1px solid #e2dcd3;
+    border-radius: 11px;
+
+    background: #faf8f4;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        transform 0.15s ease;
+
+}
+
+
+.agendamento-check-list label:hover {
+
+    border-color: #cdbda9;
+
+    background: #f6f1e9;
+
+}
+
+
+.agendamento-check-list input[type="checkbox"] {
+
+    width: 15px;
+    height: 15px;
+
+    margin: 0;
+
+    accent-color: #724613;
+
+}
+
+
+.agendamento-check-list label:has(
+    input[type="checkbox"]:checked
+) {
+
+    border-color: #9e7a50;
+
+    background: #ffcc00;
+
+}
+
+
+/* =========================================================
+   MENSAGEM VAZIA
+========================================================= */
+
+.agendamento-empty {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px dashed #d8d0c6;
+    border-radius: 11px;
+
+    background: #faf9f6;
+
+    color: #807261;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   BUSCA DE FABRICANTE
+========================================================= */
+
+.agendamento-search-box {
+
+    position: relative;
+
+}
+
+
+.agendamento-search-box input {
+
+    padding-right: 14px;
+
+}
+
+
+.agendamento-search-results {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    max-height: 190px;
+
+    margin-top: 4px;
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+
+}
+
+
+/* =========================================================
+   RESULTADO DE FABRICANTE
+========================================================= */
+
+.agendamento-search-results > * {
+
+    min-height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 10px 13px;
+
+    border: 1px solid #e6dfd6;
+    border-radius: 10px;
+
+    background: #faf8f4;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+
+}
+
+
+.agendamento-search-results > *:hover {
+
+    background: #f3ece3;
+
+    border-color: #ccbca8;
+
+}
+
+
+/* =========================================================
+   FABRICANTES SELECIONADOS
+========================================================= */
+
+.agendamento-selected-list {
+
+    min-height: 56px;
+    max-height: 130px;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+
+    gap: 8px;
+
+    padding: 10px;
+
+    border: 1px solid #e3ddd4;
+    border-radius: 11px;
+
+    background: #faf9f4;
+
+    overflow-y: auto;
+
+}
+
+
+/* =========================================================
+   CHIP DO FABRICANTE
+========================================================= */
+
+.agendamento-selected-list > * {
+
+    flex: 0 0 auto;
+
+}
+
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+.agendamento-radio-group {
+
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+}
+
+
+.agendamento-radio-option {
+
+    min-width: 130px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 13px;
+
+    border: 1px solid #e1dbd2;
+    border-radius: 10px;
+
+    background: #faf8f4;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease;
+
+}
+
+
+.agendamento-radio-option:hover {
+
+    background: #f5efe7;
+
+}
+
+
+.agendamento-radio-option input {
+
+    margin: 0;
+
+    accent-color: #724613;
+
+}
+
+
+/* =========================================================
+   LINHA DE CAMPOS
+========================================================= */
+
+.agendamento-form-row {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 16px;
+
+}
+
+
+/* =========================================================
+   MENSAGEM
+========================================================= */
+
+.agendamento-form-message {
+
+    margin-top: 16px;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    line-height: 1.45;
+
+}
+
+
+.agendamento-form-message.hidden {
+
+    display: none;
+
+}
+
+
+/* =========================================================
+   AÇÕES
+========================================================= */
+
+.agendamento-form-actions {
+
+    position: sticky;
+
+    bottom: 0;
+
+    z-index: 5;
+
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+    padding-top: 18px;
+
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        #f7f0e9 14px
+    );
+
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+.agendamento-form-actions .btn {
+
+    min-height: 44px;
+
+    padding: 10px 18px;
+
+    border-radius: 10px;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease,
+        border-color 0.15s ease;
+
+}
+
+
+.agendamento-form-actions .btn:active {
+
+    transform: scale(0.98);
+
+}
+
+
+.agendamento-form-actions .btn-secondary {
+
+    border: 1px solid #d7d0c7;
+
+    background: #ef0000;
+
+    color: #ffffff;
+
+}
+
+
+.agendamento-form-actions .btn-secondary:hover {
+
+    background: #3d0201;
+
+}
+
+
+.agendamento-form-actions .btn-primary {
+
+    border: 1px solid #724613;
+
+    background: #724613;
+
+    color: #ffffff;
+
+}
+
+
+.agendamento-form-actions .btn-primary:hover {
+
+    background: #55320d;
+
+}
+
+
+/* =========================================================
+   TRAVAR SCROLL DA PÁGINA
+========================================================= */
+
+body.modal-open {
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .agendamento-modal-overlay {
+
+        padding: 12px;
+
+    }
+
+
+    .agendamento-modal {
+
+        width: 100%;
+
+        max-height: calc(100dvh - 24px);
+
+        border-radius: 16px;
+
+    }
+
+
+    .agendamento-modal-header {
+
+        padding: 20px;
+
+    }
+
+
+    .agendamento-modal-header h2 {
+
+        font-size: 21px;
+
+    }
+
+
+    .agendamento-form {
+
+        padding: 20px;
+
+    }
+
+
+    .agendamento-form-row {
+
+        grid-template-columns: 1fr;
+
+        gap: 0;
+
+    }
+
+
+    .agendamento-check-list {
+
+        grid-template-columns: 1fr 1fr;
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — CELULAR
+========================================================= */
+
+@media (max-width: 560px) {
+
+    .agendamento-modal-overlay {
+
+        align-items: flex-end;
+
+        padding: 0;
+
+    }
+
+
+    .agendamento-modal {
+
+        width: 100%;
+
+        max-height: 100dvh;
+
+        border-radius: 18px 18px 0 0;
+
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+
+    }
+
+
+    .agendamento-modal-header {
+
+        padding: 18px 16px;
+
+        gap: 12px;
+
+    }
+
+
+    .agendamento-modal-header h2 {
+
+        font-size: 20px;
+
+    }
+
+
+    .agendamento-modal-header p {
+
+        font-size: 13px;
+
+    }
+
+
+    .agendamento-modal-close {
+
+        width: 38px;
+        height: 38px;
+
+    }
+
+
+    .agendamento-form {
+
+        padding: 18px 16px 20px;
+
+    }
+
+
+    .agendamento-form-group {
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .agendamento-check-list {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .agendamento-radio-group {
+
+        flex-direction: column;
+
+    }
+
+
+    .agendamento-radio-option {
+
+        width: 100%;
+
+    }
+
+
+    .agendamento-form-actions {
+
+        flex-direction: column-reverse;
+
+        gap: 8px;
+
+        margin-left: -16px;
+        margin-right: -16px;
+
+        padding: 14px 16px;
+
+        background: #ffffff;
+
+        border-top: 1px solid #ebe7df;
+
+    }
+
+
+    .agendamento-form-actions .btn {
+
+        width: 100%;
+
+    }
+
+}
+
+/* =========================================================
+   VISUALIZAÇÃO DAS CLASSIFICAÇÕES
+========================================================= */
+
+.agendamento-radio-option {
+
+    min-width: 130px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #ddd7ce;
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    color: #342820;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+}
+
+
+/* =========================================================
+   OPÇÃO SELECIONADA
+========================================================= */
+
+.agendamento-radio-option:has(
+    input[type="radio"]:checked
+) {
+
+    background: #ffc800;
+
+    border-color: #724613;
+
+    color: #371e04;
+
+    box-shadow:
+        0 0 0 1px rgba(114, 70, 19, 0.08);
+
+}
+
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+.agendamento-radio-option input[type="radio"] {
+
+    margin: 0;
+
+    accent-color: #724613;
+
+}
+
+
+/* =========================================================
+   HOVER — NÃO SELECIONADO
+========================================================= */
+
+.agendamento-radio-option:hover {
+
+    border-color: #bda990;
+
+    background: #faf7f2;
+
+}
+
+
+.agendamento-radio-option:has(
+    input[type="radio"]:checked
+):hover {
+
+    background: #f3e8da;
+
+}
+
+/* =========================================================
+   NOME NA AGENDA
+========================================================= */
+
+#appointmentVisualName {
+
+    background: #ffffff;
+
+    color: #342820;
+
+    border: 1px solid #d8cec1;
+
+    outline: none;
+}
+
+
+/* Quando estiver selecionado */
+
+#appointmentVisualName:focus {
+
+    background: #ffffff;
+
+    border-color: #9e7a50;
+
+    box-shadow:
+        0 0 0 3px rgba(158, 122, 80, 0.10);
+
+}
+
+
+/* =========================================================
+   AUTOPREENCHIMENTO DO NAVEGADOR
+========================================================= */
+
+#appointmentVisualName:-webkit-autofill,
+#appointmentVisualName:-webkit-autofill:hover,
+#appointmentVisualName:-webkit-autofill:focus {
+
+    -webkit-text-fill-color: #342820;
+
+    -webkit-box-shadow:
+        0 0 0 1000px #ffffff inset;
+
+    box-shadow:
+        0 0 0 1000px #ffffff inset;
+
+    border-color: #d8cec1;
+
+    transition:
+        background-color 9999s ease-out 0s;
+
+}
