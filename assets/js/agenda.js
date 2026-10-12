@@ -106,13 +106,15 @@ document.addEventListener(
                 "dayCalendar"
             );
 
-/* =================================================
-   COMPRADOR ATUAL
-   TEMPORÁRIO — SERÁ SUBSTITUÍDO PELO LOGIN
-================================================= */
 
-const COMPRADOR_ID =
-    "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
+        /* =================================================
+           COMPRADOR ATUAL
+           TEMPORÁRIO
+           SERÁ SUBSTITUÍDO PELO LOGIN
+        ================================================= */
+
+        const COMPRADOR_ID =
+            "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
 
 
         /* =================================================
@@ -132,7 +134,7 @@ const COMPRADOR_ID =
 
 
         /* =================================================
-           HORIZONTE DA AGENDA
+           HORIZONTE
            MÊS ATUAL + PRÓXIMO MÊS
         ================================================= */
 
@@ -169,7 +171,9 @@ const COMPRADOR_ID =
 
 
         let currentDate =
-            new Date(today);
+            new Date(
+                today
+            );
 
 
         /* =================================================
@@ -194,128 +198,85 @@ const COMPRADOR_ID =
 
 
         /* =================================================
-           NOMES
+           AGENDAMENTOS REAIS
         ================================================= */
 
-        const monthNames = [
-
-            "Janeiro",
-            "Fevereiro",
-            "Março",
-            "Abril",
-            "Maio",
-            "Junho",
-            "Julho",
-            "Agosto",
-            "Setembro",
-            "Outubro",
-            "Novembro",
-            "Dezembro"
-
-        ];
+        let appointments = [];
 
 
-        const weekdayNames = [
+ /* =========================================================
+   CATÁLOGO OFICIAL DE CLASSIFICAÇÕES
+   ALINHADO AO SUPABASE E AO BANCO OPERACIONAL
+========================================================= */
 
-            "Domingo",
-            "Segunda-feira",
-            "Terça-feira",
-            "Quarta-feira",
-            "Quinta-feira",
-            "Sexta-feira",
-            "Sábado"
+const classificationCatalog = [
 
-        ];
+    {
+        value: "PROPAGADO",
+        label: "Propagado"
+    },
 
+    {
+        value: "PERFUMARIA",
+        label: "Perfumaria"
+    },
 
-const weekdayShort = [
+    {
+        value: "FRALDAS",
+        label: "Fraldas"
+    },
 
-    "Dom",
-    "Seg",
-    "Ter",
-    "Qua",
-    "Qui",
-    "Sex",
-    "Sáb"
+    {
+        value: "LEITES",
+        label: "Leites"
+    },
+
+    {
+        value: "CONVENIENCIA",
+        label: "Conveniência"
+    },
+
+    {
+        value: "VAREJO",
+        label: "Varejo"
+    },
+
+    {
+        value: "PBM",
+        label: "PBM"
+    },
+
+    {
+        value: "SIMILARES",
+        label: "Similares"
+    },
+
+    {
+        value: "GENERICOS",
+        label: "Genéricos"
+    },
+
+    {
+        value: "SUPLEMENTOS",
+        label: "Suplementos"
+    },
+
+    {
+        value: "NOSSAS MARCAS",
+        label: "Nossas Marcas"
+    },
+
+    {
+        value: "PERFUMES",
+        label: "Perfumes"
+    },
+
+    {
+        value: "DERMOCOSMETICOS",
+        label: "Dermocosméticos"
+    }
 
 ];
-
-
-/* =================================================
-   AGENDAMENTOS REAIS
-   CARREGADOS DO SUPABASE
-================================================= */
-
-let appointments = [];
-
-
-        /* =================================================
-           CATÁLOGO DE CLASSIFICAÇÕES
-        ================================================= */
-
-        const classificationCatalog = [
-
-            {
-                value: "PROPAGADO",
-                label: "Propagado"
-            },
-
-            {
-                value: "PERFUMARIA",
-                label: "Perfumaria"
-            },
-
-            {
-                value: "FRALDAS E LEITES",
-                label: "Fraldas e Leites"
-            },
-
-            {
-                value: "CONVENIENCIA",
-                label: "Conveniência"
-            },
-
-            {
-                value: "VAREJO",
-                label: "Varejo"
-            },
-
-            {
-                value: "PBM",
-                label: "PBM"
-            },
-
-            {
-                value: "SIMILARES",
-                label: "Similares"
-            },
-
-            {
-                value: "GENERICO",
-                label: "Genéricos"
-            },
-
-            {
-                value: "SUPLEMENTO",
-                label: "Suplemento"
-            },
-
-            {
-                value: "NOSSAS MARCAS",
-                label: "Nossas Marcas"
-            },
-
-            {
-                value: "PERFUMES",
-                label: "Perfumes"
-            },
-
-            {
-                value: "DERMOCOSMETICOS",
-                label: "Dermocosméticos"
-            }
-
-        ];
 
 
         /* =================================================
@@ -340,263 +301,55 @@ let appointments = [];
 
 
         /* =================================================
-           CONFIGURAÇÕES DO COMPRADOR
+           NOMES DOS MESES
         ================================================= */
 
-        function getBuyerSettings() {
+        const monthNames = [
 
-            const saved =
-                localStorage.getItem(
-                    "agendaComprador_configuracoes"
-                );
+            "Janeiro",
+            "Fevereiro",
+            "Março",
+            "Abril",
+            "Maio",
+            "Junho",
+            "Julho",
+            "Agosto",
+            "Setembro",
+            "Outubro",
+            "Novembro",
+            "Dezembro"
 
-
-            if (!saved) {
-
-                return {
-
-                    groups: [
-                        "ZTT",
-                        "Cella",
-                        "Fênix"
-                    ],
-
-                    classifications:
-                        classificationCatalog.map(
-                            item =>
-                                item.value
-                        )
-
-                };
-
-            }
-
-
-            try {
-
-                const data =
-                    JSON.parse(
-                        saved
-                    );
-
-
-                return {
-
-                    groups:
-                        Array.isArray(
-                            data.groups
-                        )
-                            ? [
-                                ...new Set(
-                                    data.groups
-                                )
-                            ]
-                            : [],
-
-                    classifications:
-                        Array.isArray(
-                            data.classifications
-                        )
-                            ? [
-                                ...new Set(
-                                    data.classifications
-                                )
-                            ]
-                            : []
-
-                };
-
-            } catch (error) {
-
-                console.error(
-                    "Erro ao carregar configurações:",
-                    error
-                );
-
-
-                return {
-
-                    groups: [],
-
-                    classifications: []
-
-                };
-
-            }
-
-        }
+        ];
 
 
         /* =================================================
-           RENDERIZAR FILTRO DE GRUPOS
+           NOMES DOS DIAS
         ================================================= */
 
-        function renderGroupFilter() {
+        const weekdayNames = [
 
-            if (!groupFilterOptions) {
-                return;
-            }
+            "Domingo",
+            "Segunda-feira",
+            "Terça-feira",
+            "Quarta-feira",
+            "Quinta-feira",
+            "Sexta-feira",
+            "Sábado"
 
-
-            const settings =
-                getBuyerSettings();
-
-
-            const groups =
-                [
-                    ...new Set(
-                        settings.groups
-                            .filter(Boolean)
-                    )
-                ];
+        ];
 
 
-            let html = `
+        const weekdayShort = [
 
-                <label class="agenda-filter-option">
+            "Dom",
+            "Seg",
+            "Ter",
+            "Qua",
+            "Qui",
+            "Sex",
+            "Sáb"
 
-                    <input
-                        type="checkbox"
-                        name="groupFilter"
-                        value="all"
-                        checked
-                    >
-
-                    <span class="agenda-filter-check"></span>
-
-                    <span class="agenda-filter-option-text">
-                        Todos os grupos
-                    </span>
-
-                </label>
-
-            `;
-
-
-            groups.forEach(
-                group => {
-
-                    html += `
-
-                        <label class="agenda-filter-option">
-
-                            <input
-                                type="checkbox"
-                                name="groupFilter"
-                                value="${escapeHtml(group)}"
-                            >
-
-                            <span class="agenda-filter-check"></span>
-
-                            <span class="agenda-filter-option-text">
-                                ${escapeHtml(group)}
-                            </span>
-
-                        </label>
-
-                    `;
-
-                }
-            );
-
-
-            groupFilterOptions.innerHTML =
-                html;
-
-        }
-
-
-        /* =================================================
-           RENDERIZAR FILTRO DE CLASSIFICAÇÕES
-        ================================================= */
-
-        function renderClassificationFilter() {
-
-            if (
-                !classificationFilterOptions
-            ) {
-                return;
-            }
-
-
-            const settings =
-                getBuyerSettings();
-
-
-            const allowed =
-                settings.classifications;
-
-
-            let html = `
-
-                <label class="agenda-filter-option">
-
-                    <input
-                        type="checkbox"
-                        name="classificationFilter"
-                        value="all"
-                        checked
-                    >
-
-                    <span class="agenda-filter-check"></span>
-
-                    <span class="agenda-filter-option-text">
-                        Todas as classificações
-                    </span>
-
-                </label>
-
-            `;
-
-
-            classificationCatalog.forEach(
-                item => {
-
-                    if (
-                        !allowed.some(
-                            classification =>
-                                normalizeText(
-                                    classification
-                                ) ===
-                                normalizeText(
-                                    item.value
-                                )
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    html += `
-
-                        <label class="agenda-filter-option">
-
-                            <input
-                                type="checkbox"
-                                name="classificationFilter"
-                                value="${escapeHtml(item.value)}"
-                            >
-
-                            <span class="agenda-filter-check"></span>
-
-                            <span class="agenda-filter-option-text">
-                                ${escapeHtml(item.label)}
-                            </span>
-
-                        </label>
-
-                    `;
-
-                }
-            );
-
-
-            classificationFilterOptions.innerHTML =
-                html;
-
-        }
+        ];
 
 
         /* =================================================
@@ -657,241 +410,194 @@ let appointments = [];
 
 
         /* =================================================
-           CONFIGURAR CHECKBOXES
+           DATA → ISO
         ================================================= */
 
-        function setupFilterOptions(
-            selector,
-            stateKey
+        function dateToISO(
+            date
         ) {
 
-            document
-                .querySelectorAll(
-                    selector
+            const year =
+                date.getFullYear();
+
+
+            const month =
+                String(
+                    date.getMonth() + 1
                 )
-                .forEach(
-                    input => {
-
-                        input.addEventListener(
-                            "change",
-                            () => {
-
-                                const allInput =
-                                    document.querySelector(
-                                        `${selector}[value="all"]`
-                                    );
-
-
-                                const specificInputs =
-                                    [
-                                        ...document.querySelectorAll(
-                                            `${selector}:not([value="all"])`
-                                        )
-                                    ];
-
-
-                                if (
-                                    input.value === "all" &&
-                                    input.checked
-                                ) {
-
-                                    specificInputs.forEach(
-                                        item => {
-
-                                            item.checked =
-                                                false;
-
-                                        }
-                                    );
-
-                                }
-
-
-                                else if (
-                                    input.value !== "all" &&
-                                    input.checked
-                                ) {
-
-                                    if (allInput) {
-
-                                        allInput.checked =
-                                            false;
-
-                                    }
-
-                                }
-
-
-                                const checkedSpecific =
-                                    specificInputs.filter(
-                                        item =>
-                                            item.checked
-                                    );
-
-
-                                if (
-                                    checkedSpecific.length === 0 &&
-                                    allInput
-                                ) {
-
-                                    allInput.checked =
-                                        true;
-
-                                }
-
-
-                                filterState[stateKey] =
-                                    [
-                                        ...document
-                                            .querySelectorAll(
-                                                `${selector}:checked`
-                                            )
-                                    ]
-                                    .map(
-                                        item =>
-                                            item.value
-                                    );
-
-
-                                if (
-                                    filterState[stateKey]
-                                        .length === 0
-                                ) {
-
-                                    filterState[stateKey] =
-                                        [
-                                            "all"
-                                        ];
-
-                                }
-
-
-                                updateFilterLabels();
-
-                                renderCurrentView();
-
-                            }
-                        );
-
-                    }
+                .padStart(
+                    2,
+                    "0"
                 );
+
+
+            const day =
+                String(
+                    date.getDate()
+                )
+                .padStart(
+                    2,
+                    "0"
+                );
+
+
+            return `${year}-${month}-${day}`;
 
         }
 
 
         /* =================================================
-           ATUALIZAR TEXTOS DOS FILTROS
+           COMPARAR DATAS
         ================================================= */
 
-        function updateFilterLabels() {
-
-            const groupLabel =
-                document.querySelector(
-                    '[data-filter-label="group"]'
-                );
-
-
-            const classificationLabel =
-                document.querySelector(
-                    '[data-filter-label="classification"]'
-                );
-
-
-            const situationLabel =
-                document.querySelector(
-                    '[data-filter-label="situation"]'
-                );
-
-
-            /* GRUPO */
-
-            if (groupLabel) {
-
-                const values =
-                    filterState.groups;
-
-
-                groupLabel.textContent =
-                    values.includes("all")
-                        ? "Todos"
-                        : values.length === 1
-                            ? values[0]
-                            : `${values.length} selecionados`;
-
-            }
-
-
-            /* CLASSIFICAÇÃO */
+        function isSameDate(
+            dateA,
+            dateB
+        ) {
 
             if (
-                classificationLabel
+                !dateA ||
+                !dateB
             ) {
 
-                const values =
-                    filterState.classifications;
-
-
-                classificationLabel.textContent =
-                    values.includes("all")
-                        ? "Todas"
-                        : values.length === 1
-                            ? getClassificationLabel(
-                                values[0]
-                            )
-                            : `${values.length} selecionadas`;
+                return false;
 
             }
 
 
-            /* SITUAÇÃO */
+            return (
 
-            if (situationLabel) {
+                dateA.getFullYear() ===
+                dateB.getFullYear()
 
-                const values =
-                    filterState.situations;
+                &&
 
+                dateA.getMonth() ===
+                dateB.getMonth()
 
-                if (
-                    values.includes("all")
-                ) {
+                &&
 
-                    situationLabel.textContent =
-                        "Todas";
+                dateA.getDate() ===
+                dateB.getDate()
 
-                } else {
-
-                    const labelsMap = {
-
-                        normal: "Normal",
-
-                        attention: "Atenção",
-
-                        urgent: "Urgente",
-
-                        risk: "Risco"
-
-                    };
-
-
-                    situationLabel.textContent =
-                        values.length === 1
-                            ? (
-                                labelsMap[
-                                    values[0]
-                                ] ||
-                                values[0]
-                            )
-                            : `${values.length} selecionadas`;
-
-                }
-
-            }
+            );
 
         }
 
 
         /* =================================================
-           NOME DA CLASSIFICAÇÃO
+           SEGUNDA-FEIRA DA SEMANA
+        ================================================= */
+
+        function getMonday(
+            date
+        ) {
+
+            const result =
+                new Date(
+                    date
+                );
+
+
+            const day =
+                result.getDay();
+
+
+            const difference =
+                day === 0
+                    ? -6
+                    : 1 - day;
+
+
+            result.setDate(
+                result.getDate() +
+                difference
+            );
+
+
+            result.setHours(
+                0,
+                0,
+                0,
+                0
+            );
+
+
+            return result;
+
+        }
+
+
+        /* =================================================
+           SEXTA-FEIRA DA SEMANA
+        ================================================= */
+
+        function getFriday(
+            date
+        ) {
+
+            const monday =
+                getMonday(
+                    date
+                );
+
+
+            const friday =
+                new Date(
+                    monday
+                );
+
+
+            friday.setDate(
+                friday.getDate() +
+                4
+            );
+
+
+            return friday;
+
+        }
+
+
+        /* =================================================
+           DATA CURTA
+        ================================================= */
+
+        function formatDateShort(
+            date
+        ) {
+
+            return (
+
+                String(
+                    date.getDate()
+                )
+                .padStart(
+                    2,
+                    "0"
+                )
+
+                +
+
+                "/"
+
+                +
+
+                String(
+                    date.getMonth() + 1
+                )
+                .padStart(
+                    2,
+                    "0"
+                )
+
+            );
+
+        }
+
+
+        /* =================================================
+           CLASSIFICAÇÃO — NOME VISUAL
         ================================================= */
 
         function getClassificationLabel(
@@ -909,13 +615,19 @@ let appointments = [];
                     classification => {
 
                         return (
+
                             normalizeText(
                                 classification.value
-                            ) === normalized
+                            ) ===
+                            normalized
+
                             ||
+
                             normalizeText(
                                 classification.label
-                            ) === normalized
+                            ) ===
+                            normalized
+
                         );
 
                     }
@@ -925,92 +637,6 @@ let appointments = [];
             return item
                 ? item.label
                 : value;
-
-        }
-
-
-        /* =================================================
-           ORDEM DE PRIORIDADE DAS SITUAÇÕES
-        ================================================= */
-
-        function getSituationWeight(
-            status
-        ) {
-
-            const weights = {
-
-                normal: 1,
-
-                attention: 2,
-
-                urgent: 3,
-
-                risk: 4
-
-            };
-
-
-            return (
-                weights[status] ||
-                0
-            );
-
-        }
-
-
-        /* =================================================
-           OBTER SITUAÇÃO MAIS CRÍTICA
-        ================================================= */
-
-        function getMostCriticalSituation(
-            appointmentList
-        ) {
-
-            if (
-                !appointmentList ||
-                appointmentList.length === 0
-            ) {
-
-                return {
-
-                    status: "normal",
-
-                    statusLabel: "Normal"
-
-                };
-
-            }
-
-
-            const ordered =
-                [
-                    ...appointmentList
-                ]
-                .sort(
-                    (a, b) =>
-                        getSituationWeight(
-                            b.status
-                        )
-                        -
-                        getSituationWeight(
-                            a.status
-                        )
-                );
-
-
-            const critical =
-                ordered[0];
-
-
-            return {
-
-                status:
-                    critical.status,
-
-                statusLabel:
-                    critical.statusLabel
-
-            };
 
         }
 
@@ -1026,6 +652,7 @@ let appointments = [];
             const uniqueLabels =
                 [
                     ...new Set(
+
                         labels
                             .filter(Boolean)
                             .map(
@@ -1034,6 +661,7 @@ let appointments = [];
                                         label
                                     )
                             )
+
                     )
                 ];
 
@@ -1066,17 +694,21 @@ let appointments = [];
 
 
                     return (
+
                         (
                             indexA === -1
                                 ? 999
                                 : indexA
                         )
+
                         -
+
                         (
                             indexB === -1
                                 ? 999
                                 : indexB
                         )
+
                     );
 
                 }
@@ -1148,7 +780,102 @@ let appointments = [];
 
 
         /* =================================================
-           AGRUPAR AGENDAMENTOS
+           PESO DAS SITUAÇÕES
+        ================================================= */
+
+        function getSituationWeight(
+            status
+        ) {
+
+            const weights = {
+
+                normal: 1,
+
+                attention: 2,
+
+                urgent: 3,
+
+                risk: 4
+
+            };
+
+
+            return (
+                weights[
+                    status
+                ] ||
+                0
+            );
+
+        }
+
+
+        /* =================================================
+           SITUAÇÃO MAIS CRÍTICA
+        ================================================= */
+
+        function getMostCriticalSituation(
+            appointmentList
+        ) {
+
+            if (
+                !appointmentList ||
+                appointmentList.length === 0
+            ) {
+
+                return {
+
+                    status: "normal",
+
+                    statusLabel: "Normal"
+
+                };
+
+            }
+
+
+            const critical =
+                [
+                    ...appointmentList
+                ]
+                .sort(
+                    (a, b) => {
+
+                        return (
+
+                            getSituationWeight(
+                                b.status
+                            )
+
+                            -
+
+                            getSituationWeight(
+                                a.status
+                            )
+
+                        );
+
+                    }
+                )[0];
+
+
+            return {
+
+                status:
+                    critical.status ||
+                    "normal",
+
+                statusLabel:
+                    critical.statusLabel ||
+                    "Normal"
+
+            };
+
+        }
+
+
+        /* =================================================
+           PREPARAR AGENDAMENTOS PARA EXIBIÇÃO
         ================================================= */
 
         function prepareAppointmentsForDisplay(
@@ -1216,35 +943,40 @@ let appointments = [];
                 appointment => {
 
                     /*
-                       O GRUPO faz parte da chave.
+                       AGRUPAMENTO RESPEITA:
 
-                       Exemplo:
+                       DATA
+                       HORÁRIO
+                       FABRICANTE REAL
+                       GRUPO
+                       REGRA
 
-                       CIMED + ZTT
-                       CIMED + CELLA
-
-                       continuam separados.
+                       Desta forma não misturamos
+                       responsabilidades diferentes.
                     */
 
-const key =
-    [
-        appointment.date,
+                    const key =
+                        [
 
-        appointment.time,
+                            appointment.date,
 
-        appointment.manufacturerId ||
-            normalizeText(
-                appointment.manufacturer
-            ),
+                            appointment.time,
 
-        normalizeText(
-            appointment.group
-        ),
+                            appointment.manufacturerId ||
 
-        appointment.ruleId ||
-            ""
-    ]
-    .join("|");
+                                normalizeText(
+                                    appointment.manufacturer
+                                ),
+
+                            normalizeText(
+                                appointment.group
+                            ),
+
+                            appointment.ruleId ||
+                                ""
+
+                        ]
+                        .join("|");
 
 
                     if (
@@ -1321,427 +1053,588 @@ const key =
 
 
         /* =================================================
-           DATA → ISO
+           CARREGAR FILTROS REAIS DO COMPRADOR
         ================================================= */
 
-        function dateToISO(
-            date
-        ) {
+        async function loadAgendaFilters() {
 
-            const year =
-                date.getFullYear();
+            try {
 
-
-            const month =
-                String(
-                    date.getMonth() + 1
-                )
-                .padStart(
-                    2,
-                    "0"
+                console.log(
+                    "Carregando filtros do comprador..."
                 );
 
 
-            const day =
-                String(
-                    date.getDate()
-                )
-                .padStart(
-                    2,
-                    "0"
-                );
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient
 
+                        .from(
+                            "vw_comprador_classificacoes"
+                        )
 
-            return `${year}-${month}-${day}`;
+                        .select(
+                            `
+                            grupo_id,
+                            grupo_codigo,
+                            grupo_nome,
+                            classificacao_id,
+                            classificacao_codigo,
+                            classificacao_nome
+                            `
+                        )
 
-        }
+                        .eq(
+                            "comprador_id",
+                            COMPRADOR_ID
+                        )
 
+                        .order(
+                            "grupo_codigo"
+                        )
 
-        /* =================================================
-           ISO → DATE
-        ================================================= */
+                        .order(
+                            "classificacao_nome"
+                        );
 
-        function parseISODate(
-            value
-        ) {
 
-            const parts =
-                String(
-                    value || ""
-                )
-                .split("-")
-                .map(Number);
+                if (error) {
 
+                    throw error;
 
-            if (
-                parts.length !== 3 ||
-                parts.some(
-                    Number.isNaN
-                )
-            ) {
+                }
 
-                return null;
 
-            }
+                const rows =
+                    data || [];
 
 
-            const [
-                year,
-                month,
-                day
-            ] =
-                parts;
+                /* =================================================
+                   GRUPOS ÚNICOS
+                ================================================= */
 
+                const groups =
+                    Array.from(
+                        new Map(
 
-            return new Date(
-                year,
-                month - 1,
-                day
-            );
+                            rows.map(
+                                item => [
 
-        }
+                                    item.grupo_id,
 
+                                    {
 
-        /* =================================================
-           COMPARAR DATAS
-        ================================================= */
+                                        id:
+                                            item.grupo_id,
 
-        function isSameDate(
-            dateA,
-            dateB
-        ) {
+                                        code:
+                                            item.grupo_codigo,
 
-            if (
-                !dateA ||
-                !dateB
-            ) {
+                                        name:
+                                            item.grupo_nome
 
-                return false;
+                                    }
 
-            }
-
-
-            return (
-                dateA.getFullYear() ===
-                dateB.getFullYear()
-
-                &&
-
-                dateA.getMonth() ===
-                dateB.getMonth()
-
-                &&
-
-                dateA.getDate() ===
-                dateB.getDate()
-            );
-
-        }
-
-
-        /* =================================================
-           HORIZONTE
-        ================================================= */
-
-        function isInsideHorizon(
-            date
-        ) {
-
-            if (!date) {
-                return false;
-            }
-
-
-            return (
-                date >= horizonStart &&
-                date <= horizonEnd
-            );
-
-        }
-
-
-        /* =================================================
-           SEGUNDA-FEIRA
-        ================================================= */
-
-        function getMonday(
-            date
-        ) {
-
-            const result =
-                new Date(
-                    date
-                );
-
-
-            const day =
-                result.getDay();
-
-
-            const difference =
-                day === 0
-                    ? -6
-                    : 1 - day;
-
-
-            result.setDate(
-                result.getDate() +
-                difference
-            );
-
-
-            result.setHours(
-                0,
-                0,
-                0,
-                0
-            );
-
-
-            return result;
-
-        }
-
-
-        /* =================================================
-           SEXTA-FEIRA
-        ================================================= */
-
-        function getFriday(
-            date
-        ) {
-
-            const monday =
-                getMonday(
-                    date
-                );
-
-
-            const friday =
-                new Date(
-                    monday
-                );
-
-
-            friday.setDate(
-                friday.getDate() +
-                4
-            );
-
-
-            return friday;
-
-        }
-
-
-/* =================================================
-   CARREGAR AGENDAMENTOS DO SUPABASE
-================================================= */
-
-async function loadAppointments() {
-
-    try {
-
-        console.log(
-            "Carregando agendamentos do Supabase..."
-        );
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-
-                .from(
-                    "vw_agenda_compras"
-                )
-
-                .select(
-                    `
-                    agendamento_id,
-                    regra_agendamento_id,
-                    comprador_id,
-                    grupo_id,
-                    data_agendamento,
-                    hora_inicio,
-                    hora_fim,
-                    grupo_codigo,
-                    grupo_nome,
-                    nome_visual,
-                    modo_classificacao,
-                    recorrente,
-                    regra_ativa,
-                    regra_observacao,
-                    fabricante_id,
-                    nome_fabricante,
-                    classificacao_id,
-                    classificacao_codigo,
-                    classificacao_nome,
-                    status,
-                    status_label
-                    `
-                )
-
-                .eq(
-                    "comprador_id",
-                    COMPRADOR_ID
-                )
-
-                .gte(
-                    "data_agendamento",
-                    dateToISO(
-                        horizonStart
-                    )
-                )
-
-                .lte(
-                    "data_agendamento",
-                    dateToISO(
-                        horizonEnd
-                    )
-
-                )
-
-                .order(
-                    "data_agendamento",
-                    {
-                        ascending: true
-                    }
-                )
-
-                .order(
-                    "hora_inicio",
-                    {
-                        ascending: true
-                    }
-                )
-
-                .order(
-                    "nome_fabricante",
-                    {
-                        ascending: true
-                    }
-                );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        /* =================================================
-           TRANSFORMAR RETORNO DO SUPABASE
-           PARA O FORMATO DO CALENDÁRIO
-        ================================================= */
-
-        appointments =
-            (
-                data || []
-            )
-            .map(
-                item => {
-
-                    return {
-
-                        id:
-                            item.agendamento_id,
-
-                        ruleId:
-                            item.regra_agendamento_id,
-
-                        manufacturerId:
-                            item.fabricante_id,
-
-                        date:
-                            item.data_agendamento,
-
-                        time:
-                            String(
-                                item.hora_inicio ||
-                                ""
+                                ]
                             )
-                            .slice(
-                                0,
-                                5
-                            ),
 
-                        manufacturer:
-                            item.nome_visual ||
-                            item.nome_fabricante ||
-                            "Fabricante",
+                        )
+                        .values()
+                    );
 
-                        manufacturerReal:
-                            item.nome_fabricante ||
-                            "",
 
-                        group:
-                            item.grupo_codigo ||
-                            item.grupo_nome ||
-                            "",
+                /* =================================================
+                   CLASSIFICAÇÕES ÚNICAS
+                ================================================= */
 
-                        classification:
-                            item.classificacao_nome ||
-                            item.classificacao_codigo ||
-                            "",
+                const classifications =
+                    Array.from(
+                        new Map(
 
-                        status:
-                            item.status ||
-                            "normal",
+                            rows.map(
+                                item => [
 
-                        statusLabel:
-                            item.status_label ||
-                            "Normal",
+                                    item.classificacao_id,
 
-                        observation:
-                            item.regra_observacao ||
-                            "",
+                                    {
 
-                        mode:
-                            item.modo_classificacao ||
-                            "JUNTAS",
+                                        id:
+                                            item.classificacao_id,
 
-                        recurring:
-                            item.recorrente === true
+                                        code:
+                                            item.classificacao_codigo,
 
-                    };
+                                        name:
+                                            item.classificacao_nome
+
+                                    }
+
+                                ]
+                            )
+
+                        )
+                        .values()
+                    );
+
+
+                renderGroupFilterFromSupabase(
+                    groups
+                );
+
+
+                renderClassificationFilterFromSupabase(
+                    classifications
+                );
+
+
+                /* =================================================
+                   ESTADO INICIAL DOS FILTROS
+                ================================================= */
+
+                filterState.groups =
+                    [
+                        "all"
+                    ];
+
+
+                filterState.classifications =
+                    [
+                        "all"
+                    ];
+
+
+                /* =================================================
+                   CONFIGURAR EVENTOS
+                ================================================= */
+
+                setupFilterOptions(
+                    'input[name="groupFilter"]',
+                    "groups"
+                );
+
+
+                setupFilterOptions(
+                    'input[name="classificationFilter"]',
+                    "classifications"
+                );
+
+
+                updateFilterLabels();
+
+
+                console.log(
+                    "Filtros carregados:",
+                    {
+                        groups,
+                        classifications
+                    }
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Erro ao carregar filtros do comprador:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           RENDERIZAR GRUPOS DO SUPABASE
+        ================================================= */
+
+        function renderGroupFilterFromSupabase(
+            groups
+        ) {
+
+            if (
+                !groupFilterOptions
+            ) {
+
+                return;
+
+            }
+
+
+            let html = `
+
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="groupFilter"
+                        value="all"
+                        checked
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Todos os grupos
+                    </span>
+
+                </label>
+
+            `;
+
+
+            groups.forEach(
+                group => {
+
+                    html += `
+
+                        <label class="agenda-filter-option">
+
+                            <input
+                                type="checkbox"
+                                name="groupFilter"
+                                value="${escapeHtml(
+                                    group.code
+                                )}"
+                            >
+
+                            <span class="agenda-filter-check"></span>
+
+                            <span class="agenda-filter-option-text">
+                                ${escapeHtml(
+                                    group.name ||
+                                    group.code
+                                )}
+                            </span>
+
+                        </label>
+
+                    `;
 
                 }
             );
 
 
-        console.log(
-            "Agendamentos carregados:",
-            appointments
-        );
+            groupFilterOptions.innerHTML =
+                html;
+
+        }
 
 
         /* =================================================
-           ATUALIZAR CALENDÁRIO
+           RENDERIZAR CLASSIFICAÇÕES DO SUPABASE
         ================================================= */
 
-        renderCurrentView();
+        function renderClassificationFilterFromSupabase(
+            classifications
+        ) {
+
+            if (
+                !classificationFilterOptions
+            ) {
+
+                return;
+
+            }
 
 
-    } catch (error) {
+            let html = `
 
-        console.error(
-            "Erro ao carregar agendamentos:",
-            error
+                <label class="agenda-filter-option">
+
+                    <input
+                        type="checkbox"
+                        name="classificationFilter"
+                        value="all"
+                        checked
+                    >
+
+                    <span class="agenda-filter-check"></span>
+
+                    <span class="agenda-filter-option-text">
+                        Todas as classificações
+                    </span>
+
+                </label>
+
+            `;
+
+
+            classifications.forEach(
+                classification => {
+
+                    html += `
+
+                        <label class="agenda-filter-option">
+
+                            <input
+                                type="checkbox"
+                                name="classificationFilter"
+                                value="${escapeHtml(
+                                    classification.code
+                                )}"
+                            >
+
+                            <span class="agenda-filter-check"></span>
+
+                            <span class="agenda-filter-option-text">
+                                ${escapeHtml(
+                                    classification.name ||
+                                    classification.code
+                                )}
+                            </span>
+
+                        </label>
+
+                    `;
+
+                }
+            );
+
+
+            classificationFilterOptions.innerHTML =
+                html;
+
+        }
+
+
+        /* =================================================
+           CARREGAR AGENDAMENTOS DO SUPABASE
+        ================================================= */
+
+        async function loadAppointments() {
+
+            try {
+
+                console.log(
+                    "Carregando agendamentos do Supabase..."
+                );
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient
+
+                        .from(
+                            "vw_agenda_compras"
+                        )
+
+                        .select(
+                            `
+                            agendamento_id,
+                            regra_agendamento_id,
+                            comprador_id,
+                            grupo_id,
+                            data_agendamento,
+                            hora_inicio,
+                            hora_fim,
+                            grupo_codigo,
+                            grupo_nome,
+                            nome_visual,
+                            modo_classificacao,
+                            recorrente,
+                            regra_ativa,
+                            regra_observacao,
+                            fabricante_id,
+                            nome_fabricante,
+                            classificacao_id,
+                            classificacao_codigo,
+                            classificacao_nome,
+                            status,
+                            status_label
+                            `
+                        )
+
+                        .eq(
+                            "comprador_id",
+                            COMPRADOR_ID
+                        )
+
+                        .gte(
+                            "data_agendamento",
+                            dateToISO(
+                                horizonStart
+                            )
+                        )
+
+                        .lte(
+                            "data_agendamento",
+                            dateToISO(
+                                horizonEnd
+                            )
+                        )
+
+                        .order(
+                            "data_agendamento",
+                            {
+                                ascending: true
+                            }
+                        )
+
+                        .order(
+                            "hora_inicio",
+                            {
+                                ascending: true
+                            }
+                        )
+
+                        .order(
+                            "nome_fabricante",
+                            {
+                                ascending: true
+                            }
+                        );
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                /* =================================================
+                   TRANSFORMAR RETORNO
+                ================================================= */
+
+                appointments =
+                    (
+                        data || []
+                    )
+                    .map(
+                        item => {
+
+                            return {
+
+                                id:
+                                    item.agendamento_id,
+
+                                ruleId:
+                                    item.regra_agendamento_id,
+
+                                manufacturerId:
+                                    item.fabricante_id,
+
+                                date:
+                                    item.data_agendamento,
+
+                                time:
+                                    String(
+                                        item.hora_inicio ||
+                                        ""
+                                    )
+                                    .slice(
+                                        0,
+                                        5
+                                    ),
+
+                                manufacturer:
+                                    item.nome_visual ||
+                                    item.nome_fabricante ||
+                                    "Fabricante",
+
+                                manufacturerReal:
+                                    item.nome_fabricante ||
+                                    "",
+
+                                group:
+                                    item.grupo_codigo ||
+                                    item.grupo_nome ||
+                                    "",
+
+                                groupName:
+                                    item.grupo_nome ||
+                                    item.grupo_codigo ||
+                                    "",
+
+                                classification:
+                                    item.classificacao_nome ||
+                                    item.classificacao_codigo ||
+                                    "",
+
+                                classificationCode:
+                                    item.classificacao_codigo ||
+                                    "",
+
+                                classificationId:
+                                    item.classificacao_id,
+
+                                status:
+                                    item.status ||
+                                    "normal",
+
+                                statusLabel:
+                                    item.status_label ||
+                                    "Normal",
+
+                                observation:
+                                    item.regra_observacao ||
+                                    "",
+
+                                mode:
+                                    item.modo_classificacao ||
+                                    "JUNTAS",
+
+                                recurring:
+                                    item.recorrente === true
+
+                            };
+
+                        }
+                    );
+
+
+                console.log(
+                    "Agendamentos carregados:",
+                    appointments
+                );
+
+
+                renderCurrentView();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Erro ao carregar agendamentos:",
+                    error
+                );
+
+
+                appointments = [];
+
+
+                renderCurrentView();
+
+            }
+
+        }
+
+
+        /* =================================================
+           ATUALIZAR AGENDA APÓS NOVO AGENDAMENTO
+        ================================================= */
+
+        window.addEventListener(
+            "agenda:updated",
+            () => {
+
+                console.log(
+                    "Atualizando agenda após novo agendamento..."
+                );
+
+
+                loadAppointments();
+
+            }
         );
 
 
-        appointments = [];
-
-
-        renderCurrentView();
-
-    }
-
-}
-
         /* =================================================
-           AGENDAMENTOS DO DIA
+           PEGAR AGENDAMENTOS DO DIA
         ================================================= */
 
         function getAppointmentsForDate(
@@ -1784,11 +1677,18 @@ async function loadAppointments() {
 
                             return filterState.groups
                                 .some(
-                                    selectedGroup =>
-                                        normalizeText(
-                                            selectedGroup
-                                        ) ===
-                                        appointmentGroup
+                                    selectedGroup => {
+
+                                        return (
+
+                                            normalizeText(
+                                                selectedGroup
+                                            ) ===
+                                            appointmentGroup
+
+                                        );
+
+                                    }
                                 );
 
                         }
@@ -1811,8 +1711,9 @@ async function loadAppointments() {
                     result.filter(
                         appointment => {
 
-                            const classification =
+                            const classificationCode =
                                 normalizeText(
+                                    appointment.classificationCode ||
                                     appointment.classification
                                 );
 
@@ -1822,10 +1723,12 @@ async function loadAppointments() {
                                     selected => {
 
                                         return (
+
                                             normalizeText(
                                                 selected
                                             ) ===
-                                            classification
+                                                classificationCode
+
                                         );
 
                                     }
@@ -1883,7 +1786,9 @@ async function loadAppointments() {
 
 
                 if (!trigger) {
+
                     return;
+
                 }
 
 
@@ -1975,7 +1880,9 @@ async function loadAppointments() {
                             );
 
 
-                        if (trigger) {
+                        if (
+                            trigger
+                        ) {
 
                             trigger.setAttribute(
                                 "aria-expanded",
@@ -1992,7 +1899,7 @@ async function loadAppointments() {
 
 
         /* =================================================
-           ESC — FECHAR FILTROS
+           ESC FECHA FILTROS
         ================================================= */
 
         document.addEventListener(
@@ -2023,7 +1930,9 @@ async function loadAppointments() {
                             );
 
 
-                        if (trigger) {
+                        if (
+                            trigger
+                        ) {
 
                             trigger.setAttribute(
                                 "aria-expanded",
@@ -2057,7 +1966,9 @@ async function loadAppointments() {
                     classificationDisplayMode =
                         classificationDisplayMode ===
                         "grouped"
+
                             ? "separated"
+
                             : "grouped";
 
 
@@ -2078,7 +1989,7 @@ async function loadAppointments() {
 
 
         /* =================================================
-           BOTÃO AGRUPAR / SEPARAR
+           ATUALIZAR BOTÃO DE AGRUPAMENTO
         ================================================= */
 
         function updateClassificationModeButton() {
@@ -2131,14 +2042,18 @@ async function loadAppointments() {
 
             classificationModeButton.title =
                 grouped
+
                     ? "Agrupado — clicar para separar classificações"
+
                     : "Separado — clicar para agrupar classificações";
 
 
             classificationModeButton.setAttribute(
                 "aria-label",
                 grouped
+
                     ? "Separar classificações"
+
                     : "Agrupar classificações"
             );
 
@@ -2146,17 +2061,309 @@ async function loadAppointments() {
 
 
         /* =================================================
-           TÍTULO DO PERÍODO
+           CONFIGURAR CHECKBOXES DOS FILTROS
+        ================================================= */
+
+        function setupFilterOptions(
+            selector,
+            stateKey
+        ) {
+
+            document
+                .querySelectorAll(
+                    selector
+                )
+                .forEach(
+                    input => {
+
+                        input.addEventListener(
+                            "change",
+                            () => {
+
+                                const allInput =
+                                    document.querySelector(
+                                        `${selector}[value="all"]`
+                                    );
+
+
+                                const specificInputs =
+                                    [
+                                        ...document.querySelectorAll(
+                                            `${selector}:not([value="all"])`
+                                        )
+                                    ];
+
+
+                                /* =================================
+                                   SELECIONOU "TODOS"
+                                ================================== */
+
+                                if (
+                                    input.value === "all" &&
+                                    input.checked
+                                ) {
+
+                                    specificInputs.forEach(
+                                        item => {
+
+                                            item.checked =
+                                                false;
+
+                                        }
+                                    );
+
+                                }
+
+
+                                /* =================================
+                                   SELECIONOU UMA ESPECÍFICA
+                                ================================== */
+
+                                else if (
+                                    input.value !== "all" &&
+                                    input.checked
+                                ) {
+
+                                    if (
+                                        allInput
+                                    ) {
+
+                                        allInput.checked =
+                                            false;
+
+                                    }
+
+                                }
+
+
+                                /* =================================
+                                   NENHUMA SELECIONADA
+                                ================================== */
+
+                                const checkedSpecific =
+                                    specificInputs.filter(
+                                        item =>
+                                            item.checked
+                                    );
+
+
+                                if (
+                                    checkedSpecific.length === 0 &&
+                                    allInput
+                                ) {
+
+                                    allInput.checked =
+                                        true;
+
+                                }
+
+
+                                /* =================================
+                                   SALVAR ESTADO
+                                ================================== */
+
+                                filterState[
+                                    stateKey
+                                ] =
+                                    [
+                                        ...document.querySelectorAll(
+                                            `${selector}:checked`
+                                        )
+                                    ]
+                                    .map(
+                                        item =>
+                                            item.value
+                                    );
+
+
+                                if (
+                                    filterState[stateKey]
+                                        .length === 0
+                                ) {
+
+                                    filterState[stateKey] =
+                                        [
+                                            "all"
+                                        ];
+
+                                }
+
+
+                                updateFilterLabels();
+
+                                renderCurrentView();
+
+                            }
+                        );
+
+                    }
+                );
+
+        }
+
+
+        /* =================================================
+           ATUALIZAR LABEL DOS FILTROS
+        ================================================= */
+
+        function updateFilterLabels() {
+
+            const groupLabel =
+                document.querySelector(
+                    '[data-filter-label="group"]'
+                );
+
+
+            const classificationLabel =
+                document.querySelector(
+                    '[data-filter-label="classification"]'
+                );
+
+
+            const situationLabel =
+                document.querySelector(
+                    '[data-filter-label="situation"]'
+                );
+
+
+            /* =================================================
+               GRUPO
+            ================================================= */
+
+            if (
+                groupLabel
+            ) {
+
+                const values =
+                    filterState.groups;
+
+
+                groupLabel.textContent =
+
+                    values.includes(
+                        "all"
+                    )
+
+                        ? "Todos"
+
+                        : values.length === 1
+
+                            ? values[0]
+
+                            : `${values.length} selecionados`;
+
+            }
+
+
+            /* =================================================
+               CLASSIFICAÇÃO
+            ================================================= */
+
+            if (
+                classificationLabel
+            ) {
+
+                const values =
+                    filterState.classifications;
+
+
+                classificationLabel.textContent =
+
+                    values.includes(
+                        "all"
+                    )
+
+                        ? "Todas"
+
+                        : values.length === 1
+
+                            ? getClassificationLabel(
+                                values[0]
+                            )
+
+                            : `${values.length} selecionadas`;
+
+            }
+
+
+            /* =================================================
+               SITUAÇÃO
+            ================================================= */
+
+            if (
+                situationLabel
+            ) {
+
+                const values =
+                    filterState.situations;
+
+
+                if (
+                    values.includes(
+                        "all"
+                    )
+                ) {
+
+                    situationLabel.textContent =
+                        "Todas";
+
+                } else {
+
+                    const labelsMap = {
+
+                        normal:
+                            "Normal",
+
+                        attention:
+                            "Atenção",
+
+                        urgent:
+                            "Urgente",
+
+                        risk:
+                            "Risco"
+
+                    };
+
+
+                    situationLabel.textContent =
+
+                        values.length === 1
+
+                            ? (
+                                labelsMap[
+                                    values[0]
+                                ] ||
+                                values[0]
+                            )
+
+                            : `${values.length} selecionadas`;
+
+                }
+
+            }
+
+        }
+
+
+        /* =================================================
+           ATUALIZAR TÍTULO DO PERÍODO
         ================================================= */
 
         function updatePeriodTitle() {
 
-            if (!periodTitle) {
+            if (
+                !periodTitle
+            ) {
+
                 return;
+
             }
 
 
-            /* MÊS */
+            /* =================================================
+               MÊS
+            ================================================= */
 
             if (
                 currentView ===
@@ -2164,14 +2371,19 @@ async function loadAppointments() {
             ) {
 
                 periodTitle.textContent =
-                    `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+                    `${monthNames[
+                        currentDate.getMonth()
+                    ]} ${currentDate.getFullYear()}`;
+
 
                 return;
 
             }
 
 
-            /* SEMANA */
+            /* =================================================
+               SEMANA
+            ================================================= */
 
             if (
                 currentView ===
@@ -2191,14 +2403,21 @@ async function loadAppointments() {
 
 
                 periodTitle.textContent =
-                    `${formatDateShort(monday)} a ${formatDateShort(friday)}`;
+                    `${formatDateShort(
+                        monday
+                    )} a ${formatDateShort(
+                        friday
+                    )}`;
+
 
                 return;
 
             }
 
 
-            /* DIA */
+            /* =================================================
+               DIA
+            ================================================= */
 
             if (
                 currentView ===
@@ -2221,44 +2440,17 @@ async function loadAppointments() {
 
 
         /* =================================================
-           DATA CURTA
-        ================================================= */
-
-        function formatDateShort(
-            date
-        ) {
-
-            return (
-                String(
-                    date.getDate()
-                )
-                .padStart(
-                    2,
-                    "0"
-                )
-                +
-                "/"
-                +
-                String(
-                    date.getMonth() + 1
-                )
-                .padStart(
-                    2,
-                    "0"
-                )
-            );
-
-        }
-
-
-        /* =================================================
            RENDERIZAR MÊS
         ================================================= */
 
         function renderMonth() {
 
-            if (!monthCalendar) {
+            if (
+                !monthCalendar
+            ) {
+
                 return;
+
             }
 
 
@@ -2292,19 +2484,30 @@ async function loadAppointments() {
 
             startPosition =
                 startPosition === 0
+
                     ? 6
+
                     : startPosition - 1;
 
 
-            let html = "";
+            let html =
+                "";
 
+
+            /* =================================================
+               TÍTULO DO MÊS
+            ================================================= */
 
             html += `
 
                 <div class="month-calendar-title">
 
                     <strong>
-                        ${monthNames[month]}
+                        ${escapeHtml(
+                            monthNames[
+                                month
+                            ]
+                        )}
                     </strong>
 
                     <span>
@@ -2315,6 +2518,10 @@ async function loadAppointments() {
 
             `;
 
+
+            /* =================================================
+               CABEÇALHO
+            ================================================= */
 
             html += `
 
@@ -2333,10 +2540,18 @@ async function loadAppointments() {
             `;
 
 
+            /* =================================================
+               GRADE
+            ================================================= */
+
             html += `
                 <div class="calendar-grid">
             `;
 
+
+            /* =================================================
+               ESPAÇOS ANTERIORES
+            ================================================= */
 
             for (
                 let i = 0;
@@ -2356,6 +2571,10 @@ async function loadAppointments() {
 
             }
 
+
+            /* =================================================
+               DIAS DO MÊS
+            ================================================= */
 
             for (
                 let day = 1;
@@ -2385,7 +2604,9 @@ async function loadAppointments() {
                         date,
                         today
                     )
+
                         ? "current-day"
+
                         : "";
 
 
@@ -2398,7 +2619,11 @@ async function loadAppointments() {
                 html += `
 
                     <div
-                        class="calendar-day ${weekend ? "weekend" : ""} ${todayClass}"
+                        class="
+                            calendar-day
+                            ${weekend ? "weekend" : ""}
+                            ${todayClass}
+                        "
                     >
 
                         <span class="calendar-day-number">
@@ -2414,8 +2639,15 @@ async function loadAppointments() {
                                         appointment => `
 
                                             <div
-                                                class="calendar-appointment ${escapeHtml(appointment.status)}"
-                                                data-date="${escapeHtml(appointment.date)}"
+                                                class="
+                                                    calendar-appointment
+                                                    ${escapeHtml(
+                                                        appointment.status
+                                                    )}
+                                                "
+                                                data-date="${escapeHtml(
+                                                    appointment.date
+                                                )}"
                                                 title="${escapeHtml(
                                                     appointment.fullClassification ||
                                                     ""
@@ -2423,18 +2655,27 @@ async function loadAppointments() {
                                             >
 
                                                 <span class="calendar-appointment-primary">
+
                                                     ${escapeHtml(
                                                         appointment.time
-                                                    )} · ${escapeHtml(
+                                                    )}
+
+                                                    ·
+
+                                                    ${escapeHtml(
                                                         appointment.manufacturer
                                                     )}
+
                                                 </span>
 
+
                                                 <span class="calendar-appointment-classification">
+
                                                     ${escapeHtml(
                                                         appointment.displayClassification ||
                                                         ""
                                                     )}
+
                                                 </span>
 
                                             </div>
@@ -2453,6 +2694,10 @@ async function loadAppointments() {
             }
 
 
+            /* =================================================
+               ESPAÇOS RESTANTES
+            ================================================= */
+
             const totalCells =
                 startPosition +
                 lastDay.getDate();
@@ -2460,7 +2705,9 @@ async function loadAppointments() {
 
             const remaining =
                 totalCells % 7 === 0
+
                     ? 0
+
                     : 7 -
                         (
                             totalCells % 7
@@ -2503,8 +2750,12 @@ async function loadAppointments() {
 
         function renderWeek() {
 
-            if (!weekCalendar) {
+            if (
+                !weekCalendar
+            ) {
+
                 return;
+
             }
 
 
@@ -2514,7 +2765,8 @@ async function loadAppointments() {
                 );
 
 
-            const weekDays = [];
+            const weekDays =
+                [];
 
 
             for (
@@ -2559,6 +2811,10 @@ async function loadAppointments() {
             `;
 
 
+            /* =================================================
+               HORÁRIOS
+            ================================================= */
+
             for (
                 let hour = 8;
                 hour <= 18;
@@ -2568,7 +2824,12 @@ async function loadAppointments() {
                 html += `
 
                     <div class="week-time">
-                        ${String(hour).padStart(2, "0")}:00
+                        ${String(
+                            hour
+                        ).padStart(
+                            2,
+                            "0"
+                        )}:00
                     </div>
 
                 `;
@@ -2580,6 +2841,10 @@ async function loadAppointments() {
                     </div>
             `;
 
+
+            /* =================================================
+               DIAS DA SEMANA
+            ================================================= */
 
             weekDays.forEach(
                 date => {
@@ -2600,9 +2865,11 @@ async function loadAppointments() {
                                 </strong>
 
                                 <span>
-                                    ${weekdayShort[
-                                        date.getDay()
-                                    ]}
+                                    ${escapeHtml(
+                                        weekdayShort[
+                                            date.getDay()
+                                        ]
+                                    )}
                                 </span>
 
                             </div>
@@ -2621,14 +2888,25 @@ async function loadAppointments() {
                                 date
                             )
                             .filter(
-                                appointment =>
-                                    Number(
-                                        String(
-                                            appointment.time ||
-                                            ""
+                                appointment => {
+
+                                    return (
+
+                                        Number(
+                                            String(
+                                                appointment.time ||
+                                                ""
+                                            )
+                                            .split(":")[0]
                                         )
-                                        .split(":")[0]
-                                    ) === hour
+
+                                        ===
+
+                                        hour
+
+                                    );
+
+                                }
                             );
 
 
@@ -2642,9 +2920,12 @@ async function loadAppointments() {
                                             appointment => `
 
                                                 <div
-                                                    class="week-appointment ${escapeHtml(
-                                                        appointment.status
-                                                    )}"
+                                                    class="
+                                                        week-appointment
+                                                        ${escapeHtml(
+                                                            appointment.status
+                                                        )}
+                                                    "
                                                     title="${escapeHtml(
                                                         appointment.fullClassification ||
                                                         ""
@@ -2703,8 +2984,12 @@ async function loadAppointments() {
 
         function renderDay() {
 
-            if (!dayCalendar) {
+            if (
+                !dayCalendar
+            ) {
+
                 return;
+
             }
 
 
@@ -2729,14 +3014,26 @@ async function loadAppointments() {
                         </span>
 
                         <strong>
+
                             ${String(
                                 currentDate.getDate()
                             ).padStart(
                                 2,
                                 "0"
-                            )} de ${monthNames[
-                                currentDate.getMonth()
-                            ]} de ${currentDate.getFullYear()}
+                            )}
+
+                            de
+
+                            ${escapeHtml(
+                                monthNames[
+                                    currentDate.getMonth()
+                                ]
+                            )}
+
+                            de
+
+                            ${currentDate.getFullYear()}
+
                         </strong>
 
                     </div>
@@ -2749,6 +3046,10 @@ async function loadAppointments() {
             `;
 
 
+            /* =================================================
+               HORÁRIOS
+            ================================================= */
+
             for (
                 let hour = 8;
                 hour <= 18;
@@ -2758,14 +3059,25 @@ async function loadAppointments() {
                 const hourAppointments =
                     appointmentsOfDay
                         .filter(
-                            appointment =>
-                                Number(
-                                    String(
-                                        appointment.time ||
-                                        ""
+                            appointment => {
+
+                                return (
+
+                                    Number(
+                                        String(
+                                            appointment.time ||
+                                            ""
+                                        )
+                                        .split(":")[0]
                                     )
-                                    .split(":")[0]
-                                ) === hour
+
+                                    ===
+
+                                    hour
+
+                                );
+
+                            }
                         );
 
 
@@ -2810,9 +3122,12 @@ async function loadAppointments() {
                             html += `
 
                                 <div
-                                    class="day-appointment ${escapeHtml(
-                                        appointment.status
-                                    )}"
+                                    class="
+                                        day-appointment
+                                        ${escapeHtml(
+                                            appointment.status
+                                        )}
+                                    "
                                     title="${escapeHtml(
                                         appointment.fullClassification ||
                                         ""
@@ -2832,15 +3147,20 @@ async function loadAppointments() {
                                                 )}
                                             </strong>
 
+
                                             <small>
+
                                                 ${escapeHtml(
                                                     appointment.group
                                                 )}
+
                                                 ·
+
                                                 ${escapeHtml(
                                                     appointment.displayClassification ||
                                                     ""
                                                 )}
+
                                             </small>
 
                                         </div>
@@ -2849,9 +3169,11 @@ async function loadAppointments() {
 
 
                                     <span class="day-status">
+
                                         ${escapeHtml(
                                             appointment.statusLabel
                                         )}
+
                                     </span>
 
                                 </div>
@@ -2887,7 +3209,7 @@ async function loadAppointments() {
 
 
         /* =================================================
-           RENDERIZAR TELA
+           RENDERIZAR VISUALIZAÇÃO ATUAL
         ================================================= */
 
         function renderCurrentView() {
@@ -2967,7 +3289,9 @@ async function loadAppointments() {
             );
 
 
-            if (monthView) {
+            if (
+                monthView
+            ) {
 
                 monthView.classList.toggle(
                     "active",
@@ -2977,7 +3301,9 @@ async function loadAppointments() {
             }
 
 
-            if (weekView) {
+            if (
+                weekView
+            ) {
 
                 weekView.classList.toggle(
                     "active",
@@ -2987,7 +3313,9 @@ async function loadAppointments() {
             }
 
 
-            if (dayView) {
+            if (
+                dayView
+            ) {
 
                 dayView.classList.toggle(
                     "active",
@@ -3003,7 +3331,7 @@ async function loadAppointments() {
 
 
         /* =================================================
-           LIMITES DOS BOTÕES
+           LIMITES DE NAVEGAÇÃO
         ================================================= */
 
         function updateNavigationButtons() {
@@ -3017,6 +3345,10 @@ async function loadAppointments() {
 
             }
 
+
+            /* =================================================
+               MÊS
+            ================================================= */
 
             if (
                 currentView ===
@@ -3037,7 +3369,7 @@ async function loadAppointments() {
                     );
 
 
-                const nextMonth =
+                const lastAllowedMonth =
                     new Date(
                         horizonStart.getFullYear(),
                         horizonStart.getMonth() + 1,
@@ -3052,13 +3384,17 @@ async function loadAppointments() {
 
                 nextPeriod.disabled =
                     currentMonth >=
-                    nextMonth;
+                    lastAllowedMonth;
 
 
                 return;
 
             }
 
+
+            /* =================================================
+               DIA
+            ================================================= */
 
             if (
                 currentView ===
@@ -3104,6 +3440,10 @@ async function loadAppointments() {
             }
 
 
+            /* =================================================
+               SEMANA
+            ================================================= */
+
             if (
                 currentView ===
                 "week"
@@ -3142,7 +3482,7 @@ async function loadAppointments() {
 
 
         /* =================================================
-           VISUALIZAÇÃO
+           BOTÕES DE VISUALIZAÇÃO
         ================================================= */
 
         viewButtons.forEach(
@@ -3164,10 +3504,12 @@ async function loadAppointments() {
 
 
         /* =================================================
-           HOJE
+           BOTÃO HOJE
         ================================================= */
 
-        if (todayButton) {
+        if (
+            todayButton
+        ) {
 
             todayButton.addEventListener(
                 "click",
@@ -3193,7 +3535,9 @@ async function loadAppointments() {
            PERÍODO ANTERIOR
         ================================================= */
 
-        if (previousPeriod) {
+        if (
+            previousPeriod
+        ) {
 
             previousPeriod.addEventListener(
                 "click",
@@ -3279,7 +3623,9 @@ async function loadAppointments() {
            PRÓXIMO PERÍODO
         ================================================= */
 
-        if (nextPeriod) {
+        if (
+            nextPeriod
+        ) {
 
             nextPeriod.addEventListener(
                 "click",
@@ -3362,25 +3708,8 @@ async function loadAppointments() {
 
 
         /* =================================================
-           INICIALIZAR FILTROS
+           FILTRO DE SITUAÇÃO
         ================================================= */
-
-        renderGroupFilter();
-
-        renderClassificationFilter();
-
-
-        setupFilterOptions(
-            'input[name="groupFilter"]',
-            "groups"
-        );
-
-
-        setupFilterOptions(
-            'input[name="classificationFilter"]',
-            "classifications"
-        );
-
 
         setupFilterOptions(
             'input[name="situationFilter"]',
@@ -3388,18 +3717,24 @@ async function loadAppointments() {
         );
 
 
-        updateFilterLabels();
+        /* =================================================
+           ESTADO INICIAL
+        ================================================= */
 
         updateClassificationModeButton();
-
-
-        /* =================================================
-           INICIALIZAÇÃO
-        ================================================= */
 
         changeView(
             "month"
         );
-loadAppointments();
+
+
+        /* =================================================
+           CARREGAR DADOS REAIS
+        ================================================= */
+
+        loadAgendaFilters();
+
+        loadAppointments();
+
     }
 );

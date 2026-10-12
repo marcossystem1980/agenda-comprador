@@ -147,66 +147,49 @@ document.addEventListener(
         }
 
 
-        /* =================================================
-           ABRIR MODAL
-        ================================================= */
+/* =================================================
+   ABRIR MODAL
+   ACEITA PREENCHIMENTO INICIAL OPCIONAL
+================================================= */
 
-        async function openModal() {
+async function openModal(prefill = null) {
 
-            if (!modal) {
-                return;
-            }
+    if (!modal) {
+        return;
+    }
 
+    clearMessage();
 
-            clearMessage();
+    if (form) {
+        form.reset();
+    }
 
+    selectedManufacturerMap.clear();
 
-            if (form) {
-                form.reset();
-            }
+    manufacturerList = [];
 
+    if (manufacturerSearch) {
+        manufacturerSearch.value = "";
+        manufacturerSearch.disabled = true;
+    }
 
-            selectedManufacturerMap.clear();
+    if (manufacturerResults) {
+        manufacturerResults.innerHTML = "";
+    }
 
-            manufacturerList = [];
+    renderSelectedManufacturers();
 
+    modal.classList.remove("hidden");
 
-            if (manufacturerSearch) {
+    document.body.classList.add("modal-open");
 
-                manufacturerSearch.value =
-                    "";
+    await loadGroups();
 
-                manufacturerSearch.disabled =
-                    true;
+    if (prefill) {
+        await applyPrefill(prefill);
+    }
 
-            }
-
-
-            if (manufacturerResults) {
-
-                manufacturerResults.innerHTML =
-                    "";
-
-            }
-
-
-            renderSelectedManufacturers();
-
-
-            modal.classList.remove(
-                "hidden"
-            );
-
-
-            document.body.classList.add(
-                "modal-open"
-            );
-
-
-            await loadGroups();
-
-        }
-
+}
 
         /* =================================================
            FECHAR MODAL
@@ -556,6 +539,192 @@ document.addEventListener(
             }
 
         }
+
+        /* =================================================
+   PREENCHER FORMULÁRIO VINDO DA AGENDA POR RUPTURA
+================================================= */
+
+async function applyPrefill(prefill) {
+
+    try {
+
+        const grupoId =
+            String(prefill.grupoId || "");
+
+        const classificacaoId =
+            String(prefill.classificacaoId || "");
+
+        const fabricanteId =
+            String(prefill.fabricanteId || "");
+
+
+        if (
+            !grupoId ||
+            !classificacaoId ||
+            !fabricanteId
+        ) {
+
+            showMessage(
+                "Não foi possível identificar o grupo, a classificação e o fabricante."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * O grupo precisa estar entre os grupos
+         * disponíveis para este comprador.
+         */
+
+        const grupoPermitido =
+            groups.some(group =>
+                String(group.grupo_id) === grupoId
+            );
+
+
+        if (!grupoPermitido) {
+
+            showMessage(
+                "O grupo selecionado não está disponível para este comprador."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Seleciona o grupo e carrega suas classificações.
+         */
+
+        groupSelect.value = grupoId;
+
+        await handleGroupChange();
+
+
+        /*
+         * Marca somente a classificação recebida.
+         */
+
+        const classificationInput =
+            Array.from(
+                classificationsContainer.querySelectorAll(
+                    'input[name="appointmentClassification"]'
+                )
+            ).find(input =>
+                input.value === classificacaoId
+            );
+
+
+        if (!classificationInput) {
+
+            showMessage(
+                "A classificação selecionada não pertence ao grupo escolhido."
+            );
+
+            return;
+
+        }
+
+
+        classificationInput.checked = true;
+
+
+        /*
+         * Confere se o fabricante está disponível
+         * para o grupo selecionado.
+         */
+
+        const {
+            data: manufacturer,
+            error
+        } = await supabaseClient
+
+            .from("vw_fabricantes_por_grupo")
+
+            .select(
+                "fabricante_id, nome_fabricante"
+            )
+
+            .eq(
+                "grupo_id",
+                grupoId
+            )
+
+            .eq(
+                "fabricante_id",
+                fabricanteId
+            )
+
+            .maybeSingle();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!manufacturer) {
+
+            showMessage(
+                "O fabricante não foi encontrado para o grupo selecionado."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Preenche a lista de fabricantes selecionados.
+         */
+
+        selectedManufacturerMap.clear();
+
+        selectedManufacturerMap.set(
+            manufacturer.fabricante_id,
+            manufacturer
+        );
+
+        renderSelectedManufacturers();
+
+
+        /*
+         * Utiliza o nome do fabricante como nome visual inicial.
+         * O comprador ainda pode editá-lo.
+         */
+
+        const visualNameInput =
+            document.getElementById(
+                "appointmentVisualName"
+            );
+
+
+        if (visualNameInput) {
+
+            visualNameInput.value =
+                manufacturer.nome_fabricante || "";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao preencher o agendamento vindo da ruptura:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Não foi possível preencher os dados do agendamento."
+        );
+
+    }
+
+}
 
 
         /* =================================================
