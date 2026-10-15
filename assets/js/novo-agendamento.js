@@ -548,29 +548,79 @@ async function applyPrefill(prefill) {
 
     try {
 
-        const grupoId =
-            String(prefill.grupoId || "");
+const dateValue = String(
+    prefill.dataAgendamento ||
+    prefill.date ||
+    ""
+);
 
-        const classificacaoId =
-            String(prefill.classificacaoId || "");
+const timeValue = String(
+    prefill.horaInicio ||
+    prefill.time ||
+    ""
+);
 
-        const fabricanteId =
-            String(prefill.fabricanteId || "");
+const dateParts = dateValue.split("-");
+
+const dayValue =
+    prefill.diaFixo ||
+    (
+        dateParts.length === 3
+            ? Number(dateParts[2])
+            : null
+    );
+
+const dayInput =
+    document.getElementById("appointmentDay");
+
+const timeInput =
+    document.getElementById("appointmentTime");
 
 
-        if (
-            !grupoId ||
-            !classificacaoId ||
-            !fabricanteId
-        ) {
+if (dayInput && dayValue) {
+    dayInput.value = String(dayValue);
+}
 
-            showMessage(
-                "Não foi possível identificar o grupo, a classificação e o fabricante."
-            );
+if (timeInput && timeValue) {
+    timeInput.value = timeValue;
+}
 
-            return;
 
-        }
+const grupoId =
+    String(prefill.grupoId || "");
+
+const classificacaoId =
+    String(prefill.classificacaoId || "");
+
+const fabricanteId =
+    String(prefill.fabricanteId || "");
+
+
+/*
+ * Abertura originada apenas de uma data vazia.
+ * Não exige grupo, classificação ou fabricante.
+ */
+
+if (
+    !grupoId &&
+    !classificacaoId &&
+    !fabricanteId
+) {
+    return;
+}
+
+
+if (
+    !grupoId ||
+    !classificacaoId ||
+    !fabricanteId
+) {
+    showMessage(
+        "Não foi possível identificar o grupo, a classificação e o fabricante."
+    );
+
+    return;
+}
 
 
         /*
