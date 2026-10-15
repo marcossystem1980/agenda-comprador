@@ -96,16 +96,18 @@ document.addEventListener(
            ESTADO
         ================================================= */
 
-        let groups = [];
+let groups = [];
 
-        let classifications = [];
+let classifications = [];
 
-        let manufacturerList = [];
+let manufacturerList = [];
 
-        let searchTimer = null;
+let searchTimer = null;
 
-        const selectedManufacturerMap =
-            new Map();
+let editingRuleId = null;
+let editLoadFailed = false;
+
+const selectedManufacturerMap = new Map();
 
 
         /* =================================================
@@ -149,14 +151,21 @@ document.addEventListener(
 
 /* =================================================
    ABRIR MODAL
-   ACEITA PREENCHIMENTO INICIAL OPCIONAL
+   NOVO AGENDAMENTO OU EDITAR UNIVERSAL
 ================================================= */
 
 async function openModal(prefill = null) {
+    if (!modal) return;
 
-    if (!modal) {
-        return;
-    }
+    const requestedEdit =
+        prefill?.mode === "edit" ||
+        prefill?.modo === "editar";
+
+    editingRuleId = requestedEdit
+        ? String(prefill?.ruleId || prefill?.regraId || "")
+        : null;
+
+    editLoadFailed = requestedEdit;
 
     clearMessage();
 
@@ -165,7 +174,6 @@ async function openModal(prefill = null) {
     }
 
     selectedManufacturerMap.clear();
-
     manufacturerList = [];
 
     if (manufacturerSearch) {
@@ -179,17 +187,49 @@ async function openModal(prefill = null) {
 
     renderSelectedManufacturers();
 
-    modal.classList.remove("hidden");
+    if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = requestedEdit
+            ? "Salvar alterações"
+            : "Salvar agendamento";
 
+        saveButton.dataset.originalText =
+            saveButton.textContent;
+    }
+
+    modal.classList.remove("hidden");
     document.body.classList.add("modal-open");
 
     await loadGroups();
 
+    if (requestedEdit) {
+        if (!editingRuleId) {
+            editLoadFailed = true;
+
+            if (saveButton) {
+                saveButton.disabled = true;
+            }
+
+            showMessage(
+                "Não foi possível identificar a regra que será editada."
+            );
+
+            return;
+        }
+
+        if (saveButton) {
+            saveButton.disabled = true;
+        }
+
+        await loadRuleForEditing(editingRuleId);
+        return;
+    }
+
     if (prefill) {
         await applyPrefill(prefill);
     }
-
 }
+
 
         /* =================================================
            FECHAR MODAL
@@ -201,18 +241,22 @@ async function openModal(prefill = null) {
                 return;
             }
 
+            modal.classList.add("hidden");
 
-            modal.classList.add(
-                "hidden"
-            );
-
-
-            document.body.classList.remove(
-                "modal-open"
-            );
-
+            document.body.classList.remove("modal-open");
 
             clearMessage();
+
+            /* LIMPAR ESTADO DE EDIÇÃO */
+            editingRuleId = null;
+            editLoadFailed = false;
+
+            /* RESTAURAR BOTÃO PARA NOVO AGENDAMENTO */
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Salvar agendamento";
+                saveButton.dataset.originalText = "Salvar agendamento";
+            }
 
         }
 
@@ -539,6 +583,232 @@ async function openModal(prefill = null) {
             }
 
         }
+
+/* =================================================
+   CARREGAR REGRA PARA EDITAR UNIVERSAL
+================================================= */
+
+async function loadRuleForEditing(ruleId) {
+    try {
+        const {
+            data: rule,
+            error: ruleError
+        } = await supabaseClient
+            .from("regras_agendamento")
+            .select(`
+                id,
+                comprador_id,
+                grupo_id,
+                nome_visual,
+                modo_classificacao,
+                dia_fixo,
+                hora_inicio,
+                observacao,
+                recorrente
+            `)
+            .eq("id", ruleId)
+            .eq("comprador_id", COMPRADOR_ID)
+            .maybeSingle();
+
+        if (ruleError) {
+            throw ruleError;
+        }
+
+        if (!rule) {
+            throw new Error(
+                "A regra não foi encontrada ou não está disponível para este comprador."
+            );
+        }
+
+        if (rule.recorrente !== true) {
+            throw new Error(
+                "O Editar Universal desta etapa atende regras recorrentes. Agendamentos pontuais precisam de edição própria."
+            );
+        }
+
+        const [
+            classificationResult,
+            manufacturerResult
+        ] = await Promise.all([
+            supabaseClient
+                .from("regra_agendamento_classificacoes")
+                .select("classificacao_id")
+                .eq("regra_agendamento_id", rule.id),
+
+            supabaseClient
+                .from("regra_agendamento_fabricantes")
+                .select("fabricante_id")
+                .eq("regra_agendamento_id", rule.id)
+        ]);
+
+        if (classificationResult.error) {
+            throw classificationResult.error;
+        }
+
+        if (manufacturerResult.error) {
+            throw manufacturerResult.error;
+        }
+
+        const classificationIds = [
+            ...new Set(
+                (classificationResult.data || [])
+                    .map(item => String(item.classificacao_id))
+            )
+        ];
+
+        const manufacturerIds = [
+            ...new Set(
+                (manufacturerResult.data || [])
+                    .map(item => String(item.fabricante_id))
+            )
+        ];
+
+        if (!classificationIds.length) {
+            throw new Error(
+                "Esta regra não possui classificações vinculadas."
+            );
+        }
+
+        if (!manufacturerIds.length) {
+            throw new Error(
+                "Esta regra não possui fabricantes vinculados."
+            );
+        }
+
+        /* Selecionar o grupo e carregar suas classificações. */
+        groupSelect.value = String(rule.grupo_id);
+
+        await handleGroupChange();
+
+        const classificationInputs = [
+            ...classificationsContainer.querySelectorAll(
+                'input[name="appointmentClassification"]'
+            )
+        ];
+
+        for (const classificationId of classificationIds) {
+            const input = classificationInputs.find(
+                item => String(item.value) === classificationId
+            );
+
+            if (!input) {
+                throw new Error(
+                    "Uma das classificações desta regra não está disponível para o grupo selecionado."
+                );
+            }
+
+            input.checked = true;
+        }
+
+        /* Buscar os nomes dos fabricantes associados. */
+        const {
+            data: manufacturers,
+            error: manufacturersError
+        } = await supabaseClient
+            .from("vw_fabricantes_por_grupo")
+            .select("fabricante_id, nome_fabricante")
+            .eq("grupo_id", rule.grupo_id)
+            .in("fabricante_id", manufacturerIds)
+            .order("nome_fabricante");
+
+        if (manufacturersError) {
+            throw manufacturersError;
+        }
+
+        const loadedManufacturers = manufacturers || [];
+
+        if (loadedManufacturers.length !== manufacturerIds.length) {
+            throw new Error(
+                "Nem todos os fabricantes da regra estão disponíveis para o grupo selecionado."
+            );
+        }
+
+        selectedManufacturerMap.clear();
+
+        loadedManufacturers.forEach(manufacturer => {
+            selectedManufacturerMap.set(
+                String(manufacturer.fabricante_id),
+                manufacturer
+            );
+        });
+
+        renderSelectedManufacturers();
+
+        /* Preencher os demais campos do formulário. */
+        const visualNameInput =
+            document.getElementById("appointmentVisualName");
+
+        const dayInput =
+            document.getElementById("appointmentDay");
+
+        const timeInput =
+            document.getElementById("appointmentTime");
+
+        const observationInput =
+            document.getElementById("appointmentObservation");
+
+        if (visualNameInput) {
+            visualNameInput.value = rule.nome_visual || "";
+        }
+
+        if (dayInput) {
+            dayInput.value = String(rule.dia_fixo ?? "");
+        }
+
+        if (timeInput) {
+            timeInput.value = String(rule.hora_inicio || "").slice(0, 5);
+        }
+
+        if (observationInput) {
+            observationInput.value = rule.observacao || "";
+        }
+
+        const modeValue =
+            rule.modo_classificacao || "JUNTAS";
+
+        const modeInput = [
+            ...document.querySelectorAll(
+                'input[name="modo_classificacao"]'
+            )
+        ].find(input => input.value === modeValue);
+
+        if (!modeInput) {
+            throw new Error(
+                "O modo de classificação cadastrado não é reconhecido pelo formulário."
+            );
+        }
+
+        modeInput.checked = true;
+
+        editingRuleId = String(rule.id);
+        editLoadFailed = false;
+
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Salvar alterações";
+            saveButton.dataset.originalText = "Salvar alterações";
+        }
+
+        clearMessage();
+
+    } catch (error) {
+        console.error(
+            "Erro ao carregar regra para edição:",
+            error
+        );
+
+        editLoadFailed = true;
+
+        if (saveButton) {
+            saveButton.disabled = true;
+        }
+
+        showMessage(
+            error?.message ||
+            "Não foi possível carregar os dados da regra para edição."
+        );
+    }
+}
 
         /* =================================================
    PREENCHER FORMULÁRIO VINDO DA AGENDA POR RUPTURA
@@ -1405,6 +1675,31 @@ if (
 
                     }
 
+                    if (editLoadFailed) {
+    showMessage(
+        "Não é possível salvar porque os dados da regra não foram carregados corretamente."
+    );
+
+    return;
+}
+
+const savingEdit = Boolean(editingRuleId);
+
+if (savingEdit) {
+    const confirmed = window.confirm(
+        "EDITAR TODA A RECORRÊNCIA?\n\n" +
+        "As alterações serão aplicadas à regra inteira e a todas as ocorrências vinculadas, " +
+        "incluindo datas passadas, atuais e futuras.\n\n" +
+        "Isso inclui grupo, fabricantes, classificações, dia fixo, horário e observações.\n\n" +
+        "Os status de conclusão serão preservados sempre que os IDs das ocorrências forem mantidos.\n\n" +
+        "Deseja continuar?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+}
+
 
                     /* =================================================
                        BLOQUEAR BOTÃO
@@ -1428,72 +1723,73 @@ if (
 
                     try {
 
-                        /* =================================================
-                           CHAMAR FUNÇÃO DO SUPABASE
-                        ================================================= */
+/* =================================================
+   CRIAR NOVA REGRA OU EDITAR REGRA EXISTENTE
+================================================= */
 
-                        const {
-                            data,
-                            error
-                        } =
-                            await supabaseClient.rpc(
-                                "criar_agendamento_completo",
-                                {
+let data;
+let error;
 
-                                    p_comprador_id:
-                                        COMPRADOR_ID,
+if (savingEdit) {
+    const result = await supabaseClient.rpc(
+        "editar_regra_agendamento_universal",
+        {
+            p_regra_agendamento_id: editingRuleId,
+            p_comprador_id: COMPRADOR_ID,
+            p_grupo_id: grupoId,
+            p_nome_visual: nomeVisual,
+            p_modo_classificacao: modo,
+            p_dia_fixo: dia,
+            p_hora_inicio: hora,
+            p_observacao: observacao || null,
+            p_classificacao_ids: classificationIds,
+            p_fabricante_ids: fabricanteIds
+        }
+    );
 
-                                    p_grupo_id:
-                                        grupoId,
+    data = result.data;
+    error = result.error;
 
-                                    p_nome_visual:
-                                        nomeVisual,
+} else {
+    const result = await supabaseClient.rpc(
+        "criar_agendamento_completo",
+        {
+            p_comprador_id: COMPRADOR_ID,
+            p_grupo_id: grupoId,
+            p_nome_visual: nomeVisual,
+            p_modo_classificacao: modo,
+            p_dia_fixo: dia,
+            p_hora_inicio: hora,
+            p_observacao: observacao || null,
+            p_classificacao_ids: classificationIds,
+            p_fabricante_ids: fabricanteIds,
+            p_data_base: getTodayISO()
+        }
+    );
 
-                                    p_modo_classificacao:
-                                        modo,
+    data = result.data;
+    error = result.error;
+}
 
-                                    p_dia_fixo:
-                                        dia,
+if (error) {
+    throw error;
+}
 
-                                    p_hora_inicio:
-                                        hora,
+console.log(
+    savingEdit
+        ? "Regra recorrente atualizada:"
+        : "Agendamento criado:",
+    data
+);
 
-                                    p_observacao:
-                                        observacao ||
-                                        null,
-
-                                    p_classificacao_ids:
-                                        classificationIds,
-
-                                    p_fabricante_ids:
-                                        fabricanteIds,
-
-                                    p_data_base:
-                                        getTodayISO()
-
-                                }
-                            );
-
-
-                        if (error) {
-                            throw error;
-                        }
-
-
-                        console.log(
-                            "Agendamento criado com sucesso:",
-                            data
-                        );
-
-
-                        showMessage(
-                            "Agendamento salvo com sucesso."
-                        );
+showMessage(
+    savingEdit
+        ? "Regra recorrente atualizada com sucesso."
+        : "Agendamento salvo com sucesso."
+);
 
 window.dispatchEvent(
-    new CustomEvent(
-        "agenda:updated"
-    )
+    new CustomEvent("agenda:updated")
 );
 
                         /* =================================================

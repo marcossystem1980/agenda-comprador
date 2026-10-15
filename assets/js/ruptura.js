@@ -224,6 +224,14 @@ let handlingAgendaUpdate = false;
 
     function formatCurrency(value) {
 
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            return "—";
+        }
+
         const number = Number(value);
 
         if (!Number.isFinite(number)) {
@@ -231,6 +239,76 @@ let handlingAgendaUpdate = false;
         }
 
         return currencyFormatter.format(number);
+
+    }
+
+
+    /* =====================================================
+       CLASSIFICAÇÃO FINANCEIRA DA RUPTURA
+       Baseada somente no valor total em reais do fabricante.
+    ===================================================== */
+
+    function getFinancialRisk(value) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            return {
+                level: "no-data",
+                label: "Sem dado",
+                description: "Não há valor financeiro válido para classificar."
+            };
+        }
+
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return {
+                level: "no-data",
+                label: "Sem dado",
+                description: "Não há valor financeiro válido para classificar."
+            };
+        }
+
+        if (amount <= 0) {
+            return {
+                level: "no-positive",
+                label: "Sem valor positivo",
+                description: "O valor de ruptura não é positivo; não recebe faixa de risco financeiro."
+            };
+        }
+
+        if (amount <= 50) {
+            return {
+                level: "low",
+                label: "Baixo impacto",
+                description: "Ruptura positiva de até R$ 50,00."
+            };
+        }
+
+        if (amount <= 250) {
+            return {
+                level: "attention",
+                label: "Atenção",
+                description: "Ruptura acima de R$ 50,00 e até R$ 250,00."
+            };
+        }
+
+        if (amount <= 1000) {
+            return {
+                level: "high",
+                label: "Alto impacto",
+                description: "Ruptura acima de R$ 250,00 e até R$ 1.000,00."
+            };
+        }
+
+        return {
+            level: "critical",
+            label: "Crítico",
+            description: "Ruptura financeira acima de R$ 1.000,00."
+        };
 
     }
 
@@ -1237,6 +1315,27 @@ const options = [
     }
 
 
+    function sumAvailableNumericField(rows, field) {
+
+        const values = rows
+            .map(row => row[field])
+            .filter(value =>
+                value !== null &&
+                value !== undefined &&
+                String(value).trim() !== ""
+            )
+            .map(Number)
+            .filter(Number.isFinite);
+
+        if (values.length === 0) {
+            return null;
+        }
+
+        return values.reduce((total, value) => total + value, 0);
+
+    }
+
+
     function getMaxDaysWithoutStock(rows) {
 
         const values =
@@ -1319,41 +1418,23 @@ function getAppointmentCoverage(rows) {
      * combinação operacional.
      */
 
+/*
+ * O status principal é exclusivamente a situação REAL da agenda.
+ * Decisões persistentes como "aguardar" ou "adicionada_agenda"
+ * não podem substituir "Fora da agenda", "Agendado" ou
+ * "Parcialmente agendado".
+ *
+ * Assim, excluir a última ocorrência faz a situação voltar
+ * automaticamente para "Fora da agenda", sem apagar a decisão
+ * que o comprador registrou separadamente.
+ */
 const awaitingScopes =
     scopes.filter(scope =>
         scope.decision?.status_decisao === "aguardar"
     );
 
-const addedScopes =
-    scopes.filter(scope =>
-        scope.decision?.status_decisao === "adicionada_agenda"
-    );
-
-let status = agendaStatus;
-let statusLabel = agendaStatusLabel;
-
-if (
-    scopes.length > 0 &&
-    awaitingScopes.length === scopes.length
-) {
-    status = "awaiting";
-    statusLabel = "Aguardando";
-
-} else if (awaitingScopes.length > 0) {
-    status = "partial-awaiting";
-    statusLabel = "Parcialmente aguardando";
-
-} else if (
-    scopes.length > 0 &&
-    addedScopes.length === scopes.length
-) {
-    status = "added";
-    statusLabel = "Adicionada à agenda";
-
-} else if (addedScopes.length > 0) {
-    status = "partial-added";
-    statusLabel = "Parcialmente adicionada à agenda";
-}
+const status = agendaStatus;
+const statusLabel = agendaStatusLabel;
 
 
     const allAppointments =
@@ -1534,7 +1615,7 @@ if (
                     ),
 
                 ruptureValue:
-                    sumField(
+                    sumAvailableNumericField(
                         sourceRows,
                         "ruptura_valor"
                     ),
@@ -1573,42 +1654,11 @@ function applySituationFilter(rows) {
     }
 
 
-    if (value === "awaiting") {
-
-        return rows.filter(row =>
-            row.status === "awaiting"
-        );
-
-    }
-
-
-    if (value === "partial-awaiting") {
-
-        return rows.filter(row =>
-            row.status === "partial-awaiting"
-        );
-
-    }
-
-    if (value === "added") {
-    return rows.filter(row =>
-        row.status === "added"
-    );
-}
-
-if (value === "partial-added") {
-    return rows.filter(row =>
-        row.status === "partial-added"
-    );
-}
-
-
     /*
-     * Os filtros originais continuam considerando
-     * a situação da agenda, independentemente
-     * da decisão Aguardar.
+     * Este filtro representa exclusivamente a situação da agenda.
+     * Decisões do comprador são exibidas no painel de detalhes e
+     * não entram no filtro de situação da agenda.
      */
-
     return rows.filter(row =>
         row.agendaStatus === value
     );
@@ -2109,16 +2159,93 @@ if (outsideRecordsElement) {
 
 
         /*
-         * Os limiares de prioridade ainda não foram definidos.
-         * Não atribuímos uma contagem crítica arbitrária.
+         * Considera risco financeiro elevado quando o total
+         * consolidado do fabricante ultrapassa R$ 250,00.
+         * A contagem segue os filtros ativos e a consolidação atual.
          */
 
         if (criticalRecordsElement) {
 
+            const elevatedRiskCount = displayRows.filter(row =>
+                Number.isFinite(row.ruptureValue) &&
+                row.ruptureValue > 250
+            ).length;
+
             criticalRecordsElement.textContent =
-                "—";
+                numberFormatter.format(elevatedRiskCount);
+
+            const summaryCard =
+                criticalRecordsElement.closest(".ruptura-summary-card");
+
+            const summaryLabel =
+                summaryCard?.querySelector(".ruptura-summary-label");
+
+            const summaryDescription =
+                summaryCard?.querySelector("small");
+
+            if (summaryLabel) {
+                summaryLabel.textContent = "Risco financeiro elevado";
+            }
+
+            if (summaryDescription) {
+                summaryDescription.textContent =
+                    "Fabricantes com ruptura acima de R$ 250,00";
+            }
 
         }
+
+    }
+
+
+    /* =====================================================
+       LEGENDA DA ESCALA FINANCEIRA
+       Inserida uma única vez, sem modificar a estrutura do HTML.
+    ===================================================== */
+
+    function ensureFinancialRiskLegend() {
+
+        if (document.getElementById("rupturaRiskLegend")) {
+            return;
+        }
+
+        const tableWrapper =
+            document.querySelector(".ruptura-table-wrapper");
+
+        if (!tableWrapper || !tableWrapper.parentNode) {
+            return;
+        }
+
+        const legend = document.createElement("section");
+        legend.id = "rupturaRiskLegend";
+        legend.className = "ruptura-risk-legend";
+        legend.setAttribute("aria-label", "Legenda de risco financeiro da ruptura");
+        legend.innerHTML = `
+            <div class="ruptura-risk-legend-heading">
+                <strong>Classificação financeira da ruptura</strong>
+                <span>Calculada pelo valor total de ruptura do fabricante na visão selecionada.</span>
+            </div>
+            <div class="ruptura-risk-legend-items">
+                <div class="ruptura-risk-legend-item">
+                    <span class="ruptura-financial-risk ruptura-financial-risk--low">Baixo impacto</span>
+                    <span>Até R$ 50,00</span>
+                </div>
+                <div class="ruptura-risk-legend-item">
+                    <span class="ruptura-financial-risk ruptura-financial-risk--attention">Atenção</span>
+                    <span>Acima de R$ 50 até R$ 250</span>
+                </div>
+                <div class="ruptura-risk-legend-item">
+                    <span class="ruptura-financial-risk ruptura-financial-risk--high">Alto impacto</span>
+                    <span>Acima de R$ 250 até R$ 1.000</span>
+                </div>
+                <div class="ruptura-risk-legend-item">
+                    <span class="ruptura-financial-risk ruptura-financial-risk--critical">Crítico</span>
+                    <span>Acima de R$ 1.000</span>
+                </div>
+            </div>
+            <p class="ruptura-risk-legend-note">Valores ausentes ou não positivos são identificados separadamente e não recebem faixa positiva de risco.</p>
+        `;
+
+        tableWrapper.parentNode.insertBefore(legend, tableWrapper);
 
     }
 
@@ -2221,6 +2348,9 @@ currentDisplayRows =
                         )
                         : "—";
 
+                const financialRisk =
+                    getFinancialRisk(row.ruptureValue);
+
 
                 return `
 
@@ -2264,8 +2394,18 @@ currentDisplayRows =
                             ${formatNumber(row.ruptureQuantity)}
                         </td>
 
-                        <td class="numeric">
-                            ${formatCurrency(row.ruptureValue)}
+                        <td class="numeric ruptura-financial-value-cell">
+                            <div class="ruptura-financial-value-wrap">
+                                <strong class="ruptura-financial-amount">
+                                    ${formatCurrency(row.ruptureValue)}
+                                </strong>
+                                <span
+                                    class="ruptura-financial-risk ruptura-financial-risk--${financialRisk.level}"
+                                    title="${escapeHtml(financialRisk.description)}"
+                                >
+                                    ${escapeHtml(financialRisk.label)}
+                                </span>
+                            </div>
                         </td>
 
                         <td>
@@ -2349,6 +2489,7 @@ currentDisplayRows =
                         </h2>
 
                         <p id="rupturaDetailsSubtitle"></p>
+                        <div id="rupturaDetailsFinancialRisk" class="ruptura-details-financial-risk"></div>
 
                     </div>
 
@@ -3126,6 +3267,11 @@ const updatedRow =
                 "rupturaDetailsSubtitle"
             );
 
+        const financialRiskSummary =
+            document.getElementById(
+                "rupturaDetailsFinancialRisk"
+            );
+
         const list =
             document.getElementById(
                 "rupturaDetailsList"
@@ -3145,6 +3291,19 @@ const updatedRow =
         subtitle.textContent =
             `${row.statusLabel} · ` +
             `${row.sourceRows.length} ${combinationLabel}`;
+
+        const financialRisk =
+            getFinancialRisk(row.ruptureValue);
+
+        if (financialRiskSummary) {
+            financialRiskSummary.innerHTML = `
+                <span class="ruptura-financial-risk ruptura-financial-risk--${financialRisk.level}"
+                    title="${escapeHtml(financialRisk.description)}">
+                    ${escapeHtml(financialRisk.label)}
+                </span>
+                <strong>Ruptura total: ${formatCurrency(row.ruptureValue)}</strong>
+            `;
+        }
 
 
         list.innerHTML =
@@ -3172,14 +3331,16 @@ const decision =
     ) || null;
 
 
+/*
+ * Exibir o status de adição somente se a agenda realmente
+ * tiver uma ocorrência futura para esta combinação.
+ */
 const decisionLabel =
     decision?.status_decisao === "aguardar"
         ? "Aguardando"
         : decision?.status_decisao === "adicionada_agenda"
-            ? "Adicionada à agenda"
-            : decision?.status_decisao === "cancelada"
-                ? "Decisão cancelada"
-                : "Sem decisão registrada";
+            ? (appointments.length > 0 ? "Adicionada à agenda" : "Fora da agenda")
+            : "Sem decisão registrada";
 
 
 const canRegisterDecision =
@@ -4107,6 +4268,8 @@ ensureSituationOptions();
 refreshFilterOptions();
 
 setupSortableHeaders();
+
+ensureFinancialRiskLegend();
 
 loadRuptureData();
 

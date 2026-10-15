@@ -192,12 +192,7 @@
 
 .ruptura-filters {
     display: grid;
-    grid-template-columns:
-        minmax(140px, .85fr)
-        minmax(170px, 1fr)
-        minmax(170px, 1fr)
-        minmax(200px, 1.25fr)
-        auto;
+    grid-template-columns: minmax(140px, .85fr) minmax(170px, 1fr) minmax(170px, 1fr) minmax(200px, 1.25fr) auto;
     align-items: end;
     gap: 12px;
 }
@@ -228,10 +223,7 @@
     color: var(--text, #1a1919);
     font-family: Arial, sans-serif;
     font-size: 10px;
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease,
-        background-color .2s ease;
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
 }
 
 .ruptura-field input::placeholder {
@@ -261,10 +253,7 @@
     font-weight: 700;
     white-space: nowrap;
     cursor: pointer;
-    transition:
-        background-color .2s ease,
-        border-color .2s ease,
-        color .2s ease;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .ruptura-filter-actions .secondary-btn:hover {
@@ -319,9 +308,7 @@
     border: 1px solid #c9bfb2;
     border-radius: 999px;
     background: #e4ded6;
-    transition:
-        background-color .2s ease,
-        border-color .2s ease;
+    transition: background-color .2s ease, border-color .2s ease;
 }
 
 .ruptura-toggle-track::after {
@@ -352,7 +339,7 @@
 }
 
 /* =========================================================
-   TABELA OPERACIONAL
+   TABELA
 ========================================================= */
 
 .ruptura-table-card {
@@ -368,7 +355,7 @@
     width: 100%;
     overflow-x: auto;
     overscroll-behavior-x: contain;
-    scrollbar-width: auto;
+    scrollbar-width: thin;
     scrollbar-color: #cfc5b8 transparent;
 }
 
@@ -383,7 +370,7 @@
 
 .ruptura-table {
     width: 100%;
-    min-width: 100px;
+    min-width: 1220px;
     border-collapse: separate;
     border-spacing: 0;
     background: var(--surface, #fff);
@@ -538,10 +525,7 @@
     font-size: 9px;
     font-weight: 800;
     cursor: pointer;
-    transition:
-        background-color .2s ease,
-        border-color .2s ease,
-        transform .2s ease;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
 }
 
 .ruptura-action-button:hover {
@@ -634,7 +618,6 @@
 ========================================================= */
 
 @media (max-width: 1200px) {
-
     .ruptura-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -646,11 +629,9 @@
     .ruptura-filter-actions {
         align-items: end;
     }
-
 }
 
 @media (max-width: 800px) {
-
     .ruptura-heading {
         align-items: flex-start;
         flex-direction: column;
@@ -674,7 +655,6 @@
     .ruptura-table-header {
         padding: 15px;
     }
-
 }
 
 /* =========================================================
@@ -682,7 +662,6 @@
 ========================================================= */
 
 @media (max-width: 520px) {
-
     .ruptura-summary {
         grid-template-columns: 1fr 1fr;
         gap: 9px;
@@ -731,231 +710,1242 @@
     .ruptura-footer-note {
         padding: 10px;
     }
+}
 
+
+/* =========================================================
+   RISCO FINANCEIRO DA RUPTURA
+   Complemento visual: não substitui o status da agenda.
+========================================================= */
+
+.ruptura-financial-value-cell {
+    min-width: 155px;
+}
+
+.ruptura-financial-value-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.ruptura-financial-amount {
+    color: var(--text, #1a1919);
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ruptura-financial-risk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 4px 7px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.ruptura-financial-risk::before {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+.ruptura-financial-risk--low {
+    border-color: #bfe3ca;
+    background: #e7f5eb;
+    color: #22864b;
+}
+
+.ruptura-financial-risk--attention {
+    border-color: #ead98a;
+    background: #fff7d5;
+    color: #8f7810;
+}
+
+.ruptura-financial-risk--high {
+    border-color: #f3cca4;
+    background: #fff0df;
+    color: #b65a0a;
+}
+
+.ruptura-financial-risk--critical {
+    border-color: #f3bfc3;
+    background: #fce8e8;
+    color: #b4232d;
+}
+
+.ruptura-financial-risk--no-data,
+.ruptura-financial-risk--no-positive {
+    border-color: #ddd5cb;
+    background: #f3f0eb;
+    color: #71665b;
+}
+
+.ruptura-financial-risk--no-data::before,
+.ruptura-financial-risk--no-positive::before {
+    display: none;
+}
+
+/* Legenda inserida pelo JavaScript antes da tabela. */
+.ruptura-risk-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border-light, #ebe7df);
+    background: var(--surface-soft, #f8f6f1);
+}
+
+.ruptura-risk-legend-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ruptura-risk-legend-heading strong {
+    color: var(--text, #342820);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.ruptura-risk-legend-heading span,
+.ruptura-risk-legend-note {
+    color: var(--text-light, #807261);
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.ruptura-risk-legend-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px 16px;
+}
+
+.ruptura-risk-legend-item {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    color: var(--text-light, #807261);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.ruptura-risk-legend-note {
+    margin: 0;
+}
+
+/* A faixa parcial é um status da agenda, não de risco financeiro. */
+.ruptura-status.partial {
+    border-color: #ead98a;
+    background: #fff7d5;
+    color: #8f7810;
+}
+
+/* Resumo financeiro no cabeçalho do modal de detalhes. */
+.ruptura-details-financial-risk {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 9px;
+}
+
+.ruptura-details-financial-risk > strong {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 800px) {
+    .ruptura-risk-legend {
+        padding: 13px 15px;
+    }
+
+    .ruptura-risk-legend-items {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 520px) {
+    .ruptura-financial-value-cell {
+        min-width: 145px;
+    }
+
+    .ruptura-details-financial-risk {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }
 
 /* =========================================================
-   FILTROS DE SELEÇÃO MÚLTIPLA
+   REFINO VISUAL — FILTROS, TABELA E LEGENDA FINANCEIRA
+   Sobrescritas CSS apenas; a lógica do ruptura.js permanece intacta.
 ========================================================= */
 
-.ruptura-multiselect {
-    position: relative;
-    width: 100%;
-    min-width: 0;
-}
-
-.ruptura-multiselect-trigger {
-    width: 100%;
-    min-height: 36px;
+/* Controles dos filtros: força o acabamento corporativo mesmo
+   quando regras globais de button/select forem carregadas depois. */
+.ruptura-page .ruptura-filters-card .ruptura-multiselect-trigger,
+.ruptura-page #rupturaGroupTrigger,
+.ruptura-page #rupturaClassificationTrigger {
+    appearance: none;
+    -webkit-appearance: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 0 11px;
-    border: 1px solid var(--border-light);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid #ddd3c7;
+    border-radius: 9px;
+    background: #fff;
+    color: #342820;
+    font: 700 10px/1.2 Arial, sans-serif;
+    text-align: left;
+    box-shadow: 0 1px 2px rgba(52, 37, 29, .035);
     cursor: pointer;
-    transition:
-        border-color .2s ease,
-        background-color .2s ease,
-        box-shadow .2s ease;
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
 }
 
-.ruptura-multiselect-trigger:hover,
-.ruptura-multiselect.open
-.ruptura-multiselect-trigger {
-    border-color: var(--primary-light);
-    background: var(--surface-soft);
+.ruptura-page .ruptura-filters-card .ruptura-multiselect-trigger:hover,
+.ruptura-page .ruptura-filters-card .ruptura-multiselect.open .ruptura-multiselect-trigger {
+    border-color: #b99a75;
+    background: #fffdfa;
 }
 
-.ruptura-multiselect-trigger:focus-visible {
-    outline: 3px solid rgba(114, 70, 19, .12);
+.ruptura-page .ruptura-filters-card .ruptura-multiselect-trigger:focus-visible {
+    outline: 3px solid rgba(114, 70, 19, .13);
     outline-offset: 2px;
 }
 
-.ruptura-multiselect-trigger > span:first-child {
+.ruptura-page .ruptura-multiselect-trigger > span:first-child {
+    min-width: 0;
     overflow: hidden;
+    color: #342820;
+    font: 700 10px/1.2 Arial, sans-serif;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.ruptura-multiselect-arrow {
-    flex-shrink: 0;
-    color: var(--primary);
-    transition: transform .2s ease;
+.ruptura-page .ruptura-multiselect-arrow {
+    flex: 0 0 auto;
+    color: #724613;
+    font-size: 11px;
+    line-height: 1;
 }
 
-.ruptura-multiselect.open
-.ruptura-multiselect-arrow {
-    transform: rotate(180deg);
+.ruptura-page .ruptura-field select,
+.ruptura-page .ruptura-field input[type="search"] {
+    height: 38px;
+    min-height: 38px;
+    border-color: #ddd3c7;
+    border-radius: 9px;
+    background-color: #fff;
+    color: #342820;
+    font: 400 10px/1.2 Arial, sans-serif;
 }
 
-.ruptura-multiselect-menu {
-    position: absolute;
-    top: calc(100% + 7px);
-    left: 0;
-    z-index: 500;
-    width: max(100%, 235px);
-    max-height: 320px;
+.ruptura-page .ruptura-field select {
+    cursor: pointer;
+}
+
+.ruptura-page .ruptura-field input[type="search"]:focus,
+.ruptura-page .ruptura-field select:focus {
+    border-color: #9e7a50;
+    box-shadow: 0 0 0 3px rgba(114, 70, 19, .08);
+}
+
+.ruptura-page .ruptura-filter-actions #clearRupturaFilters {
+    min-height: 38px;
+    border-color: #ddd3c7;
+    border-radius: 9px;
+    background: #fff;
+    color: #72543a;
+    font: 700 10px/1.2 Arial, sans-serif;
+}
+
+.ruptura-page .ruptura-filter-actions #clearRupturaFilters:hover {
+    border-color: #b99a75;
+    background: #faf6f0;
+    color: #55320d;
+}
+
+/* Distribuição equilibrada dos filtros em telas largas. */
+.ruptura-page .ruptura-filters {
+    grid-template-columns:
+        minmax(150px, .88fr)
+        minmax(205px, 1.16fr)
+        minmax(205px, 1.12fr)
+        minmax(250px, 1.42fr)
+        minmax(112px, auto);
+    gap: 14px;
+}
+
+/* Legenda mais compacta: título à esquerda, faixas ao lado,
+   observação discreta abaixo. */
+.ruptura-page .ruptura-risk-legend {
+    display: grid;
+    grid-template-columns: minmax(230px, .72fr) minmax(0, 2.28fr);
+    align-items: center;
+    gap: 8px 18px;
+    padding: 12px 18px 10px;
+    border-bottom: 1px solid #e9e1d7;
+    background: #faf8f4;
+}
+
+.ruptura-page .ruptura-risk-legend-heading {
+    gap: 4px;
+    min-width: 0;
+}
+
+.ruptura-page .ruptura-risk-legend-heading strong {
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.ruptura-page .ruptura-risk-legend-heading span {
+    max-width: 360px;
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.ruptura-page .ruptura-risk-legend-items {
+    align-items: center;
+    gap: 7px 13px;
+    min-width: 0;
+}
+
+.ruptura-page .ruptura-risk-legend-item {
+    gap: 5px;
+    font-size: 9px;
+    line-height: 1.35;
+}
+
+.ruptura-page .ruptura-risk-legend-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding-top: 2px;
+    color: #887968;
+    font-size: 8px;
+    line-height: 1.35;
+}
+
+/* Tabela: larguras previsíveis impedem que a informação esmague
+   as colunas. Em janelas menores, a rolagem continua disponível. */
+.ruptura-page .ruptura-table-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+    scrollbar-color: #c8b9a7 #f7f3ed;
+}
+
+.ruptura-page .ruptura-table {
+    width: 100%;
+    min-width: 1420px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.ruptura-page .ruptura-table th:nth-child(1),
+.ruptura-page .ruptura-table td:nth-child(1) { width: 258px; }
+.ruptura-page .ruptura-table th:nth-child(2),
+.ruptura-page .ruptura-table td:nth-child(2) { width: 82px; }
+.ruptura-page .ruptura-table th:nth-child(3),
+.ruptura-page .ruptura-table td:nth-child(3) { width: 92px; }
+.ruptura-page .ruptura-table th:nth-child(4),
+.ruptura-page .ruptura-table td:nth-child(4) { width: 112px; }
+.ruptura-page .ruptura-table th:nth-child(5),
+.ruptura-page .ruptura-table td:nth-child(5) { width: 128px; }
+.ruptura-page .ruptura-table th:nth-child(6),
+.ruptura-page .ruptura-table td:nth-child(6) { width: 108px; }
+.ruptura-page .ruptura-table th:nth-child(7),
+.ruptura-page .ruptura-table td:nth-child(7) { width: 148px; }
+.ruptura-page .ruptura-table th:nth-child(8),
+.ruptura-page .ruptura-table td:nth-child(8) { width: 145px; }
+.ruptura-page .ruptura-table th:nth-child(9),
+.ruptura-page .ruptura-table td:nth-child(9) { width: 205px; }
+.ruptura-page .ruptura-table th:last-child,
+.ruptura-page .ruptura-table td.action-cell { width: 112px; }
+
+.ruptura-page .ruptura-table th {
+    padding: 12px 24px 12px 10px;
+    line-height: 1.35;
+    vertical-align: middle;
+}
+
+.ruptura-page .ruptura-table th.ruptura-sortable {
+    padding-right: 25px;
+}
+
+.ruptura-page .ruptura-sort-indicator {
+    right: 6px;
+    width: 10px;
+    color: #e7d4bd;
+    font-size: 10px;
+}
+
+.ruptura-page .ruptura-table tbody td {
+    padding: 12px 10px;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+}
+
+.ruptura-page .ruptura-table td.manufacturer-cell {
+    min-width: 0;
+    max-width: none;
+    overflow-wrap: anywhere;
+}
+
+.ruptura-page .ruptura-manufacturer-name {
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.ruptura-page .ruptura-manufacturer-meta {
+    margin-top: 4px;
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+/* A coluna Ação/Detalhes permanece visível ao rolar a tabela. */
+.ruptura-page .ruptura-table thead th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 8;
+    width: 112px;
+    min-width: 112px;
+    border-left: 1px solid rgba(255, 253, 232, .22);
+    background: #442804;
+    box-shadow: -7px 0 12px rgba(40, 26, 11, .10);
+    text-align: center;
+}
+
+.ruptura-page .ruptura-table tbody td.action-cell {
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    width: 112px;
+    min-width: 112px;
+    border-left: 1px solid #e6ddd2;
+    background: #fff;
+    box-shadow: -7px 0 12px rgba(40, 26, 11, .055);
+    text-align: center;
+}
+
+.ruptura-page .ruptura-table tbody tr:nth-child(even) td.action-cell {
+    background: #fcfbf8;
+}
+
+.ruptura-page .ruptura-table tbody tr:hover td.action-cell {
+    background: #f8f3ec;
+}
+
+.ruptura-page .ruptura-table td.action-cell .ruptura-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 82px;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+/* Na tabela, a cor do valor comunica a faixa financeira.
+   Retiramos a segunda etiqueta por linha para reduzir ruído visual;
+   a legenda e o modal continuam exibindo o nome da faixa. */
+.ruptura-page .ruptura-financial-value-wrap {
+    gap: 0;
+    align-items: flex-end;
+}
+
+.ruptura-page .ruptura-financial-value-wrap > .ruptura-financial-risk {
+    display: none;
+}
+
+.ruptura-page .ruptura-financial-amount {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--low) .ruptura-financial-amount {
+    color: #22864b;
+}
+
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--attention) .ruptura-financial-amount {
+    color: #927900;
+}
+
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--high) .ruptura-financial-amount {
+    color: #bd5f0d;
+}
+
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--critical) .ruptura-financial-amount {
+    color: #c92d36;
+}
+
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--no-data) .ruptura-financial-amount,
+.ruptura-page .ruptura-financial-value-wrap:has(.ruptura-financial-risk--no-positive) .ruptura-financial-amount {
+    color: #71665b;
+}
+
+.ruptura-page .ruptura-financial-value-cell {
+    min-width: 0;
+    white-space: nowrap;
+}
+
+/* Status de agenda mais discreto: conserva a cor sem acrescentar
+   elementos decorativos além do essencial. */
+.ruptura-page .ruptura-status {
+    gap: 5px;
+    padding: 5px 9px;
+    font-size: 9px;
+    line-height: 1.25;
+}
+
+/* Ajustes para telas menores. */
+@media (max-width: 1200px) {
+    .ruptura-page .ruptura-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ruptura-page .ruptura-filter-actions {
+        width: 100%;
+    }
+
+    .ruptura-page .ruptura-filter-actions #clearRupturaFilters {
+        width: 100%;
+    }
+
+    .ruptura-page .ruptura-risk-legend {
+        grid-template-columns: minmax(190px, .6fr) minmax(0, 1.4fr);
+    }
+
+    .ruptura-page .ruptura-risk-legend-items {
+        gap: 8px 10px;
+    }
+}
+
+@media (max-width: 800px) {
+    .ruptura-page .ruptura-risk-legend {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 9px;
+        padding: 12px 15px;
+    }
+
+    .ruptura-page .ruptura-risk-legend-items {
+        flex-direction: row;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+    }
+
+    .ruptura-page .ruptura-risk-legend-note {
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 650px) {
+    .ruptura-page .ruptura-filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ruptura-page .ruptura-risk-legend-items {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ruptura-page .ruptura-table-wrapper {
+        scrollbar-width: thin;
+    }
+}
+
+/* =========================================================
+   REFINO PROFISSIONAL — AGENDA POR RUPTURA
+   Ajustes visuais sem alterar a lógica do JavaScript
+========================================================= */
+
+/* 1. FABRICANTE: nome acima, informações abaixo */
+
+.ruptura-page .ruptura-table td.manufacturer-cell {
+    min-width: 0;
+    padding: 9px 10px;
+    vertical-align: middle;
+}
+
+.ruptura-page .ruptura-manufacturer-name {
+    display: block;
+    color: #342820;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.ruptura-page .ruptura-manufacturer-meta {
+    display: block;
+    margin-top: 3px;
+    color: #817568;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+
+/* 2. TABELA MAIS COMPACTA */
+
+.ruptura-page .ruptura-table {
+    min-width: 1280px;
+    table-layout: fixed;
+}
+
+.ruptura-page .ruptura-table th {
+    padding: 9px 19px 9px 8px;
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+.ruptura-page .ruptura-table tbody td {
+    padding: 8px;
+    font-size: 10px;
+    line-height: 1.3;
+    vertical-align: middle;
+}
+
+.ruptura-page .ruptura-table .ruptura-status {
+    padding: 4px 7px;
+    font-size: 9px;
+}
+
+/* Larguras menores para as colunas conhecidas */
+
+.ruptura-page .ruptura-table th:nth-child(1),
+.ruptura-page .ruptura-table td:nth-child(1) {
+    width: 230px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(2),
+.ruptura-page .ruptura-table td:nth-child(2) {
+    width: 72px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(3),
+.ruptura-page .ruptura-table td:nth-child(3) {
+    width: 78px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(4),
+.ruptura-page .ruptura-table td:nth-child(4) {
+    width: 100px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(5),
+.ruptura-page .ruptura-table td:nth-child(5) {
+    width: 105px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(6),
+.ruptura-page .ruptura-table td:nth-child(6) {
+    width: 95px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(7),
+.ruptura-page .ruptura-table td:nth-child(7) {
+    width: 135px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(8),
+.ruptura-page .ruptura-table td:nth-child(8) {
+    width: 132px;
+}
+
+.ruptura-page .ruptura-table th:nth-child(9),
+.ruptura-page .ruptura-table td:nth-child(9) {
+    width: 175px;
+}
+
+.ruptura-page .ruptura-table th:last-child,
+.ruptura-page .ruptura-table td.action-cell {
+    width: 102px;
+    min-width: 102px;
+}
+
+
+/* 3. CORES SUAVES DE PRIORIDADE POR LINHA
+   Aproveita as classes de risco que já existem na tabela. */
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--critical) {
+    background-color: #FFF1F0;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--high) {
+    background-color: #FFF6EB;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--attention) {
+    background-color: #FFFBE9;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--low) {
+    background-color: #F0F8F1;
+}
+
+/* Realce discreto quando o mouse passa pela linha */
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--critical):hover {
+    background-color: #FFE7E5;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--high):hover {
+    background-color: #FFEFDE;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--attention):hover {
+    background-color: #FFF5D4;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:has(.ruptura-financial-risk--low):hover {
+    background-color: #E4F2E6;
+}
+
+
+/* 4. REMOVER O EFEITO DE COLUNA FLUTUANTE EM DETALHES */
+
+.ruptura-page .ruptura-table thead th:last-child {
+    position: static;
+    right: auto;
+    z-index: auto;
+    box-shadow: none;
+    border-left: 0;
+}
+
+.ruptura-page .ruptura-table tbody td.action-cell {
+    position: static;
+    right: auto;
+    z-index: auto;
+    box-shadow: none;
+    border-left: 0;
+    background: transparent;
+    text-align: center;
+}
+
+.ruptura-page .ruptura-table tbody
+tr:nth-child(even) td.action-cell,
+.ruptura-page .ruptura-table tbody
+tr:hover td.action-cell {
+    background: transparent;
+}
+
+/* Botão de detalhes menor, sem chamar mais atenção que os dados */
+
+.ruptura-page .ruptura-table td.action-cell
+.ruptura-action-button {
+    min-width: 75px;
+    min-height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* 5. VALOR FINANCEIRO: DESTAQUE SEM EXCESSO */
+
+.ruptura-page .ruptura-financial-amount {
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.ruptura-page .ruptura-financial-value-wrap {
+    gap: 0;
+}
+
+/* Em telas menores, a tabela preserva a leitura por rolagem */
+
+@media (max-width: 800px) {
+    .ruptura-page .ruptura-table {
+        min-width: 1280px;
+    }
+
+    .ruptura-page .ruptura-manufacturer-name {
+        font-size: 10px;
+    }
+
+    .ruptura-page .ruptura-manufacturer-meta {
+        font-size: 9px;
+    }
+}
+
+/* =========================================================
+   AJUSTE FINO — MAIS COLUNAS VISÍVEIS
+========================================================= */
+
+/* Reduz a largura mínima total da tabela */
+.ruptura-page .ruptura-table {
+    width: 100%;
+    min-width: 1140px;
+    table-layout: fixed;
+}
+
+/* Cabeçalho mais compacto */
+.ruptura-page .ruptura-table th {
+    padding: 8px 17px 8px 7px;
+    font-size: 9px;
+    line-height: 1.25;
+}
+
+/* Menos espaço entre os dados */
+.ruptura-page .ruptura-table tbody td {
     padding: 7px;
-    overflow-y: auto;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    font-size: 10px;
+    line-height: 1.3;
 }
 
-.ruptura-multiselect-menu[hidden] {
+/* Fabricante: continua legível, mas ocupa menos espaço */
+.ruptura-page .ruptura-table th:nth-child(1),
+.ruptura-page .ruptura-table td:nth-child(1) {
+    width: 205px;
+}
+
+/* Curva Quantidade */
+.ruptura-page .ruptura-table th:nth-child(2),
+.ruptura-page .ruptura-table td:nth-child(2) {
+    width: 64px;
+}
+
+/* Curva Valor */
+.ruptura-page .ruptura-table th:nth-child(3),
+.ruptura-page .ruptura-table td:nth-child(3) {
+    width: 70px;
+}
+
+/* Total vendido */
+.ruptura-page .ruptura-table th:nth-child(4),
+.ruptura-page .ruptura-table td:nth-child(4) {
+    width: 95px;
+}
+
+/* Dias sem estoque */
+.ruptura-page .ruptura-table th:nth-child(5),
+.ruptura-page .ruptura-table td:nth-child(5) {
+    width: 100px;
+}
+
+/* Ruptura quantidade */
+.ruptura-page .ruptura-table th:nth-child(6),
+.ruptura-page .ruptura-table td:nth-child(6) {
+    width: 88px;
+}
+
+/* Ruptura valor */
+.ruptura-page .ruptura-table th:nth-child(7),
+.ruptura-page .ruptura-table td:nth-child(7) {
+    width: 125px;
+}
+
+/* Situação */
+.ruptura-page .ruptura-table th:nth-child(8),
+.ruptura-page .ruptura-table td:nth-child(8) {
+    width: 125px;
+}
+
+/* Próximo agendamento */
+.ruptura-page .ruptura-table th:nth-child(9),
+.ruptura-page .ruptura-table td:nth-child(9) {
+    width: 165px;
+}
+
+/* Detalhes / ações */
+.ruptura-page .ruptura-table th:last-child,
+.ruptura-page .ruptura-table td.action-cell {
+    width: 95px;
+    min-width: 95px;
+}
+
+/* Botão menor e mais discreto */
+.ruptura-page .ruptura-table td.action-cell
+.ruptura-action-button {
+    min-width: 68px;
+    min-height: 27px;
+    padding: 0 7px;
+    font-size: 9px;
+    border-radius: 6px;
+}
+
+/* Mantém a rolagem quando a tela não comportar as colunas */
+.ruptura-page .ruptura-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* =========================================================
+   LEGENDA FINANCEIRA — VERSÃO COMPACTA
+========================================================= */
+
+/* Retira o título, a explicação e a observação */
+.ruptura-page .ruptura-risk-legend-heading,
+.ruptura-page .ruptura-risk-legend-note {
     display: none !important;
 }
 
-.ruptura-multiselect-options {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.ruptura-multiselect-option {
-    position: relative;
+/* Mantém somente as quatro faixas de risco */
+.ruptura-page .ruptura-risk-legend {
     display: flex;
     align-items: center;
-    gap: 9px;
-    min-height: 36px;
-    padding: 8px 10px;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: background-color .15s ease;
+    justify-content: flex-start;
+    padding: 10px 16px;
+    gap: 10px;
+    background: #faf8f4;
+    border-bottom: 1px solid #e9e1d7;
 }
 
-.ruptura-multiselect-option:hover,
-.ruptura-multiselect-option:has(input:checked) {
-    background: #f7f1e9;
+/* Distribuição horizontal dos indicadores */
+.ruptura-page .ruptura-risk-legend-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    width: 100%;
 }
 
-.ruptura-multiselect-option input {
-    width: 17px;
-    height: 17px;
-    flex-shrink: 0;
-    margin: 0;
-    accent-color: var(--primary);
-    cursor: pointer;
+/* Mantém cada faixa e sua descrição juntos */
+.ruptura-page .ruptura-risk-legend-item {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 6px;
+    white-space: nowrap;
 }
 
-.ruptura-multiselect-option span {
-    color: var(--text);
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
+/* =========================================================
+   TABELA — DISTRIBUIÇÃO MAIS EFICIENTE DAS COLUNAS
+========================================================= */
+
+.ruptura-page .ruptura-table {
+    width: 100%;
+    min-width: 1140px;
+    table-layout: fixed;
 }
 
-.ruptura-multiselect-divider {
-    height: 1px;
-    margin: 4px 2px;
-    background: var(--border-light);
+/* Fabricante */
+.ruptura-page .ruptura-table th:nth-child(1),
+.ruptura-page .ruptura-table td:nth-child(1) {
+    width: 18%;
 }
 
-.ruptura-multiselect.open {
-    z-index: 501;
+/* Curva Quantidade */
+.ruptura-page .ruptura-table th:nth-child(2),
+.ruptura-page .ruptura-table td:nth-child(2) {
+    width: 7%;
 }
 
-/* Fabricante e contexto consolidado */
-
-.ruptura-manufacturer-name {
-    display: block;
-    color: var(--text);
-    font-size: 10px;
-    font-weight: 800;
-    overflow-wrap: anywhere;
+/* Curva Valor */
+.ruptura-page .ruptura-table th:nth-child(3),
+.ruptura-page .ruptura-table td:nth-child(3) {
+    width: 7%;
 }
 
-.ruptura-manufacturer-meta {
-    display: block;
-    margin-top: 4px;
-    color: var(--text-light);
-    font-size: 8px;
-    font-weight: 500;
-    line-height: 1.5;
+/* Total vendido */
+.ruptura-page .ruptura-table th:nth-child(4),
+.ruptura-page .ruptura-table td:nth-child(4) {
+    width: 9%;
 }
 
-/* Janela de detalhes */
+/* Dias sem estoque */
+.ruptura-page .ruptura-table th:nth-child(5),
+.ruptura-page .ruptura-table td:nth-child(5) {
+    width: 9%;
+}
+
+/* Ruptura quantidade */
+.ruptura-page .ruptura-table th:nth-child(6),
+.ruptura-page .ruptura-table td:nth-child(6) {
+    width: 8%;
+}
+
+/* Ruptura valor */
+.ruptura-page .ruptura-table th:nth-child(7),
+.ruptura-page .ruptura-table td:nth-child(7) {
+    width: 11%;
+}
+
+/* Situação */
+.ruptura-page .ruptura-table th:nth-child(8),
+.ruptura-page .ruptura-table td:nth-child(8) {
+    width: 10%;
+}
+
+/* Próximo agendamento — coluna reduzida */
+.ruptura-page .ruptura-table th:nth-child(9),
+.ruptura-page .ruptura-table td:nth-child(9) {
+    width: 12%;
+    white-space: nowrap;
+}
+
+/* Ação / Detalhes */
+.ruptura-page .ruptura-table th:last-child,
+.ruptura-page .ruptura-table td.action-cell {
+    width: 9%;
+    min-width: 0;
+}
+
+/* Cabeçalho com menos espaço horizontal */
+.ruptura-page .ruptura-table th {
+    padding: 8px 15px 8px 7px;
+}
+
+/* Conteúdo mais compacto */
+.ruptura-page .ruptura-table tbody td {
+    padding: 7px;
+}
+
+/* Botão de detalhes sem excesso de largura */
+.ruptura-page .ruptura-table td.action-cell
+.ruptura-action-button {
+    min-width: 0;
+    min-height: 27px;
+    padding: 0 7px;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   AGENDA POR RUPTURA — APROVEITAR MAIS A TELA
+========================================================= */
+
+@media (min-width: 1000px) {
+
+    /* Reduz as margens internas do conteúdo principal */
+    .app > .main-content {
+        box-sizing: border-box;
+        min-width: 0;
+        max-width: none;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    /* Permite que a página use toda a largura disponível */
+    .main-content > .ruptura-page {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* Ocupa toda a área disponível com a tabela */
+    .ruptura-page .ruptura-table-card {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+
+    .ruptura-page .ruptura-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+}
+
+/* =========================================================
+   AGENDA POR RUPTURA
+   RESTAURAÇÃO VISUAL DA CAIXA DE DETALHES
+   Mantém o mecanismo atual do ruptura.js
+========================================================= */
+
+/* Fundo escurecido atrás da caixa */
 
 .ruptura-details-overlay {
     position: fixed;
     inset: 0;
     z-index: 10000;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 20px;
-    background: rgba(25, 21, 17, .48);
+    background: rgba(25, 21, 17, 0.48);
 }
 
 .ruptura-details-overlay[hidden] {
     display: none !important;
 }
 
+/* Caixa principal */
+
 .ruptura-details-modal {
     width: min(560px, 100%);
     max-height: min(80vh, 700px);
+
     display: flex;
     flex-direction: column;
+
     overflow: hidden;
-    background: var(--surface);
-    border: 1px solid var(--border);
+
+    background: #fff;
+    border: 1px solid #ddd3c7;
     border-radius: 16px;
-    box-shadow: var(--shadow-md);
+
+    box-shadow: 0 18px 55px rgba(37, 25, 14, 0.24);
 }
+
+/* Cabeçalho marrom */
 
 .ruptura-details-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+
     padding: 19px 22px;
+
     background: #2d1a01;
-    color: white;
+    color: #fff;
 }
 
 .ruptura-details-header h2 {
     margin: 0 0 5px;
+
+    color: #fff;
+    font-family: Arial, sans-serif;
     font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+
     overflow-wrap: anywhere;
 }
 
 .ruptura-details-header p {
     margin: 0;
+
     color: #e8dccb;
+    font-family: Arial, sans-serif;
     font-size: 10px;
+    line-height: 1.5;
 }
+
+/* Valor e classificação de risco no cabeçalho */
+
+.ruptura-details-financial-risk {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-top: 9px;
+}
+
+.ruptura-details-financial-risk > strong {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Botão de fechar */
 
 .ruptura-details-close {
     width: 33px;
     height: 33px;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     border: 0;
     border-radius: 8px;
+
     background: #ebdbc2;
     color: #55320d;
+
+    font-family: Arial, sans-serif;
     font-size: 20px;
+    line-height: 1;
+
     cursor: pointer;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease;
 }
 
+.ruptura-details-close:hover {
+    background: #fff;
+    color: #34251d;
+}
+
+.ruptura-details-close:focus-visible {
+    outline: 3px solid #c6a77e;
+    outline-offset: 3px;
+}
+
+/* Corpo da caixa */
+
 .ruptura-details-content {
+    min-height: 0;
     padding: 18px 22px;
+
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+
+    background: #fff;
 }
 
 .ruptura-details-content h3 {
     margin: 0 0 12px;
-    color: var(--primary-dark);
+
+    color: #55320d;
+    font-family: Arial, sans-serif;
     font-size: 12px;
+    font-weight: 800;
+    line-height: 1.4;
 }
+
+/* Lista de informações */
 
 .ruptura-details-list {
     display: flex;
@@ -963,65 +1953,68 @@
     gap: 9px;
 }
 
+/* Cada item mantém aparência discreta */
+
 .ruptura-details-item {
     padding: 12px;
-    border: 1px solid var(--border-light);
+
+    border: 1px solid #ebe3d9;
     border-radius: 9px;
-    background: var(--surface-soft);
+
+    background: #f8f6f1;
 }
 
 .ruptura-details-item strong {
     display: block;
     margin-bottom: 5px;
-    color: var(--text);
+
+    color: #342820;
+    font-family: Arial, sans-serif;
     font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
 }
 
 .ruptura-details-item p {
     margin: 3px 0;
-    color: var(--text-light);
+
+    color: #756b63;
+    font-family: Arial, sans-serif;
     font-size: 10px;
     line-height: 1.5;
+
+    overflow-wrap: anywhere;
 }
+
+/* Observações e avisos */
 
 .ruptura-details-note {
     margin-top: 15px;
     padding: 11px;
+
+    border: 1px solid #e9dccb;
     border-radius: 8px;
+
     background: #f7f1e9;
-    color: var(--primary-dark);
+    color: #55320d;
+
+    font-family: Arial, sans-serif;
     font-size: 10px;
     line-height: 1.5;
 }
 
-@media (max-width: 520px) {
-    .ruptura-multiselect-menu {
-        width: min(280px, 90vw);
-    }
-
-    .ruptura-details-overlay {
-        padding: 10px;
-    }
-
-    .ruptura-details-modal {
-        max-height: 90vh;
-        border-radius: 13px;
-    }
-
-    .ruptura-details-header,
-    .ruptura-details-content {
-        padding: 16px;
-    }
-}
 
 /* =========================================================
-   FORMULÁRIO DE ANTECIPAÇÃO
+   AGENDAMENTO E ANTECIPAÇÃO DENTRO DOS DETALHES
 ========================================================= */
 
 .ruptura-detail-appointment-wrap {
     margin-top: 9px;
     padding-top: 9px;
-    border-top: 1px solid var(--border-light);
+
+    border-top: 1px solid #ebe3d9;
 }
 
 .ruptura-detail-appointment {
@@ -1033,17 +2026,22 @@
 
 .ruptura-detail-appointment > span {
     min-width: 0;
-    color: var(--text-light);
+
+    color: #756b63;
     font-size: 10px;
     line-height: 1.5;
 }
 
+/* Formulário de antecipação */
+
 .ruptura-advance-form {
     margin-top: 10px;
     padding: 12px;
-    border: 1px solid var(--border);
+
+    border: 1px solid #ddd3c7;
     border-radius: 9px;
-    background: var(--surface);
+
+    background: #fff;
 }
 
 .ruptura-advance-form[hidden] {
@@ -1060,8 +2058,11 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+
     min-width: 0;
-    color: var(--text);
+
+    color: #342820;
+    font-family: Arial, sans-serif;
     font-size: 10px;
     font-weight: 700;
 }
@@ -1071,100 +2072,91 @@
     min-width: 0;
     height: 36px;
     padding: 0 9px;
-    border: 1px solid var(--border);
+
+    border: 1px solid #ddd3c7;
     border-radius: 7px;
-    background: var(--surface);
-    color: var(--text);
+
+    background: #fff;
+    color: #342820;
+
     font-family: Arial, sans-serif;
     font-size: 11px;
 }
 
 .ruptura-advance-field input:focus {
     outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(114, 70, 19, .08);
+    border-color: #9e7a50;
+    box-shadow: 0 0 0 3px rgba(114, 70, 19, 0.08);
 }
 
 .ruptura-advance-reason-field {
     margin-top: 10px;
 }
 
+/* Ações dos formulários */
+
 .ruptura-advance-actions {
     display: flex;
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 8px;
+
     margin-top: 12px;
 }
 
 .ruptura-advance-feedback {
     margin: 8px 0 0 !important;
+
+    font-family: Arial, sans-serif;
     font-size: 10px !important;
     line-height: 1.5;
 }
 
 .ruptura-advance-feedback.error {
-    color: var(--danger);
+    color: #c43b3b;
 }
 
 .ruptura-advance-feedback.success {
-    color: var(--success);
+    color: #2e8b50;
 }
 
-@media (max-width: 520px) {
-
-    .ruptura-detail-appointment {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .ruptura-advance-fields {
-        grid-template-columns: 1fr;
-    }
-
-    .ruptura-advance-actions {
-        flex-direction: column-reverse;
-    }
-
-    .ruptura-advance-actions button {
-        width: 100%;
-    }
-
-}
 
 /* =========================================================
-   DECISÃO AGUARDAR
+   PAINEL DE DECISÃO E OPÇÃO AGUARDAR
 ========================================================= */
 
 .ruptura-status.awaiting {
+    border: 1px solid #e7c77e;
     background: #fff2d6;
     color: #805300;
-    border: 1px solid #e7c77e;
 }
 
 .ruptura-status.partial-awaiting {
+    border: 1px solid #d9c29b;
     background: #f5ead7;
     color: #75532a;
-    border: 1px solid #d9c29b;
 }
 
 .ruptura-decision-panel {
     margin-top: 12px;
     padding: 12px;
-    border: 1px solid var(--border-light, #ebe7df);
+
+    border: 1px solid #ebe3d9;
     border-radius: 9px;
+
     background: #fcfaf7;
 }
 
 .ruptura-decision-panel > p {
     margin: 0 0 10px;
-    color: var(--text, #342820);
+
+    color: #342820;
     font-size: 11px;
     line-height: 1.5;
 }
 
 .ruptura-decision-panel > p strong {
-    color: var(--primary, #724613);
+    color: #724613;
 }
 
 .ruptura-await-form {
@@ -1185,57 +2177,10 @@
     display: none;
 }
 
-@media (max-width: 520px) {
-    .ruptura-decision-panel {
-        padding: 10px;
-    }
-}
 
-/* =====================================================
-   ORDENAÇÃO DINÂMICA DA TABELA DE RUPTURA
-===================================================== */
-
-.ruptura-sortable {
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
-    position: relative;
-    transition: background-color 0.15s ease;
-}
-
-.ruptura-sortable:hover {
-    background-color: #f6f1e8;
-}
-
-.ruptura-sortable:focus-visible {
-    outline: 2px solid #724613;
-    outline-offset: -2px;
-}
-
-/* A seta não aumenta a largura do cabeçalho */
-
-.ruptura-sort-indicator {
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-
-    display: inline-block;
-    width: 10px;
-    min-width: 0;
-    margin-left: 0;
-
-    color: #9e7a50;
-    font-size: 11px;
-    font-weight: 700;
-    text-align: center;
-
-    pointer-events: none;
-}
-
-/* =====================================================
+/* =========================================================
    AGENDAMENTO PONTUAL A PARTIR DA RUPTURA
-===================================================== */
+========================================================= */
 
 .ruptura-add-agenda-actions {
     margin: 12px 0;
@@ -1244,10 +2189,13 @@
 .ruptura-add-agenda-form:not([hidden]) {
     display: grid;
     gap: 12px;
+
     margin-top: 12px;
     padding: 14px;
+
     border: 1px solid #ddd3c7;
     border-radius: 10px;
+
     background: #fdfbf8;
 }
 
@@ -1270,7 +2218,7 @@
     max-width: 100%;
 }
 
-/* Situações registradas na agenda */
+/* Situações relacionadas ao agendamento */
 
 .ruptura-status.added {
     background: #e5efe7;
@@ -1282,9 +2230,140 @@
     color: #76521b;
 }
 
-@media (max-width: 560px) {
+
+/* =========================================================
+   RESPONSIVIDADE DA CAIXA
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .ruptura-details-overlay {
+        padding: 10px;
+    }
+
+    .ruptura-details-modal {
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 13px;
+    }
+
+    .ruptura-details-header,
+    .ruptura-details-content {
+        padding: 16px;
+    }
+
+    .ruptura-detail-appointment {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ruptura-advance-fields,
     .ruptura-add-agenda-fields,
     .ruptura-add-agenda-form .ruptura-advance-fields {
         grid-template-columns: 1fr;
+    }
+
+    .ruptura-advance-actions {
+        flex-direction: column-reverse;
+    }
+
+    .ruptura-advance-actions button {
+        width: 100%;
+    }
+
+    .ruptura-decision-panel {
+        padding: 10px;
+    }
+
+}
+
+/* =========================================================
+   REFINO FINAL — CENTRALIZAÇÃO DOS ELEMENTOS
+========================================================= */
+
+/* 1. LEGENDA DE RISCO FINANCEIRO */
+
+.ruptura-page .ruptura-risk-legend {
+    justify-content: center;
+}
+
+.ruptura-page .ruptura-risk-legend-items {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 10px 24px;
+}
+
+.ruptura-page .ruptura-risk-legend-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+}
+
+/* Centraliza o conteúdo de cada faixa */
+.ruptura-page .ruptura-risk-legend-item > * {
+    vertical-align: middle;
+}
+
+
+/* 2. CABEÇALHO DA TABELA */
+
+.ruptura-page .ruptura-table thead th {
+    text-align: center !important;
+    vertical-align: middle;
+    padding: 9px 6px;
+}
+
+/* Evita que a classe numérica force o alinhamento à direita */
+.ruptura-page .ruptura-table thead th.numeric {
+    text-align: center !important;
+}
+
+/* 3. SETAS DE ORDENAÇÃO
+   A seta acompanha o título, em vez de ficar presa à lateral.
+   A ordenação por clique permanece funcionando. */
+
+.ruptura-page .ruptura-table th .ruptura-sort-indicator {
+    position: static;
+    display: inline-block;
+    width: auto;
+    min-width: 0;
+    margin-left: 4px;
+    transform: none;
+    vertical-align: middle;
+
+    color: #e7d4bd;
+    font-size: 10px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* Mantém os títulos em uma linha */
+.ruptura-page .ruptura-table th {
+    white-space: nowrap;
+}
+
+/* 4. RESPONSIVIDADE DA LEGENDA */
+
+@media (max-width: 800px) {
+    .ruptura-page .ruptura-risk-legend-items {
+        justify-content: center;
+        gap: 10px 16px;
+    }
+
+    .ruptura-page .ruptura-risk-legend-item {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 520px) {
+    .ruptura-page .ruptura-risk-legend-items {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
     }
 }

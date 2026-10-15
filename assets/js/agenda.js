@@ -1,6 +1,6 @@
 /* =========================================================
    AGENDA COMPRADOR — CALENDÁRIO E DETALHES
-   Versão consolidada: uma única função por responsabilidade
+   Versão definitiva: calendário + modos JUNTAS/SEPARADAS/AGRUPADAS/CONSOLIDADAS
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -44,17 +44,24 @@ document.addEventListener("DOMContentLoaded", () => {
     let isLoadingOperationalData = false;
     let isSavingOccurrenceAction = false;
 
-    let classificationDisplayMode = "separated";
+    /*
+     * auto: respeita o modo salvo na regra (JUNTAS ou SEPARADAS).
+     * grouped: agrupa classificações do mesmo fabricante na mesma ocorrência.
+     * separated: mostra cada combinação individual.
+     * consolidated: consolida todos os fabricantes/classificações da ocorrência.
+     */
+    const CLASSIFICATION_MODE_STORAGE_KEY = "agendaComprador_classificationMode_v2";
+    let classificationDisplayMode = "auto";
     try {
-        const savedMode = localStorage.getItem("agendaComprador_classificationMode");
-        if (savedMode === "grouped" || savedMode === "separated") {
+        const savedMode = localStorage.getItem(CLASSIFICATION_MODE_STORAGE_KEY);
+        if (["auto", "grouped", "separated", "consolidated"].includes(savedMode)) {
             classificationDisplayMode = savedMode;
         }
     } catch (error) {
         console.warn("Não foi possível ler a preferência de visualização.", error);
     }
 
-    const classificationCatalog = [
+        const classificationCatalog = [
         { value: "PROPAGADO", label: "Propagado" },
         { value: "PERFUMARIA", label: "Perfumaria" },
         { value: "FRALDAS", label: "Fraldas" },
@@ -216,53 +223,115 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    /* PREPARAR REGISTROS PARA O MODO SEPARADO OU AGRUPADO */
+    /* PREPARAR REGISTROS: AUTOMÁTICO, AGRUPADAS, SEPARADAS OU CONSOLIDADAS */
     function prepareAppointmentsForDisplay(list) {
         if (!Array.isArray(list)) return [];
 
-        if (classificationDisplayMode === "separated") {
-            return list.map(appointment => {
-                const classification = formatClassificationList([appointment.classification]);
-                return {
-                    ...appointment,
-                    displayKey: [appointment.id, appointment.classificationId || "", appointment.date, appointment.time].join("|"),
-                    sourceAppointments: [appointment],
-                    displayClassification: classification.display,
-                    fullClassification: classification.full
-                };
-            });
-        }
+        // Uma combinação de grupo/classificação/fabricante deve aparecer uma única vez na ocorrência.
+        const uniqueRows = new Map();
+        list.forEach(item => {
+            const key = [
+                item.date, item.time, item.groupId || "", item.ruleId || `sem-regra:${item.id}`,
+                item.manufacturerId || normalizeText(item.manufacturerReal),
+                item.classificationId || normalizeText(item.classification)
+            ].join("|");
+            if (!uniqueRows.has(key)) uniqueRows.set(key, item);
+        });
+        const rows = [...uniqueRows.values()];
+
+        const shouldConsolidate = item =>
+            classificationDisplayMode === "consolidated" ||
+            (classificationDisplayMode === "auto" && normalizeText(item.mode) === "JUNTAS");
+
+        const shouldGroupManufacturer = item => classificationDisplayMode === "grouped";
+
+        const prepareSingle = appointment => {
+            const classification = formatClassificationList([appointment.classification]);
+            const realManufacturer = appointment.manufacturerReal || appointment.manufacturer || "Fabricante";
+            return {
+                ...appointment,
+                displayKey: ["single", appointment.id, appointment.manufacturerId || "", appointment.classificationId || "", appointment.date, appointment.time, appointment.ruleId || ""].join("|"),
+                sourceAppointments: [appointment],
+                displayManufacturers: realManufacturer,
+                displayManufacturerCount: appointment.manufacturerReal ? 1 : 0,
+                displayClassification: classification.display,
+                fullClassification: classification.full,
+                displaySummary: [realManufacturer, classification.display].filter(Boolean).join(" · "),
+                fullDisplaySummary: [realManufacturer, classification.full].filter(Boolean).join(" · "),
+                effectiveDisplayMode: "SEPARADAS"
+            };
+        };
 
         const groups = new Map();
-        list.forEach(appointment => {
-            const key = [
-                appointment.date,
-                appointment.time,
-                appointment.manufacturerId || normalizeText(appointment.manufacturerReal),
-                normalizeText(appointment.group),
-                appointment.ruleId || ""
-            ].join("|");
-            if (!groups.has(key)) groups.set(key, []);
-            groups.get(key).push(appointment);
+        const output = [];
+
+        rows.forEach(appointment => {
+            if (shouldConsolidate(appointment)) {
+                // JUNTAS/CONSOLIDADAS: todos os fabricantes e classificações da MESMA ocorrência.
+                const key = ["consolidated", appointment.ruleId || `sem-regra:${appointment.id}`, appointment.date, appointment.time, appointment.groupId || ""].join("|");
+                if (!groups.has(key)) groups.set(key, { kind: "consolidated", rows: [] });
+                groups.get(key).rows.push(appointment);
+                return;
+            }
+
+            if (shouldGroupManufacturer(appointment)) {
+                // AGRUPADAS: classificações do mesmo fabricante; fabricantes diferentes não se misturam.
+                const key = ["grouped", appointment.ruleId || `sem-regra:${appointment.id}`, appointment.date, appointment.time, appointment.groupId || "", appointment.manufacturerId || normalizeText(appointment.manufacturerReal)].join("|");
+                if (!groups.has(key)) groups.set(key, { kind: "grouped", rows: [] });
+                groups.get(key).rows.push(appointment);
+                return;
+            }
+
+            // Em modo automático, as regras SEPARADAS e o modo global Separadas ficam linha a linha.
+            output.push(prepareSingle(appointment));
         });
 
-        return [...groups.values()].map(groupedAppointments => {
-            const base = groupedAppointments[0];
-            const classification = formatClassificationList(groupedAppointments.map(item => item.classification));
-            const situation = getMostCriticalSituation(groupedAppointments);
-            return {
+        groups.forEach(group => {
+            const groupRows = group.rows;
+            if (!groupRows.length) return;
+            const base = groupRows[0];
+            const scopes = new Map();
+            groupRows.forEach(item => {
+                const scopeKey = [item.groupId || "", item.classificationId || normalizeText(item.classification), item.manufacturerId || normalizeText(item.manufacturerReal)].join("|");
+                if (!scopes.has(scopeKey)) scopes.set(scopeKey, item);
+            });
+            const sourceAppointments = [...scopes.values()];
+            const classification = formatClassificationList(sourceAppointments.map(item => item.classification));
+            const manufacturers = [...new Set(sourceAppointments.map(item => item.manufacturerReal || item.manufacturer).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, "pt-BR"));
+            const situation = getMostCriticalSituation(sourceAppointments);
+            const consolidated = group.kind === "consolidated";
+            const effectiveDisplayMode = consolidated ? "CONSOLIDADAS" : "AGRUPADAS";
+            const groupingIdentity = consolidated
+                ? ["consolidated", base.ruleId || `sem-regra:${base.id}`, base.date, base.time, base.groupId || ""]
+                : ["grouped", base.ruleId || `sem-regra:${base.id}`, base.date, base.time, base.groupId || "", base.manufacturerId || normalizeText(base.manufacturerReal)];
+
+            output.push({
                 ...base,
-                displayKey: [base.id, base.date, base.time, base.manufacturerId || "", normalizeText(base.group), base.ruleId || ""].join("|"),
-                sourceAppointments: groupedAppointments,
+                displayKey: groupingIdentity.join("|"),
+                sourceAppointments,
                 status: situation.status,
                 statusLabel: situation.statusLabel,
+                displayManufacturers: manufacturers.join(" + "),
+                displayManufacturerCount: manufacturers.length,
                 displayClassification: classification.display,
-                fullClassification: classification.full
-            };
+                fullClassification: classification.full,
+                displaySummary: [manufacturers.join(" + "), classification.display].filter(Boolean).join(" · "),
+                fullDisplaySummary: [manufacturers.join(" + "), classification.full].filter(Boolean).join(" · "),
+                effectiveDisplayMode,
+                completed: sourceAppointments.length > 0 && sourceAppointments.every(item => item.completed),
+                recurring: sourceAppointments.some(item => item.recurring)
+            });
         });
+
+        return output.sort((a, b) =>
+            String(a.time || "").localeCompare(String(b.time || "")) ||
+            String(a.manufacturer || "").localeCompare(String(b.manufacturer || ""), "pt-BR") ||
+            String(a.displayKey || "").localeCompare(String(b.displayKey || ""))
+        );
     }
 
-    /* FILTROS DO SUPABASE */
+        /* FILTROS DO SUPABASE */
     async function loadAgendaFilters() {
         try {
             const { data, error } = await supabaseClient
@@ -375,25 +444,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* MODO AGRUPAR/SEPARAR */
+    /* MODO GLOBAL DE EXIBIÇÃO: AUTOMÁTICO, AGRUPADAS, SEPARADAS OU CONSOLIDADAS */
     function updateClassificationModeButton() {
         if (!classificationModeButton) return;
-        const grouped = classificationDisplayMode === "grouped";
-        classificationModeButton.classList.toggle("grouped", grouped);
-        classificationModeButton.classList.toggle("separated", !grouped);
-        classificationModeButton.setAttribute("aria-pressed", grouped ? "true" : "false");
-        if (classificationModeIcon) classificationModeIcon.textContent = grouped ? "⧉" : "≡";
-        classificationModeButton.title = grouped
-            ? "Agrupado — clicar para separar classificações"
-            : "Separado — clicar para agrupar classificações";
-        classificationModeButton.setAttribute("aria-label", grouped ? "Separar classificações" : "Agrupar classificações");
+
+        const iconByMode = { auto: "◈", grouped: "⧉", separated: "≡", consolidated: "∑" };
+        const labels = {
+            auto: "Automático — respeitar JUNTAS/SEPARADAS configurado em cada regra",
+            grouped: "Agrupadas — reunir classificações do mesmo fabricante na ocorrência",
+            separated: "Separadas — mostrar cada combinação de fabricante/classificação",
+            consolidated: "Consolidadas — reunir todos os fabricantes e classificações da mesma ocorrência"
+        };
+        const mode = classificationDisplayMode;
+        classificationModeButton.classList.toggle("grouped", mode === "grouped" || mode === "consolidated");
+        classificationModeButton.classList.toggle("separated", mode === "separated");
+        classificationModeButton.classList.toggle("auto", mode === "auto");
+        classificationModeButton.classList.toggle("consolidated", mode === "consolidated");
+        classificationModeButton.setAttribute("aria-pressed", mode === "grouped" || mode === "consolidated" ? "true" : "false");
+        classificationModeButton.title = labels[mode];
+        classificationModeButton.setAttribute("aria-label", labels[mode]);
+        if (classificationModeIcon) classificationModeIcon.textContent = iconByMode[mode];
     }
 
     classificationModeButton?.addEventListener("click", event => {
         event.stopPropagation();
-        classificationDisplayMode = classificationDisplayMode === "grouped" ? "separated" : "grouped";
+        const sequence = ["auto", "grouped", "separated", "consolidated"];
+        const currentIndex = sequence.indexOf(classificationDisplayMode);
+        classificationDisplayMode = sequence[(currentIndex + 1) % sequence.length];
         try {
-            localStorage.setItem("agendaComprador_classificationMode", classificationDisplayMode);
+            localStorage.setItem(CLASSIFICATION_MODE_STORAGE_KEY, classificationDisplayMode);
         } catch (error) {
             console.warn("Não foi possível salvar a preferência de visualização.", error);
         }
@@ -401,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCurrentView();
     });
 
-    /* ABRIR/FECHAR MENUS DOS FILTROS */
+        /* ABRIR/FECHAR MENUS DOS FILTROS */
     filterDropdowns.forEach(dropdown => {
         const trigger = dropdown.querySelector(".agenda-filter-trigger");
         if (!trigger) return;
@@ -439,7 +518,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     nome_visual, modo_classificacao, recorrente, regra_ativa,
                     regra_observacao, fabricante_id, nome_fabricante,
                     classificacao_id, classificacao_codigo, classificacao_nome,
-status, status_label                `)
+                    status, status_label, concluido
+                `)
                 .eq("comprador_id", COMPRADOR_ID)
                 .gte("data_agendamento", dateToISO(horizonStart))
                 .lte("data_agendamento", dateToISO(horizonEnd))
@@ -468,7 +548,7 @@ status, status_label                `)
                 statusLabel: item.status_label || "Normal",
                 completed: item.concluido === true || item.status === "completed",
                 observation: item.regra_observacao || "",
-                mode: item.modo_classificacao || "JUNTAS",
+                mode: normalizeText(item.modo_classificacao) === "SEPARADAS" ? "SEPARADAS" : "JUNTAS",
                 recurring: item.recorrente === true
             }));
 
@@ -490,15 +570,49 @@ status, status_label                `)
         if (isLoadingOperationalData) return;
         isLoadingOperationalData = true;
         try {
-            const { data, error } = await supabaseClient
-                .from("dados_operacionais")
-                .select(`
-                    grupo_id, classificacao_id, fabricante_id,
-                    curva_qtd, curva_valor, total_vendido,
-                    dias_sem_estoque, ruptura_quantidade, ruptura_valor
-                `);
-            if (error) throw error;
-            operationalRows = data || [];
+            // Indicadores consolidados devem vir da importação concluída mais recente.
+            const { data: importacao, error: importError } = await supabaseClient
+                .from("importacoes_operacionais")
+                .select("id, data_referencia, created_at")
+                .eq("status", "concluida")
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (importError) throw importError;
+            if (!importacao?.id) {
+                operationalRows = [];
+                console.warn("Nenhuma importação operacional concluída foi encontrada.");
+                return;
+            }
+
+            const pageSize = 1000;
+            let offset = 0;
+            const allRows = [];
+            while (true) {
+                const { data, error } = await supabaseClient
+                    .from("dados_operacionais")
+                    .select(`
+                        id, importacao_id, grupo_id, classificacao_id, fabricante_id, uf,
+                        curva_qtd, curva_valor, total_vendido,
+                        dias_sem_estoque, ruptura_quantidade, ruptura_valor
+                    `)
+                    .eq("importacao_id", importacao.id)
+                    .order("grupo_id", { ascending: true })
+                    .order("classificacao_id", { ascending: true })
+                    .order("fabricante_id", { ascending: true })
+                    .order("uf", { ascending: true })
+                    .range(offset, offset + pageSize - 1);
+
+                if (error) throw error;
+                const page = data || [];
+                allRows.push(...page);
+                if (page.length < pageSize) break;
+                offset += pageSize;
+            }
+
+            operationalRows = allRows;
+            console.log("Importação operacional utilizada:", importacao.data_referencia, importacao.id);
         } catch (error) {
             console.error("Não foi possível carregar os indicadores operacionais:", error);
             operationalRows = [];
@@ -507,7 +621,7 @@ status, status_label                `)
         }
     }
 
-    window.addEventListener("agenda:updated", () => {
+        window.addEventListener("agenda:updated", () => {
         loadAppointments();
     });
 
@@ -765,17 +879,110 @@ status, status_label                `)
         window.abrirNovoAgendamento({ dataAgendamento: dateISO, horaInicio: time });
     }
 
-    /* INDICADORES: NUNCA FAZ CORRESPONDÊNCIA PARCIAL ENTRE GRUPO/CLASSE/FABRICANTE */
-    function getOperationalMetric(appointment) {
-        if (!appointment?.groupId || !appointment?.classificationId || !appointment?.manufacturerId) return null;
-        return operationalRows.find(row =>
+    /* INDICADORES: SOMENTE IMPORTAÇÃO ATUAL E COMBINAÇÃO EXATA */
+    function getOperationalRowsForScope(appointment) {
+        if (!appointment?.groupId || !appointment?.classificationId || !appointment?.manufacturerId) return [];
+        return operationalRows.filter(row =>
             String(row.grupo_id) === String(appointment.groupId) &&
             String(row.classificacao_id) === String(appointment.classificationId) &&
             String(row.fabricante_id) === String(appointment.manufacturerId)
-        ) || null;
+        );
     }
 
-    /* MODAL DE DETALHES — ESTRUTURA ÚNICA, ESTILO LEVE */
+    function validNumbers(rows, field) {
+        return rows.map(row => row[field])
+            .filter(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)))
+            .map(Number);
+    }
+
+    function sumField(rows, field) {
+        const values = validNumbers(rows, field);
+        return values.length ? values.reduce((sum, value) => sum + value, 0) : null;
+    }
+
+    function averageValues(values) {
+        return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+    }
+
+    function medianValue(values) {
+        if (!values.length) return null;
+        const sorted = [...values].sort((a, b) => a - b);
+        const middle = Math.floor(sorted.length / 2);
+        return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    function curveToRank(value) {
+        const normalized = normalizeText(value);
+        const match = normalized.match(/\b([ABCD])\b/);
+        if (!match) return null;
+        return ({ A: 1, B: 2, C: 3, D: 4 })[match[1]];
+    }
+
+    function rankToCurve(rank) {
+        if (rank === null || rank === undefined || !Number.isFinite(rank)) return "—";
+        const labels = ["A", "B", "C", "D"];
+        const bounded = Math.max(1, Math.min(4, rank));
+        const lower = Math.floor(bounded);
+        const upper = Math.ceil(bounded);
+        if (lower === upper) return labels[lower - 1];
+        return `${labels[lower - 1]}/${labels[upper - 1]}`;
+    }
+
+    /* Uma combinação pode ter linhas por UF; soma valores aditivos e resume indicadores não aditivos. */
+    function getMetricForScope(appointment) {
+        const rows = getOperationalRowsForScope(appointment);
+        if (!rows.length) return null;
+
+        const days = validNumbers(rows, "dias_sem_estoque");
+        const curveQty = rows.map(row => curveToRank(row.curva_qtd)).filter(value => value !== null);
+        const curveValue = rows.map(row => curveToRank(row.curva_valor)).filter(value => value !== null);
+
+        return {
+            ruptureValue: sumField(rows, "ruptura_valor"),
+            ruptureQuantity: sumField(rows, "ruptura_quantidade"),
+            totalSold: sumField(rows, "total_vendido"),
+            daysWithoutStock: averageValues(days),
+            curveQtyRank: medianValue(curveQty),
+            curveValueRank: medianValue(curveValue),
+            sourceRows: rows.length,
+            hasData: true
+        };
+    }
+
+    /* Consolida uma vez cada combinação distinta (grupo + classificação + fabricante). */
+    function getAppointmentMetrics(sourceAppointments) {
+        const scopes = new Map();
+        (sourceAppointments || []).forEach(source => {
+            const key = [source.groupId, source.classificationId, source.manufacturerId].join("|");
+            if (!scopes.has(key)) scopes.set(key, source);
+        });
+
+        const scopeMetrics = [...scopes.values()].map(source => ({
+            source,
+            metric: getMetricForScope(source)
+        }));
+        const foundMetrics = scopeMetrics.map(item => item.metric).filter(Boolean);
+        const sumMetrics = field => {
+            const values = foundMetrics.map(metric => metric[field]).filter(value => value !== null && value !== undefined && Number.isFinite(value));
+            return values.length ? values.reduce((sum, value) => sum + value, 0) : null;
+        };
+        const averageMetric = field => averageValues(foundMetrics.map(metric => metric[field]).filter(value => value !== null && value !== undefined && Number.isFinite(value)));
+        const medianMetric = field => medianValue(foundMetrics.map(metric => metric[field]).filter(value => value !== null && value !== undefined && Number.isFinite(value)));
+
+        return {
+            scopeMetrics,
+            totalScopes: scopes.size,
+            scopesWithData: foundMetrics.length,
+            ruptureValue: sumMetrics("ruptureValue"),
+            ruptureQuantity: sumMetrics("ruptureQuantity"),
+            totalSold: sumMetrics("totalSold"),
+            daysWithoutStock: averageMetric("daysWithoutStock"),
+            curveQtyRank: medianMetric("curveQtyRank"),
+            curveValueRank: medianMetric("curveValueRank")
+        };
+    }
+
+        /* MODAL DE DETALHES — ESTRUTURA ÚNICA, ESTILO LEVE */
     function ensureAppointmentDetailsModal() {
         let overlay = document.getElementById("agendaDetailsOverlay");
         if (overlay) return overlay;
@@ -901,12 +1108,18 @@ status, status_label                `)
                 if (!selectedAppointment) return;
 
                 if (action === "edit") {
-                    editDate.value = selectedAppointment.date || "";
-                    editTime.value = selectedAppointment.time || "09:00";
-                    editForm.hidden = false;
-                    normalActions.hidden = true;
-                    editActions.hidden = false;
-                    editDate.focus();
+                    const ruleId = selectedAppointment.ruleId;
+                    if (!ruleId) {
+                        window.alert("Não foi possível identificar a regra deste agendamento.");
+                        return;
+                    }
+                    if (typeof window.abrirNovoAgendamento !== "function") {
+                        window.alert("O formulário de Novo Agendamento não está disponível.");
+                        return;
+                    }
+                    overlay.hidden = true;
+                    leaveEditMode();
+                    window.abrirNovoAgendamento({ mode: "edit", ruleId: ruleId });
                     return;
                 }
 
@@ -1049,15 +1262,21 @@ status, status_label                `)
         const sources = appointment.sourceAppointments?.length ? appointment.sourceAppointments : [appointment];
 
         const classifications = [...new Set(sources.map(item => item.classification).filter(Boolean).map(getClassificationLabel))];
+        const manufacturers = [...new Set(sources.map(item => item.manufacturerReal).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, "pt-BR"));
         const classificationText = classifications.join(" · ") || "Não informada";
+        const manufacturerText = manufacturers.join(" · ") || appointment.manufacturerReal || "Não informado";
         const date = parseISODate(appointment.date);
 
-        title.textContent = appointment.manufacturerReal || appointment.manufacturer || "Compromisso de compras";
+        /* O nome visual identifica a regra; os fabricantes reais ficam no contexto. */
+        title.textContent = appointment.manufacturer || appointment.manufacturerReal || "Compromisso de compras";
         subtitle.textContent = [date ? weekdayNames[date.getDay()] : "", formatDateISO(appointment.date), appointment.time || "Horário não informado"].filter(Boolean).join(" · ");
         context.innerHTML = `
             <span>GRUPO <strong>${escapeHtml(appointment.groupName || appointment.group || "—")}</strong></span>
             <span class="gcal-context-separator">·</span>
-            <span>CLASSIFICAÇÃO <strong>${escapeHtml(classificationText)}</strong></span>
+            <span>FABRICANTES <strong>${escapeHtml(manufacturerText)}</strong></span>
+            <span class="gcal-context-separator">·</span>
+            <span>CLASSIFICAÇÕES <strong>${escapeHtml(classificationText)}</strong></span>
             <span class="gcal-context-separator">·</span>
             <span class="gcal-recurring-label">${appointment.recurring ? "RECORRENTE" : "PONTUAL"}</span>`;
 
@@ -1065,38 +1284,75 @@ status, status_label                `)
         summary.innerHTML = `
             <div class="gcal-details-list">
                 <div class="gcal-detail-row"><span class="gcal-detail-label">Situação atual</span><strong class="gcal-detail-value">${escapeHtml(appointment.statusLabel || "Normal")}</strong></div>
-                <div class="gcal-detail-row"><span class="gcal-detail-label">Modo de classificação</span><strong class="gcal-detail-value">${escapeHtml(appointment.mode || "JUNTAS")}</strong></div>
+                <div class="gcal-detail-row"><span class="gcal-detail-label">Modo salvo na regra</span><strong class="gcal-detail-value">${escapeHtml(appointment.mode || "JUNTAS")}</strong></div>
+                <div class="gcal-detail-row"><span class="gcal-detail-label">Exibição atual</span><strong class="gcal-detail-value">${escapeHtml(appointment.effectiveDisplayMode || appointment.mode || "JUNTAS")}</strong></div>
                 <div class="gcal-detail-row gcal-observation-row"><span class="gcal-detail-label">Observação</span><p class="gcal-detail-observation">${escapeHtml(observation)}</p></div>
             </div>`;
 
-        operational.innerHTML = sources.map(source => {
-            const metric = getOperationalMetric(source);
-            const values = metric ? [metric.curva_qtd, metric.curva_valor, metric.total_vendido, metric.dias_sem_estoque, metric.ruptura_quantidade, metric.ruptura_valor] : [];
-            const hasData = values.some(value => value !== null && value !== undefined && value !== "");
+        const appointmentMetrics = getAppointmentMetrics(sources);
+        const isConsolidated = ["JUNTAS", "AGRUPADAS", "CONSOLIDADAS"].includes(appointment.effectiveDisplayMode) && sources.length > 1;
+        const metricCard = (label, value, featured = false) => `
+            <article class="gcal-kpi-card ${featured ? "gcal-kpi-featured" : ""}">
+                <span class="gcal-kpi-label">${escapeHtml(label)}</span>
+                <strong class="gcal-kpi-value">${escapeHtml(value)}</strong>
+            </article>`;
 
-            const metricCard = (label, value, featured = false) => `
-                <article class="gcal-kpi-card ${featured ? "gcal-kpi-featured" : ""}">
-                    <span class="gcal-kpi-label">${escapeHtml(label)}</span>
-                    <strong class="gcal-kpi-value">${escapeHtml(value)}</strong>
-                </article>`;
+        const summaryTitle = !isConsolidated
+            ? "Indicadores da combinação"
+            : appointment.effectiveDisplayMode === "AGRUPADAS"
+                ? "Resumo agrupado do fabricante"
+                : "Resumo consolidado da ocorrência";
+        const curveQtyLabel = rankToCurve(appointmentMetrics.curveQtyRank);
+        const curveValueLabel = rankToCurve(appointmentMetrics.curveValueRank);
+        const summaryHasData = appointmentMetrics.scopesWithData > 0;
+        const coverageText = appointmentMetrics.totalScopes
+            ? `${appointmentMetrics.scopesWithData} de ${appointmentMetrics.totalScopes} combinações com dados`
+            : "Nenhuma combinação disponível";
 
+        const summaryHtml = `
+            <section class="gcal-kpi-section">
+                <header class="gcal-kpi-heading">
+                    <h4>${escapeHtml(summaryTitle)}</h4>
+                    <span class="gcal-data-indicator ${summaryHasData && appointmentMetrics.scopesWithData === appointmentMetrics.totalScopes ? "is-available" : "is-unavailable"}"><span class="gcal-data-dot"></span>${escapeHtml(coverageText)}</span>
+                </header>
+                <div class="gcal-kpi-grid">
+                    ${metricCard("Ruptura em valor · soma", formatCurrency(appointmentMetrics.ruptureValue), true)}
+                    ${metricCard("Ruptura em quantidade · soma", formatNumber(appointmentMetrics.ruptureQuantity), true)}
+                    ${metricCard("Dias sem estoque · média", formatNumber(appointmentMetrics.daysWithoutStock, 1))}
+                    ${metricCard("Total vendido · soma", formatNumber(appointmentMetrics.totalSold))}
+                    ${metricCard("Curva por quantidade · mediana", curveQtyLabel)}
+                    ${metricCard("Curva por valor · mediana", curveValueLabel)}
+                </div>
+                ${!summaryHasData ? `<p class="gcal-kpi-warning">Não foram encontrados indicadores na importação operacional concluída mais recente para as combinações desta ocorrência.</p>` : appointmentMetrics.scopesWithData < appointmentMetrics.totalScopes ? `<p class="gcal-kpi-warning">Atenção: uma ou mais combinações não possuem dados operacionais na importação mais recente. O consolidado considera somente os valores disponíveis.</p>` : ""}
+            </section>`;
+
+        const detailsHtml = appointmentMetrics.scopeMetrics.map(({ source, metric }) => {
+            const hasData = Boolean(metric);
+            const manufacturerName = source.manufacturerReal || source.manufacturer || "Fabricante não identificado";
+            const classificationName = getClassificationLabel(source.classification) || "Sem classificação";
             return `
                 <section class="gcal-kpi-section">
                     <header class="gcal-kpi-heading">
-                        <h4>${escapeHtml(getClassificationLabel(source.classification) || "Sem classificação")}</h4>
-                        <span class="gcal-data-indicator ${hasData ? "is-available" : "is-unavailable"}"><span class="gcal-data-dot"></span>${hasData ? "Dados disponíveis" : "Dados não encontrados"}</span>
+                        <h4>${escapeHtml(manufacturerName)} · ${escapeHtml(classificationName)}</h4>
+                        <span class="gcal-data-indicator ${hasData ? "is-available" : "is-unavailable"}"><span class="gcal-data-dot"></span>${hasData ? "Detalhamento" : "Sem dados"}</span>
                     </header>
                     <div class="gcal-kpi-grid">
-                        ${metricCard("Ruptura em valor", formatCurrency(metric?.ruptura_valor), true)}
-                        ${metricCard("Ruptura em quantidade", formatNumber(metric?.ruptura_quantidade), true)}
-                        ${metricCard("Dias sem estoque", formatNumber(metric?.dias_sem_estoque, 1))}
-                        ${metricCard("Total vendido", formatNumber(metric?.total_vendido))}
-                        ${metricCard("Curva por quantidade", metric?.curva_qtd ?? "—")}
-                        ${metricCard("Curva por valor", metric?.curva_valor ?? "—")}
+                        ${metricCard("Ruptura em valor", formatCurrency(metric?.ruptureValue), true)}
+                        ${metricCard("Ruptura em quantidade", formatNumber(metric?.ruptureQuantity), true)}
+                        ${metricCard("Dias sem estoque · média", formatNumber(metric?.daysWithoutStock, 1))}
+                        ${metricCard("Total vendido", formatNumber(metric?.totalSold))}
+                        ${metricCard("Curva por quantidade · mediana", rankToCurve(metric?.curveQtyRank))}
+                        ${metricCard("Curva por valor · mediana", rankToCurve(metric?.curveValueRank))}
                     </div>
-                    ${!hasData ? `<p class="gcal-kpi-warning">Não foram encontrados indicadores para esta combinação de grupo, classificação e fabricante. Verifique a base operacional e as permissões do Supabase.</p>` : ""}
                 </section>`;
         }).join("");
+
+        const compositionTitle = appointment.effectiveDisplayMode === "AGRUPADAS"
+            ? "Detalhamento por classificação do fabricante"
+            : "Composição do consolidado por fabricante e classificação";
+        operational.innerHTML = isConsolidated
+            ? summaryHtml + `<div class="gcal-kpi-heading"><h4>${escapeHtml(compositionTitle)}</h4></div>${detailsHtml}`
+            : summaryHtml;
 
         const deleteButton = overlay.querySelector('[data-agenda-action="delete"]');
         if (deleteButton) {
@@ -1112,12 +1368,8 @@ status, status_label                `)
             completeButton.disabled = appointment.completed || appointment.status === "completed";
             completeButton.title = completeButton.disabled ? "Esta ocorrência já foi concluída." : "Concluir todos os registros agrupados desta ocorrência";
         }
-        const editForm = overlay.querySelector("#agendaOccurrenceEditForm");
-        if (editForm) editForm.hidden = true;
         const normalActions = overlay.querySelector("#agendaDetailsActions");
-        const editActions = overlay.querySelector("#agendaDetailsEditActions");
         if (normalActions) normalActions.hidden = false;
-        if (editActions) editActions.hidden = true;
 
         overlay.hidden = false;
         const body = overlay.querySelector(".gcal-body");
@@ -1125,7 +1377,7 @@ status, status_label                `)
         overlay.querySelector(".gcal-close")?.focus();
     }
 
-    /* INTERAÇÕES DO CALENDÁRIO — REGISTRADAS UMA ÚNICA VEZ */
+        /* INTERAÇÕES DO CALENDÁRIO — REGISTRADAS UMA ÚNICA VEZ */
     function setupCalendarInteractions() {
         function handleCalendarClick(event) {
             if (!(event.target instanceof Element)) return;
