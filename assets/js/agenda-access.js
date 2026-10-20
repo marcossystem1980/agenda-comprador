@@ -274,10 +274,10 @@ document.querySelectorAll(
 
         /* 1. Confirmar a sessão autenticada */
 
-        const {
-            data: authData,
-            error: authError
-        } = await supabaseClient.auth.getUser();
+const {
+    data: authData,
+    error: authError
+} = await supabaseClient.auth.getUser();
 
 if (authError) {
     console.error(
@@ -290,15 +290,7 @@ if (authError) {
     return { allowed: false };
 }
 
-            showAccessError(
-                "Não foi possível verificar sua sessão. " +
-                "Recarregue a página e tente novamente."
-            );
-
-            return { allowed: false };
-        }
-
-        const user = authData?.user;
+const user = authData?.user;
 
         if (!user) {
             redirectTo(LOGIN_URL);
