@@ -81,9 +81,9 @@ const ADM_URL = new URL(
                 "cursor:pointer"
             ].join(";");
 
-            button.addEventListener("click", () => {
-                redirectTo(ADM_URL);
-            });
+button.addEventListener("click", () => {
+    redirectTo(LOGIN_URL);
+});
 
             panel.append(title, description, button);
         };
@@ -279,11 +279,16 @@ document.querySelectorAll(
             error: authError
         } = await supabaseClient.auth.getUser();
 
-        if (authError) {
-            console.error(
-                "Erro ao verificar a sessão:",
-                authError
-            );
+if (authError) {
+    console.error(
+        "Erro ao verificar a sessão:",
+        authError
+    );
+
+    redirectTo(LOGIN_URL);
+
+    return { allowed: false };
+}
 
             showAccessError(
                 "Não foi possível verificar sua sessão. " +

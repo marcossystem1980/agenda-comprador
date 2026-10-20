@@ -172,19 +172,15 @@ async function initializeAdmin() {
             .eq("user_id", user.id)
             .maybeSingle();
 
-        if (profileError) {
-            console.error(
-                "Erro ao consultar perfil:",
-                profileError
-            );
+if (profileError) {
+    console.error(
+        "Erro ao consultar perfil:",
+        profileError
+    );
 
-            showAdminMessage(
-                "Não foi possível verificar as permissões. " +
-                "Confira as políticas do Supabase."
-            );
-
-            return;
-        }
+    window.location.replace("./login.html");
+    return;
+}
 
         if (
             !profile ||
@@ -209,16 +205,14 @@ async function initializeAdmin() {
         // Só carrega os compradores após confirmar o perfil ADM.
         await loadBuyers();
 
-    } catch (error) {
-        console.error(
-            "Erro ao inicializar a área ADM:",
-            error
-        );
+} catch (error) {
+    console.error(
+        "Erro ao inicializar a área ADM:",
+        error
+    );
 
-        showAdminMessage(
-            "Não foi possível validar o acesso administrativo."
-        );
-    }
+    window.location.replace("./login.html");
+}
 }
 
 

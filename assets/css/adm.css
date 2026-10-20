@@ -587,3 +587,130 @@
         min-width: 760px;
     }
 }
+
+/* =========================================
+   FORMULÁRIO DE CADASTRO DE ACESSOS
+========================================= */
+
+#accessForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+
+    padding: 24px;
+
+    border: 1px solid #e5d8c9;
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+#accessForm .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+#accessForm .form-group label {
+    color: #51443a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#accessForm input,
+#accessForm select {
+    width: 100%;
+    min-height: 42px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #ddd3c7;
+    border-radius: 8px;
+
+    outline: none;
+    background: #ffffff;
+    color: #342820;
+
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#accessForm input:focus,
+#accessForm select:focus {
+    border-color: #8a6a52;
+    box-shadow: 0 0 0 3px rgba(138, 106, 82, 0.12);
+}
+
+#accessCargoGroup[hidden] {
+    display: none !important;
+}
+
+#accessForm #accessFormMessage,
+#accessForm #createAccessButton {
+    grid-column: 1 / -1;
+}
+
+#accessForm #accessFormMessage {
+    margin-bottom: 0;
+}
+
+#accessForm #createAccessButton {
+    justify-self: start;
+    min-height: 40px;
+    padding: 10px 18px;
+    font-size: 12px;
+}
+
+#accessForm #createAccessButton:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Ajuste para celulares */
+
+@media (max-width: 760px) {
+    #accessForm {
+        grid-template-columns: 1fr;
+        padding: 18px;
+        gap: 16px;
+    }
+
+    #accessForm #accessFormMessage,
+    #accessForm #createAccessButton {
+        grid-column: 1;
+    }
+
+    #accessForm #createAccessButton {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   ATALHOS DOS CARDS ADMINISTRATIVOS
+========================================= */
+
+.adm-card-link {
+    display: inline-block;
+    margin-top: 18px;
+
+    color: #735543;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition: color 0.2s;
+}
+
+.adm-card-link:hover {
+    color: #55320d;
+    text-decoration: underline;
+}
+
+.adm-card-link:focus-visible {
+    outline: 2px solid #8a6a52;
+    outline-offset: 4px;
+    border-radius: 3px;
+}
