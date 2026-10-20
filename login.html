@@ -46,23 +46,18 @@
             <!-- Formulário -->
             <form id="loginForm">
 
-                <!-- Usuário -->
-                <div class="form-group">
+<div class="form-group">
+    <label for="email">E-mail</label>
 
-                    <label for="email">
-                        E-mail ou usuário
-                    </label>
-
-                    <input
-                        type="text"
-                        id="email"
-                        name="email"
-                        placeholder="Digite seu acesso"
-                        autocomplete="username"
-                        required
-                    >
-
-                </div>
+    <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Digite seu e-mail"
+        autocomplete="username"
+        required
+    >
+</div>
 
                 <!-- Senha -->
                 <div class="form-group">
@@ -120,7 +115,11 @@
 
     </main>
 
-    <script src="assets/js/login.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="assets/js/supabase.js"></script>
+
+<script src="assets/js/login.js"></script>
 
 </body>
 </html>

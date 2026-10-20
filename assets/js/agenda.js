@@ -3,8 +3,18 @@
    Versão definitiva: calendário + modos JUNTAS/SEPARADAS/AGRUPADAS/CONSOLIDADAS
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     "use strict";
+
+    // Aguarda a validação do usuário e do comprador selecionado.
+    const access = await window.AgendaAccess?.ready;
+
+    if (!access?.allowed) {
+        return;
+    }
+
+    const COMPRADOR_ID = access.compradorId;
+    const READ_ONLY = access.readOnly === true;
 
     /* ELEMENTOS DA PÁGINA */
     const filterDropdowns = document.querySelectorAll(".agenda-filter-dropdown");
@@ -23,9 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const monthCalendar = document.getElementById("monthCalendar");
     const weekCalendar = document.getElementById("weekCalendar");
     const dayCalendar = document.getElementById("dayCalendar");
-
-    /* IDENTIFICADOR TEMPORÁRIO DO COMPRADOR DE TESTE */
-    const COMPRADOR_ID = "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
 
     /* HORIZONTE: MÊS ATUAL E PRÓXIMO MÊS */
     const today = new Date();
@@ -209,19 +216,114 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    /* SITUAÇÃO VISUAL ATUAL DA VIEW; NÃO CALCULA RUPTURA */
-    function getSituationWeight(status) {
-        return ({ normal: 1, attention: 2, urgent: 3, risk: 4 })[status] || 0;
-    }
+/* =====================================================
+   SITUAÇÃO DOS AGENDAMENTOS
+   Padronizada com o Dashboard
+===================================================== */
 
-    function getMostCriticalSituation(list) {
-        if (!list?.length) return { status: "normal", statusLabel: "Normal" };
-        const critical = [...list].sort((a, b) => getSituationWeight(b.status) - getSituationWeight(a.status))[0];
+function isAppointmentCompleted(item) {
+    return item?.completed === true ||
+        item?.concluido === true ||
+        ["COMPLETED", "CONCLUIDO"].includes(
+            normalizeText(item?.status)
+        );
+}
+
+function normalizeSituation(item) {
+    if (isAppointmentCompleted(item)) {
         return {
-            status: critical.status || "normal",
-            statusLabel: critical.statusLabel || "Normal"
+            status: "completed",
+            statusLabel: "Concluído"
         };
     }
+
+    const status = normalizeText(item?.status);
+    const label = normalizeText(item?.status_label);
+    const combined = `${status} ${label}`;
+
+    if (
+        combined.includes("RISK") ||
+        combined.includes("RISCO")
+    ) {
+        return {
+            status: "risk",
+            statusLabel: item?.status_label || "Risco"
+        };
+    }
+
+    if (
+        combined.includes("URGENT") ||
+        combined.includes("URGENTE")
+    ) {
+        return {
+            status: "urgent",
+            statusLabel: item?.status_label || "Urgente"
+        };
+    }
+
+    if (
+        combined.includes("ATTENTION") ||
+        combined.includes("ATENCAO")
+    ) {
+        return {
+            status: "attention",
+            statusLabel: item?.status_label || "Atenção"
+        };
+    }
+
+    return {
+        status: "normal",
+        statusLabel: item?.status_label || "Normal"
+    };
+}
+
+function getSituationWeight(status) {
+    return {
+        normal: 1,
+        attention: 2,
+        urgent: 3,
+        risk: 4,
+        completed: 0
+    }[status] ?? 0;
+}
+
+function getMostCriticalSituation(list) {
+    if (!list?.length) {
+        return {
+            status: "normal",
+            statusLabel: "Normal"
+        };
+    }
+
+    // Uma ocorrência só é concluída se todos os registros
+    // vinculados a ela estiverem concluídos.
+    const activeItems = list.filter(
+        item => !isAppointmentCompleted(item)
+    );
+
+    if (!activeItems.length) {
+        return {
+            status: "completed",
+            statusLabel: "Concluído"
+        };
+    }
+
+    const normalizedItems = activeItems.map(item => ({
+        ...item,
+        ...normalizeSituation(item)
+    }));
+
+    const critical = [...normalizedItems].sort(
+        (a, b) =>
+            getSituationWeight(b.status) -
+            getSituationWeight(a.status)
+    )[0];
+
+    return {
+        status: critical.status,
+        statusLabel: critical.statusLabel
+    };
+}
 
     /* PREPARAR REGISTROS: AUTOMÁTICO, AGRUPADAS, SEPARADAS OU CONSOLIDADAS */
     function prepareAppointmentsForDisplay(list) {
@@ -252,6 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ...appointment,
                 displayKey: ["single", appointment.id, appointment.manufacturerId || "", appointment.classificationId || "", appointment.date, appointment.time, appointment.ruleId || ""].join("|"),
                 sourceAppointments: [appointment],
+                ruptureRiskClass: getFinancialRiskClass([appointment]),
                 displayManufacturers: realManufacturer,
                 displayManufacturerCount: appointment.manufacturerReal ? 1 : 0,
                 displayClassification: classification.display,
@@ -312,6 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 sourceAppointments,
                 status: situation.status,
                 statusLabel: situation.statusLabel,
+                ruptureRiskClass: getFinancialRiskClass(sourceAppointments),
                 displayManufacturers: manufacturers.join(" + "),
                 displayManufacturerCount: manufacturers.length,
                 displayClassification: classification.display,
@@ -428,8 +532,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const groupLabel = document.querySelector('[data-filter-label="group"]');
         const classificationLabel = document.querySelector('[data-filter-label="classification"]');
         const situationLabel = document.querySelector('[data-filter-label="situation"]');
-        const situationNames = { normal: "Normal", attention: "Atenção", urgent: "Urgente", risk: "Risco" };
-
+const situationNames = {
+    normal: "Normal",
+    attention: "Atenção",
+    urgent: "Urgente",
+    risk: "Risco de ruptura",
+    completed: "Concluído"
+};
         if (groupLabel) {
             const values = filterState.groups;
             groupLabel.textContent = values.includes("all") ? "Todos" : values.length === 1 ? values[0] : `${values.length} selecionados`;
@@ -529,28 +638,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (error) throw error;
 
-            appointments = (data || []).map(item => ({
-                id: item.agendamento_id,
-                ruleId: item.regra_agendamento_id,
-                groupId: item.grupo_id,
-                manufacturerId: item.fabricante_id,
-                date: item.data_agendamento,
-                time: formatTimeLabel(item.hora_inicio),
-                endTime: formatTimeLabel(item.hora_fim),
-                manufacturer: item.nome_visual || item.nome_fabricante || "Fabricante",
-                manufacturerReal: item.nome_fabricante || "",
-                group: item.grupo_codigo || item.grupo_nome || "",
-                groupName: item.grupo_nome || item.grupo_codigo || "",
-                classification: item.classificacao_nome || item.classificacao_codigo || "",
-                classificationCode: item.classificacao_codigo || "",
-                classificationId: item.classificacao_id,
-                status: item.status || "normal",
-                statusLabel: item.status_label || "Normal",
-                completed: item.concluido === true || item.status === "completed",
-                observation: item.regra_observacao || "",
-                mode: normalizeText(item.modo_classificacao) === "SEPARADAS" ? "SEPARADAS" : "JUNTAS",
-                recurring: item.recorrente === true
-            }));
+appointments = (data || []).map(item => {
+    const completed = isAppointmentCompleted(item);
+    const situation = normalizeSituation(item);
+
+    return {
+        id: item.agendamento_id,
+        ruleId: item.regra_agendamento_id,
+        groupId: item.grupo_id,
+        manufacturerId: item.fabricante_id,
+
+        date: item.data_agendamento,
+        time: formatTimeLabel(item.hora_inicio),
+        endTime: formatTimeLabel(item.hora_fim),
+
+        manufacturer:
+            item.nome_visual ||
+            item.nome_fabricante ||
+            "Fabricante",
+
+        manufacturerReal: item.nome_fabricante || "",
+
+        group: item.grupo_codigo || item.grupo_nome || "",
+        groupName: item.grupo_nome || item.grupo_codigo || "",
+
+        classification:
+            item.classificacao_nome ||
+            item.classificacao_codigo ||
+            "",
+
+        classificationCode: item.classificacao_codigo || "",
+        classificationId: item.classificacao_id,
+
+        status: situation.status,
+        statusLabel: situation.statusLabel,
+        completed,
+
+        observation: item.regra_observacao || "",
+
+        mode:
+            normalizeText(item.modo_classificacao) === "SEPARADAS"
+                ? "SEPARADAS"
+                : "JUNTAS",
+
+        recurring: item.recorrente === true
+    };
+});
 
             await loadOperationalRows();
             renderCurrentView();
@@ -693,7 +826,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="calendar-day-number">${day}</span>
                     <div class="calendar-appointments">
                         ${dayAppointments.slice(0, 3).map(appointment => `
-                            <div class="calendar-appointment ${escapeHtml(appointment.status)}"
+                            <div class="calendar-appointment ${escapeHtml(appointment.status)} ${escapeHtml(appointment.ruptureRiskClass || "rupture-impact-unclassified")} ${appointment.completed ? "completed" : ""}"
                                 data-appointment-key="${escapeHtml(appointment.displayKey)}"
                                 data-date="${escapeHtml(appointment.date)}"
                                 role="button" tabindex="0"
@@ -741,7 +874,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const atHour = daily.filter(item => Number(String(item.time || "").split(":")[0]) === hour);
                 html += `<div class="week-slot" data-date="${dateToISO(date)}" data-hour="${hour}">
                     ${atHour.slice(0, 1).map(appointment => `
-                        <div class="week-appointment ${escapeHtml(appointment.status)}"
+                        <div class="week-appointment ${escapeHtml(appointment.status)} ${escapeHtml(appointment.ruptureRiskClass || "rupture-impact-unclassified")} ${appointment.completed ? "completed" : ""}"
                             data-appointment-key="${escapeHtml(appointment.displayKey)}"
                             data-date="${escapeHtml(appointment.date)}" role="button" tabindex="0"
                             title="${escapeHtml(appointment.fullClassification || "")}">
@@ -775,7 +908,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 html += `<div class="day-empty">Nenhum agendamento</div>`;
             } else {
                 html += atHour.slice(0, 1).map(appointment => `
-                    <div class="day-appointment ${escapeHtml(appointment.status)}"
+                    <div class="day-appointment ${escapeHtml(appointment.status)} ${escapeHtml(appointment.ruptureRiskClass || "rupture-impact-unclassified")} ${appointment.completed ? "completed" : ""}"
                         data-appointment-key="${escapeHtml(appointment.displayKey)}"
                         data-date="${escapeHtml(appointment.date)}" role="button" tabindex="0"
                         title="${escapeHtml(appointment.fullClassification || "")}">
@@ -851,7 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.querySelector("#agendaMoreSubtitle").textContent = `${weekdayNames[date.getDay()]} · ${formatDateShort(date)}/${date.getFullYear()}`;
         const list = overlay.querySelector("#agendaMoreList");
         list.innerHTML = listItems.length ? listItems.map(appointment => `
-            <article class="agenda-more-item ${escapeHtml(appointment.status || "normal")}" data-appointment-key="${escapeHtml(appointment.displayKey)}" data-date="${escapeHtml(appointment.date)}" role="button" tabindex="0">
+            <article class="agenda-more-item ${escapeHtml(appointment.status || "normal")} ${escapeHtml(appointment.ruptureRiskClass || "rupture-impact-unclassified")} ${appointment.completed ? "completed" : ""}" data-appointment-key="${escapeHtml(appointment.displayKey)}" data-date="${escapeHtml(appointment.date)}" role="button" tabindex="0">
                 <div class="agenda-more-item-time">${escapeHtml(appointment.time || "—")}</div>
                 <div class="agenda-more-item-details">
                     <strong>${escapeHtml(appointment.manufacturer)}</strong>
@@ -870,14 +1003,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return getAppointmentsForDate(date).find(item => item.displayKey === displayKey) || null;
     }
 
-    /* FORMULÁRIO PADRÃO: DATA E HORA PRÉ-SELECIONADAS PELO CALENDÁRIO */
-    function openNewAppointmentForDate(dateISO, time = "") {
-        if (typeof window.abrirNovoAgendamento !== "function") {
-            window.alert("A caixa padrão de Novo Agendamento não está disponível.");
-            return;
-        }
-        window.abrirNovoAgendamento({ dataAgendamento: dateISO, horaInicio: time });
+/* =====================================================
+   ABRIR NOVO AGENDAMENTO
+   Bloqueado no modo somente leitura do ADM
+===================================================== */
+
+function openNewAppointmentForDate(dateISO, time = "") {
+
+    if (READ_ONLY) {
+        return;
     }
+
+    if (typeof window.abrirNovoAgendamento !== "function") {
+        window.alert(
+            "A caixa padrão de Novo Agendamento não está disponível."
+        );
+        return;
+    }
+
+    window.abrirNovoAgendamento({
+        dataAgendamento: dateISO,
+        horaInicio: time
+    });
+}
 
     /* INDICADORES: SOMENTE IMPORTAÇÃO ATUAL E COMBINAÇÃO EXATA */
     function getOperationalRowsForScope(appointment) {
@@ -898,6 +1046,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function sumField(rows, field) {
         const values = validNumbers(rows, field);
         return values.length ? values.reduce((sum, value) => sum + value, 0) : null;
+    }
+
+    // Para ruptura em valor, só aceita a soma quando TODAS as linhas do escopo têm valor válido.
+    // Isso evita colorir ou exibir como completo um total que esteja faltando em alguma UF.
+    function getCompleteSumField(rows, field) {
+        if (!Array.isArray(rows) || rows.length === 0) return null;
+        const values = validNumbers(rows, field);
+        if (values.length !== rows.length) return null;
+        const total = values.reduce((sum, value) => sum + value, 0);
+        return Number.isFinite(total) ? total : null;
     }
 
     function averageValues(values) {
@@ -937,8 +1095,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const curveQty = rows.map(row => curveToRank(row.curva_qtd)).filter(value => value !== null);
         const curveValue = rows.map(row => curveToRank(row.curva_valor)).filter(value => value !== null);
 
+        const ruptureValue = getCompleteSumField(rows, "ruptura_valor");
+
         return {
-            ruptureValue: sumField(rows, "ruptura_valor"),
+            ruptureValue,
+            ruptureValueComplete: ruptureValue !== null,
             ruptureQuantity: sumField(rows, "ruptura_quantidade"),
             totalSold: sumField(rows, "total_vendido"),
             daysWithoutStock: averageValues(days),
@@ -968,12 +1129,19 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         const averageMetric = field => averageValues(foundMetrics.map(metric => metric[field]).filter(value => value !== null && value !== undefined && Number.isFinite(value)));
         const medianMetric = field => medianValue(foundMetrics.map(metric => metric[field]).filter(value => value !== null && value !== undefined && Number.isFinite(value)));
+        const ruptureValueComplete = scopeMetrics.length > 0 && scopeMetrics.every(({ metric }) =>
+            Boolean(metric && metric.ruptureValueComplete)
+        );
+        const ruptureValue = ruptureValueComplete
+            ? scopeMetrics.reduce((sum, { metric }) => sum + metric.ruptureValue, 0)
+            : null;
 
         return {
             scopeMetrics,
             totalScopes: scopes.size,
             scopesWithData: foundMetrics.length,
-            ruptureValue: sumMetrics("ruptureValue"),
+            ruptureValue,
+            ruptureValueComplete,
             ruptureQuantity: sumMetrics("ruptureQuantity"),
             totalSold: sumMetrics("totalSold"),
             daysWithoutStock: averageMetric("daysWithoutStock"),
@@ -981,6 +1149,82 @@ document.addEventListener("DOMContentLoaded", () => {
             curveValueRank: medianMetric("curveValueRank")
         };
     }
+
+    /* =========================================================
+   CLASSIFICAÇÃO FINANCEIRA DA RUPTURA
+   Independente da situação do compromisso
+========================================================= */
+
+function getFinancialRiskClass(sourceAppointments) {
+    const uniqueScopes = new Map();
+
+    (sourceAppointments || []).forEach(source => {
+        const key = [
+            source.groupId || "",
+            source.classificationId || "",
+            source.manufacturerId || ""
+        ].join("|");
+
+        if (!uniqueScopes.has(key)) {
+            uniqueScopes.set(key, source);
+        }
+    });
+
+    if (!uniqueScopes.size) {
+        return "rupture-impact-unclassified";
+    }
+
+    const scopeTotals = [];
+
+    for (const source of uniqueScopes.values()) {
+        const rows = getOperationalRowsForScope(source);
+
+        if (!rows.length) {
+            return "rupture-impact-unclassified";
+        }
+
+        const values = validNumbers(rows, "ruptura_valor");
+
+        // Não classificar usando apenas dados financeiros parciais.
+        if (values.length !== rows.length) {
+            return "rupture-impact-unclassified";
+        }
+
+        const scopeTotal = values.reduce(
+            (sum, value) => sum + value,
+            0
+        );
+
+        if (!Number.isFinite(scopeTotal)) {
+            return "rupture-impact-unclassified";
+        }
+
+        scopeTotals.push(scopeTotal);
+    }
+
+    const total = scopeTotals.reduce(
+        (sum, value) => sum + value,
+        0
+    );
+
+    if (!Number.isFinite(total) || total <= 0) {
+        return "rupture-impact-unclassified";
+    }
+
+    if (total <= 50) {
+        return "rupture-impact-low";
+    }
+
+    if (total <= 250) {
+        return "rupture-impact-attention";
+    }
+
+    if (total <= 1000) {
+        return "rupture-impact-high";
+    }
+
+    return "rupture-impact-critical";
+}
 
         /* MODAL DE DETALHES — ESTRUTURA ÚNICA, ESTILO LEVE */
     function ensureAppointmentDetailsModal() {
@@ -1060,8 +1304,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 .forEach(button => { button.disabled = disabled; });
         }
 
-        async function runOccurrenceAction(actionName, payload) {
-            if (!selectedAppointment || isSavingOccurrenceAction) return null;
+async function runOccurrenceAction(actionName, payload) {
+
+    // Nenhuma ação de gravação pode ser executada
+    // durante a visualização administrativa.
+    if (READ_ONLY) {
+        console.warn(
+            "Ação bloqueada: agenda em modo somente leitura."
+        );
+        return null;
+    }
+
+    if (!selectedAppointment || isSavingOccurrenceAction) {
+        return null;
+    }
             isSavingOccurrenceAction = true;
             setActionButtonsDisabled(true);
             try {
@@ -1105,6 +1361,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (actionButton) {
                 event.preventDefault();
                 const action = actionButton.dataset.agendaAction;
+                if (READ_ONLY) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return;
+}
+
                 if (!selectedAppointment) return;
 
                 if (action === "edit") {
@@ -1220,6 +1482,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         editForm.addEventListener("submit", async event => {
+            if (READ_ONLY) {
+    event.preventDefault();
+    return;
+}
             event.preventDefault();
             if (!selectedAppointment || !editForm.reportValidity()) return;
             const newDate = editDate.value;
@@ -1254,6 +1520,29 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!appointment) return;
         selectedAppointment = appointment;
         const overlay = ensureAppointmentDetailsModal();
+        /* =========================================
+   MODO ADM — SOMENTE VISUALIZAÇÃO
+========================================= */
+
+if (READ_ONLY) {
+
+    const footerActions = overlay.querySelector(
+        ".gcal-footer-actions"
+    );
+
+    if (footerActions) {
+        footerActions.style.display = "none";
+    }
+
+    const scopeNote = overlay.querySelector(
+        ".gcal-scope-note"
+    );
+
+    if (scopeNote) {
+        scopeNote.style.display = "none";
+    }
+}
+
         const title = overlay.querySelector("#agendaDetailsTitle");
         const subtitle = overlay.querySelector("#agendaDetailsSubtitle");
         const context = overlay.querySelector("#agendaDetailsContext");
@@ -1291,8 +1580,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const appointmentMetrics = getAppointmentMetrics(sources);
         const isConsolidated = ["JUNTAS", "AGRUPADAS", "CONSOLIDADAS"].includes(appointment.effectiveDisplayMode) && sources.length > 1;
-        const metricCard = (label, value, featured = false) => `
-            <article class="gcal-kpi-card ${featured ? "gcal-kpi-featured" : ""}">
+        const metricCard = (label, value, featured = false, extraClass = "") => `
+            <article class="gcal-kpi-card ${featured ? "gcal-kpi-featured" : ""} ${extraClass}">
                 <span class="gcal-kpi-label">${escapeHtml(label)}</span>
                 <strong class="gcal-kpi-value">${escapeHtml(value)}</strong>
             </article>`;
@@ -1305,6 +1594,33 @@ document.addEventListener("DOMContentLoaded", () => {
         const curveQtyLabel = rankToCurve(appointmentMetrics.curveQtyRank);
         const curveValueLabel = rankToCurve(appointmentMetrics.curveValueRank);
         const summaryHasData = appointmentMetrics.scopesWithData > 0;
+        const summaryFinancialRiskClass = getFinancialRiskClass(sources);
+// Identifica as combinações com ruptura em valor completa.
+const scopesWithCompleteFinancialValue = appointmentMetrics.scopeMetrics.filter(
+    ({ metric }) =>
+        Boolean(
+            metric &&
+            metric.ruptureValueComplete &&
+            Number.isFinite(metric.ruptureValue)
+        )
+);
+
+// Quantas combinações possuem um valor financeiro válido.
+const financialScopesWithValue = scopesWithCompleteFinancialValue.length;
+
+// Soma somente os valores completos das combinações disponíveis.
+const availableRuptureValue = scopesWithCompleteFinancialValue.reduce(
+    (sum, { metric }) => sum + metric.ruptureValue,
+    0
+);
+
+// Se todas as combinações estiverem completas, mostra o total normal.
+// Se houver combinações incompletas, mostra o valor disponível como parcial.
+const summaryRuptureText = appointmentMetrics.ruptureValueComplete
+    ? formatCurrency(appointmentMetrics.ruptureValue)
+    : financialScopesWithValue > 0
+        ? `${formatCurrency(availableRuptureValue)}`
+        : "Sem dados";
         const coverageText = appointmentMetrics.totalScopes
             ? `${appointmentMetrics.scopesWithData} de ${appointmentMetrics.totalScopes} combinações com dados`
             : "Nenhuma combinação disponível";
@@ -1316,20 +1632,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="gcal-data-indicator ${summaryHasData && appointmentMetrics.scopesWithData === appointmentMetrics.totalScopes ? "is-available" : "is-unavailable"}"><span class="gcal-data-dot"></span>${escapeHtml(coverageText)}</span>
                 </header>
                 <div class="gcal-kpi-grid">
-                    ${metricCard("Ruptura em valor · soma", formatCurrency(appointmentMetrics.ruptureValue), true)}
+                    ${metricCard("Ruptura em valor · soma", summaryRuptureText, true, `gcal-kpi-financial ${summaryFinancialRiskClass}`)}
                     ${metricCard("Ruptura em quantidade · soma", formatNumber(appointmentMetrics.ruptureQuantity), true)}
                     ${metricCard("Dias sem estoque · média", formatNumber(appointmentMetrics.daysWithoutStock, 1))}
                     ${metricCard("Total vendido · soma", formatNumber(appointmentMetrics.totalSold))}
                     ${metricCard("Curva por quantidade · mediana", curveQtyLabel)}
                     ${metricCard("Curva por valor · mediana", curveValueLabel)}
                 </div>
-                ${!summaryHasData ? `<p class="gcal-kpi-warning">Não foram encontrados indicadores na importação operacional concluída mais recente para as combinações desta ocorrência.</p>` : appointmentMetrics.scopesWithData < appointmentMetrics.totalScopes ? `<p class="gcal-kpi-warning">Atenção: uma ou mais combinações não possuem dados operacionais na importação mais recente. O consolidado considera somente os valores disponíveis.</p>` : ""}
+
             </section>`;
 
         const detailsHtml = appointmentMetrics.scopeMetrics.map(({ source, metric }) => {
             const hasData = Boolean(metric);
             const manufacturerName = source.manufacturerReal || source.manufacturer || "Fabricante não identificado";
             const classificationName = getClassificationLabel(source.classification) || "Sem classificação";
+            const detailRiskClass = getFinancialRiskClass([source]);
+            const detailRuptureText = metric?.ruptureValueComplete
+                ? formatCurrency(metric.ruptureValue)
+                : "Sem dados";
             return `
                 <section class="gcal-kpi-section">
                     <header class="gcal-kpi-heading">
@@ -1337,7 +1657,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span class="gcal-data-indicator ${hasData ? "is-available" : "is-unavailable"}"><span class="gcal-data-dot"></span>${hasData ? "Detalhamento" : "Sem dados"}</span>
                     </header>
                     <div class="gcal-kpi-grid">
-                        ${metricCard("Ruptura em valor", formatCurrency(metric?.ruptureValue), true)}
+                        ${metricCard("Ruptura em valor", detailRuptureText, true, `gcal-kpi-financial ${detailRiskClass}`)}
                         ${metricCard("Ruptura em quantidade", formatNumber(metric?.ruptureQuantity), true)}
                         ${metricCard("Dias sem estoque · média", formatNumber(metric?.daysWithoutStock, 1))}
                         ${metricCard("Total vendido", formatNumber(metric?.totalSold))}
@@ -1513,9 +1833,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* INICIALIZAÇÃO */
-    setupCalendarInteractions();
-    updateClassificationModeButton();
-    changeView("month");
-    loadAgendaFilters();
-    loadAppointments();
+/* INICIALIZAÇÃO */
+setupCalendarInteractions();
+updateClassificationModeButton();
+changeView("month");
+
+// Conectar o filtro de situação, já existente no HTML.
+setupFilterOptions(
+    'input[name="situationFilter"]',
+    "situations"
+);
+
+loadAgendaFilters();
+loadAppointments();
 });

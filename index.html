@@ -298,27 +298,10 @@
 
     <div class="group-select-wrapper">
 
-        <select
-            id="groupFilter"
-            class="group-select"
-        >
-            <option value="all">
-                Todos os grupos
-            </option>
+<select id="groupFilter" class="group-select">
+    <option value="all">Todos os grupos</option>
+</select>
 
-            <option value="ztt">
-                ZTT
-            </option>
-
-            <option value="cella">
-                Cella
-            </option>
-
-            <option value="fenix">
-                Fênix
-            </option>
-
-        </select>
 
     </div>
 
@@ -503,15 +486,11 @@
     <div class="section-header">
 
         <div>
-
-            <h3>
-                Agenda de hoje
-            </h3>
+            <h3>Agenda de hoje</h3>
 
             <p>
                 Seus compromissos programados
             </p>
-
         </div>
 
         <a
@@ -523,102 +502,11 @@
 
     </div>
 
-
     <div class="today-list">
 
-
-        <!-- =================================================
-             AGENDAMENTO NORMAL
-        ================================================== -->
-
-        <div class="today-item normal">
-
-            <div class="today-time">
-                08:00
-            </div>
-
-
-            <div class="today-info">
-
-                <strong>
-                    CIMED
-                </strong>
-
-                <span>
-                    Perfumaria
-                </span>
-
-            </div>
-
-
-            <span class="today-status normal">
-                Agendado
-            </span>
-
-        </div>
-
-
-        <!-- =================================================
-             AGENDAMENTO EM ATENÇÃO
-        ================================================== -->
-
-        <div class="today-item attention">
-
-            <div class="today-time">
-                10:00
-            </div>
-
-
-            <div class="today-info">
-
-                <strong>
-                    KRESS
-                </strong>
-
-                <span>
-                    Perfumaria
-                </span>
-
-            </div>
-
-
-            <span class="today-status attention">
-                Atenção
-            </span>
-
-        </div>
-
-
-        <!-- =================================================
-             AGENDAMENTO URGENTE
-        ================================================== -->
-
-        <div class="today-item urgent">
-
-            <div class="today-time">
-                14:00
-            </div>
-
-
-            <div class="today-info">
-
-                <strong>
-                    L'ORÉAL
-                </strong>
-
-                <span>
-                    Cosméticos
-                </span>
-
-            </div>
-
-
-            <span class="today-status urgent">
-                Urgente
-            </span>
-
-        </div>
-
+        <p class="dashboard-empty-message">
+            Carregando agendamentos...
+        </p>
 
     </div>
 
@@ -749,7 +637,17 @@
     ></div>
 
 
-    <script src="assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="assets/js/supabase.js"></script>
+
+<script src="assets/js/agenda-access.js"></script>
+
+<script src="assets/js/app-shell.js"></script>
+<script src="assets/js/dashboard-service.js"></script>
+<script src="assets/js/dashboard-metrics.js"></script>
+<script src="assets/js/agenda-rules.js"></script>
+<script src="assets/js/app.js"></script>
 
 </body>
 

@@ -2367,3 +2367,301 @@ tr:hover td.action-cell {
         gap: 10px;
     }
 }
+
+/* =========================================================
+   AGENDA POR RUPTURA
+   RESTAURAÇÃO VISUAL DOS FILTROS DE GRUPO E CLASSIFICAÇÃO
+   Mantém os IDs e mecanismos atuais do JavaScript
+========================================================= */
+
+/* CONTÊINER DOS FILTROS */
+
+.ruptura-page #rupturaGroupDropdown,
+.ruptura-page #rupturaClassificationDropdown {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-width: 0;
+}
+
+.ruptura-page
+#rupturaGroupDropdown.open,
+.ruptura-page
+#rupturaClassificationDropdown.open {
+    z-index: 800;
+}
+
+
+/* BOTÕES DOS FILTROS */
+
+.ruptura-page #rupturaGroupTrigger,
+.ruptura-page #rupturaClassificationTrigger {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    min-height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    padding: 0 10px;
+
+    border: 1px solid var(--border-light, #e8e0d6);
+    border-radius: 8px;
+
+    background: var(--surface, #fff);
+    color: var(--text-light, #756b63);
+
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s ease,
+        background-color .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+/* HOVER E FILTRO ABERTO */
+
+.ruptura-page #rupturaGroupTrigger:hover,
+.ruptura-page #rupturaClassificationTrigger:hover,
+.ruptura-page #rupturaGroupDropdown.open #rupturaGroupTrigger,
+.ruptura-page #rupturaClassificationDropdown.open
+#rupturaClassificationTrigger {
+    border-color: var(--primary-light, #9e7a50);
+    background: var(--surface-soft, #f7f3ed);
+    color: var(--primary, #724613);
+}
+
+.ruptura-page #rupturaGroupDropdown.open #rupturaGroupTrigger,
+.ruptura-page #rupturaClassificationDropdown.open
+#rupturaClassificationTrigger {
+    box-shadow: 0 0 0 3px rgba(114, 70, 19, .08);
+}
+
+.ruptura-page #rupturaGroupTrigger:focus-visible,
+.ruptura-page #rupturaClassificationTrigger:focus-visible {
+    outline: 3px solid rgba(114, 70, 19, .12);
+    outline-offset: 2px;
+}
+
+
+/* TEXTO PRINCIPAL DO BOTÃO */
+
+.ruptura-page #rupturaGroupTrigger > span:first-child,
+.ruptura-page #rupturaClassificationTrigger > span:first-child {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: var(--text, #342820);
+
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+/* SETA DOS FILTROS */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-arrow,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-arrow {
+    flex: 0 0 auto;
+    margin-left: auto;
+
+    color: var(--text-light, #756b63);
+    font-size: 11px;
+    line-height: 1;
+
+    transition:
+        transform .2s ease,
+        color .2s ease;
+}
+
+.ruptura-page #rupturaGroupDropdown.open
+.ruptura-multiselect-arrow,
+.ruptura-page #rupturaClassificationDropdown.open
+.ruptura-multiselect-arrow {
+    transform: rotate(180deg);
+    color: var(--primary, #724613);
+}
+
+
+/* =========================================================
+   MENUS SUSPENSOS
+========================================================= */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-menu,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+
+    z-index: 900;
+
+    display: block;
+
+    width: max(100%, 220px);
+    max-width: min(300px, 90vw);
+    max-height: 320px;
+
+    padding: 7px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border: 1px solid var(--border, #ddd3c7);
+    border-radius: 8px;
+
+    background: var(--surface, #fff);
+
+    box-shadow: 0 6px 20px rgba(52, 37, 29, .12);
+
+    scrollbar-width: thin;
+    scrollbar-color: #cfc5b8 transparent;
+}
+
+/* Mantém o menu fechado quando o HTML contém hidden */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-menu[hidden],
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-menu[hidden] {
+    display: none !important;
+}
+
+/* Largura específica de cada filtro */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-menu {
+    width: 220px;
+}
+
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-menu {
+    width: 245px;
+}
+
+
+/* ORGANIZAÇÃO DAS OPÇÕES */
+
+.ruptura-page #rupturaGroupOptions,
+.ruptura-page #rupturaClassificationOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+    min-height: 34px;
+
+    padding: 6px 8px;
+
+    border-radius: 7px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition: background-color .18s ease;
+}
+
+
+/* REALCE DAS OPÇÕES */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option:hover,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option:hover,
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option:has(input:checked),
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option:has(input:checked) {
+    background: #fbf8f3;
+}
+
+
+/* CAIXAS DE SELEÇÃO */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option input[type="checkbox"],
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+
+    margin: 0;
+
+    accent-color: var(--primary, #724613);
+
+    cursor: pointer;
+}
+
+
+/* TEXTO DAS OPÇÕES */
+
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option span,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option span,
+.ruptura-page #rupturaGroupDropdown
+.ruptura-multiselect-option-text,
+.ruptura-page #rupturaClassificationDropdown
+.ruptura-multiselect-option-text {
+    min-width: 0;
+
+    color: var(--text, #342820);
+
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ACABAMENTO PARA TELAS PEQUENAS */
+
+@media (max-width: 650px) {
+    .ruptura-page #rupturaGroupDropdown
+    .ruptura-multiselect-menu,
+    .ruptura-page #rupturaClassificationDropdown
+    .ruptura-multiselect-menu {
+        width: min(280px, 88vw);
+        max-width: 88vw;
+        max-height: 300px;
+    }
+}

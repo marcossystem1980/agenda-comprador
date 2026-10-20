@@ -3,18 +3,23 @@
    AGENDA COMPRADOR
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
     "use strict";
 
+    // Aguarda a validação do usuário e do comprador selecionado.
+    const access = await window.AgendaAccess?.ready;
 
-    /* =====================================================
-       COMPRADOR DE TESTE
-       TEMPORÁRIO — SERÁ SUBSTITUÍDO PELO LOGIN
-    ===================================================== */
+    // Interrompe a inicialização se o acesso não for autorizado.
+    if (!access?.allowed) {
+        return;
+    }
 
-    const COMPRADOR_ID =
-        "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
+    // Usa o comprador validado, sem UUID fixo no código.
+    const COMPRADOR_ID = access.compradorId;
+
+    // Identifica quando a página está sendo consultada pelo ADM.
+    const READ_ONLY = access.readOnly === true;
 
 
     /* =====================================================
@@ -2277,6 +2282,56 @@ const displayRows =
         filteredDisplayRows
     );
 
+    /* =====================================================
+   DIAGNÓSTICO TEMPORÁRIO DAS CONTAGENS
+===================================================== */
+
+const uniqueOperationalCombinations = new Set(
+    filteredSourceRows.map(row =>
+        JSON.stringify([
+            row.grupo_id ?? null,
+            row.classificacao_id ?? null,
+            row.fabricante_id ?? null
+        ])
+    )
+).size;
+
+console.groupCollapsed(
+    "Diagnóstico da Agenda por Ruptura"
+);
+
+console.table([{
+    linhasOperacionais:
+        filteredSourceRows.length,
+
+    combinacoesUnicas:
+        uniqueOperationalCombinations,
+
+    fabricantesConsolidados:
+        consolidatedRows.length,
+
+    linhasExibidas:
+        displayRows.length,
+
+    agendadosOuParciais:
+        displayRows.filter(row =>
+            row.agendaStatus !== "outside"
+        ).length,
+
+    foraDaAgenda:
+        displayRows.filter(row =>
+            row.agendaStatus === "outside"
+        ).length,
+
+    riscoAcima250:
+        displayRows.filter(row =>
+            Number.isFinite(row.ruptureValue) &&
+            row.ruptureValue > 250
+        ).length
+}]);
+
+console.groupEnd();
+
 
 currentDisplayRows =
     displayRows;
@@ -3932,48 +3987,190 @@ ${decisionHtml}
             );
 
 
+/* =====================================================
+   CARREGAR SOMENTE A ÚLTIMA IMPORTAÇÃO CONCLUÍDA
+===================================================== */
+
+const {
+    data: latestImport,
+    error: latestImportError
+} = await supabaseClient
+    .from("importacoes_operacionais")
+    .select("id, data_referencia, created_at")
+    .eq("status", "concluida")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+if (latestImportError) {
+    throw latestImportError;
+}
+
+/* =====================================================
+   CARREGAR RESPONSABILIDADES DO COMPRADOR
+===================================================== */
+
+let operationalData = [];
+
+const {
+    data: buyerScopes,
+    error: buyerScopesError
+} = await supabaseClient
+    .from("comprador_grupo_classificacoes")
+    .select("grupo_id, classificacao_id")
+    .eq("comprador_id", COMPRADOR_ID)
+    .eq("ativo", true);
+
+if (buyerScopesError) {
+    throw buyerScopesError;
+}
+
+
+/* =====================================================
+   REMOVER COMBINAÇÕES DUPLICADAS
+===================================================== */
+
+const uniqueBuyerScopes = [
+    ...new Map(
+        (buyerScopes || [])
+            .filter(scope =>
+                scope.grupo_id &&
+                scope.classificacao_id
+            )
+            .map(scope => [
+                `${scope.grupo_id}|${scope.classificacao_id}`,
+                {
+                    grupo_id: scope.grupo_id,
+                    classificacao_id:
+                        scope.classificacao_id
+                }
+            ])
+    ).values()
+];
+
+
+/* =====================================================
+   CONSULTAR SOMENTE AS COMBINAÇÕES AUTORIZADAS
+===================================================== */
+
+let scopedResults = [];
+
+if (
+    latestImport?.id &&
+    uniqueBuyerScopes.length > 0
+) {
+
+    scopedResults = await Promise.all(
+
+        uniqueBuyerScopes.map(async scope => {
+
             const {
-                data: operationalData,
-                error: operationalError
-            } =
-                await supabaseClient
+                data,
+                error
+            } = await supabaseClient
 
-                    .from(
-                        "dados_operacionais"
-                    )
+                .from("dados_operacionais")
 
-                    .select(
-                        `
-                        id,
-                        importacao_id,
-                        grupo_id,
-                        classificacao_id,
-                        fabricante_id,
-                        grupo_codigo,
-                        uf,
-                        classificacao_codigo,
-                        fabricante_nome,
-                        curva_qtd,
-                        curva_valor,
-                        total_vendido,
-                        dias_sem_estoque,
-                        ruptura_quantidade,
-                        ruptura_valor
-                        `
-                    )
+                .select(`
+                    id,
+                    importacao_id,
+                    grupo_id,
+                    classificacao_id,
+                    fabricante_id,
+                    grupo_codigo,
+                    uf,
+                    classificacao_codigo,
+                    fabricante_nome,
+                    curva_qtd,
+                    curva_valor,
+                    total_vendido,
+                    dias_sem_estoque,
+                    ruptura_quantidade,
+                    ruptura_valor
+                `)
 
-                    .order(
-                        "grupo_codigo"
-                    )
+                .eq(
+                    "importacao_id",
+                    latestImport.id
+                )
 
-                    .order(
-                        "fabricante_nome"
-                    );
+                .eq(
+                    "grupo_id",
+                    scope.grupo_id
+                )
 
+                .eq(
+                    "classificacao_id",
+                    scope.classificacao_id
+                )
 
-            if (operationalError) {
-                throw operationalError;
+                .order("grupo_codigo")
+
+                .order("fabricante_nome");
+
+            if (error) {
+                throw error;
             }
+
+            return {
+                scope,
+                rows: data || []
+            };
+
+        })
+
+    );
+
+    // Combina somente os resultados das consultas autorizadas.
+    operationalData = scopedResults.flatMap(
+        result => result.rows
+    );
+
+} else if (!latestImport?.id) {
+
+    console.warn(
+        "Nenhuma importação operacional concluída foi encontrada."
+    );
+
+} else {
+
+    console.warn(
+        "O comprador selecionado não possui combinações " +
+        "ativas de grupo e classificação."
+    );
+
+}
+
+
+/* =====================================================
+   DIAGNÓSTICO DO ESCOPO CARREGADO
+===================================================== */
+
+console.log(
+    "Escopo operacional do comprador:",
+    {
+        compradorId: COMPRADOR_ID,
+
+        gruposClassificacoes:
+            uniqueBuyerScopes.length,
+
+        porCombinacao:
+            scopedResults.map(result => ({
+                grupo_id:
+                    result.scope.grupo_id,
+
+                classificacao_id:
+                    result.scope.classificacao_id,
+
+                registros:
+                    result.rows.length
+            })),
+
+        registrosOperacionais:
+            operationalData.length
+    }
+);
+
 
 
             const {

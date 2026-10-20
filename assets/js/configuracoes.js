@@ -288,9 +288,22 @@ function loadSettings() {
 
 if (saveSettings) {
 
-    saveSettings.addEventListener(
-        "click",
-        () => {
+saveSettings.addEventListener(
+    "click",
+    async () => {
+
+        const access = await window.AgendaAccess?.ready;
+
+        if (!access?.allowed) {
+            return;
+        }
+
+        if (access.readOnly) {
+            alert(
+                "O ADM pode consultar esta página, mas não salvar alterações."
+            );
+            return;
+        }
 
             const groups = [];
 
@@ -430,19 +443,36 @@ if (
     photoInput
 ) {
 
-    photoButton.addEventListener(
-        "click",
-        () => {
+photoButton.addEventListener(
+    "click",
+    async () => {
 
-            photoInput.click();
+        const access = await window.AgendaAccess?.ready;
 
+        if (!access?.allowed || access.readOnly) {
+            return;
         }
-    );
 
+        photoInput.click();
 
-    photoInput.addEventListener(
-        "change",
-        () => {
+    }
+);
+
+photoInput.addEventListener(
+    "change",
+    async () => {
+
+        const access = await window.AgendaAccess?.ready;
+
+        if (!access?.allowed || access.readOnly) {
+            photoInput.value = "";
+            return;
+        }
+
+if (!access?.allowed || access.readOnly) {
+    photoInput.value = "";
+    return;
+}
 
             const file =
                 photoInput.files &&
@@ -540,7 +570,91 @@ if (
 
 
 /* =========================================================
-   INICIALIZAÇÃO
+   INICIALIZAÇÃO E CONTROLE DE ACESSO
 ========================================================= */
 
-loadSettings();
+(async () => {
+
+    const access = await window.AgendaAccess?.ready;
+
+    if (!access?.allowed) {
+        return;
+    }
+
+    if (access.readOnly) {
+
+        // Identificar o comprador selecionado pelo ADM.
+        if (buyerName) {
+            buyerName.value = access.compradorNome || "";
+            buyerName.readOnly = true;
+        }
+
+        const headerName = document.querySelector(
+            ".user-info strong"
+        );
+
+        const avatar = document.querySelector(
+            ".user-avatar"
+        );
+
+        if (headerName) {
+            headerName.textContent =
+                access.compradorNome || "Comprador";
+        }
+
+        if (avatar) {
+            avatar.textContent =
+                (access.compradorNome || "C")
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+        }
+
+        // Bloquear edição das responsabilidades.
+        document.querySelectorAll(
+            'input[name="groups"], input[name="classifications"]'
+        ).forEach(input => {
+            input.disabled = true;
+        });
+
+        // Ocultar controles de alteração.
+        if (photoButton) {
+            photoButton.hidden = true;
+        }
+
+        if (photoInput) {
+            photoInput.disabled = true;
+        }
+
+        if (saveSettings) {
+            saveSettings.hidden = true;
+        }
+
+        // Informar a limitação dos dados desta versão.
+        const notice = document.createElement("p");
+
+        notice.textContent =
+            "Visualização administrativa: as configurações de grupos e classificações desta tela ainda são demonstrativas e não estão vinculadas ao cadastro real do comprador no Supabase.";
+
+        notice.setAttribute("role", "status");
+
+        notice.style.cssText = [
+            "padding:12px 16px",
+            "margin:16px 0",
+            "border:1px solid #ddd3c7",
+            "border-radius:8px",
+            "color:#756b63",
+            "background:#f8f6f1"
+        ].join(";");
+
+        document.querySelector(".page-heading")
+            ?.insertAdjacentElement("afterend", notice);
+
+    } else {
+
+        // O comprador continua utilizando o comportamento atual.
+        loadSettings();
+
+    }
+
+})();

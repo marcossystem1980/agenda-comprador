@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Definir senha | Agenda Comprador</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/login.css">
+</head>
+
+<body class="login-page">
+
+    <div class="login-background"></div>
+
+    <main class="login-container">
+
+        <section class="login-card">
+
+            <img
+                src="assets/img/logo.png"
+                alt="Logo da empresa"
+                class="login-logo"
+            >
+
+            <div class="login-title">
+
+                <span>AGENDA COMPRADOR</span>
+
+                <h1>Defina sua senha</h1>
+
+                <p>
+                    Configure sua senha para acessar sua agenda.
+                </p>
+
+            </div>
+
+            <form id="setPasswordForm">
+
+                <div class="form-group">
+
+                    <label for="newPassword">
+                        Nova senha
+                    </label>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        placeholder="Digite sua nova senha"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">
+                        Confirmar senha
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Digite novamente sua senha"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+
+                </div>
+
+                <div
+                    id="passwordMessage"
+                    class="login-message"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="savePasswordButton"
+                >
+                    Salvar senha
+                </button>
+
+            </form>
+
+            <div class="login-footer">
+                Agenda Inteligente de Compras
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="assets/js/supabase.js"></script>
+
+    <script src="assets/js/definir-senha.js"></script>
+
+</body>
+
+</html>
