@@ -7,6 +7,9 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("togglePassword");
 const loginMessage = document.getElementById("loginMessage");
+const forgotPasswordButton = document.getElementById(
+    "forgotPasswordButton"
+);
 
 const loginButton = loginForm?.querySelector(
     'button[type="submit"]'
@@ -52,6 +55,80 @@ if (togglePassword && passwordInput) {
         togglePassword.textContent = senhaVisivel
             ? "Mostrar"
             : "Ocultar";
+    });
+}
+
+/* =========================================
+   RECUPERAÇÃO DE SENHA
+========================================= */
+
+if (forgotPasswordButton) {
+    forgotPasswordButton.addEventListener("click", async () => {
+        mostrarMensagem("");
+
+        if (typeof supabaseClient === "undefined") {
+            mostrarMensagem(
+                "Não foi possível conectar ao serviço de autenticação."
+            );
+            return;
+        }
+
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!emailInput.checkValidity() || !email) {
+            mostrarMensagem(
+                "Informe um endereço de e-mail válido para receber o link."
+            );
+
+            emailInput.reportValidity();
+            emailInput.focus();
+
+            return;
+        }
+
+        forgotPasswordButton.disabled = true;
+        forgotPasswordButton.textContent = "Enviando link...";
+
+        try {
+            const { error } =
+                await supabaseClient.auth.resetPasswordForEmail(
+                    email,
+                    {
+                        redirectTo:
+                            "https://agenda-comprador.vercel.app/definir-senha.html"
+                    }
+                );
+
+            if (error) {
+                console.error(
+                    "Erro ao solicitar recuperação de senha:",
+                    error
+                );
+
+                throw error;
+            }
+
+            mostrarMensagem(
+                "Se houver uma conta associada a esse e-mail, " +
+                "enviaremos as instruções para redefinir a senha. " +
+                "Verifique sua caixa de entrada e a pasta de spam."
+            );
+
+        } catch (error) {
+            console.error(
+                "Falha na solicitação de recuperação:",
+                error
+            );
+
+            mostrarMensagem(
+                "Não foi possível solicitar a recuperação agora. " +
+                "Tente novamente mais tarde."
+            );
+
+        } finally {
+            forgotPasswordButton.disabled = false;
+            forgotPasswordButton.textContent = "Esqueci minha senha";
+        }
     });
 }
 

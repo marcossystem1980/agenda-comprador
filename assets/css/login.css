@@ -701,3 +701,34 @@
     }
 
 }
+
+/* =========================================
+   RECUPERAÇÃO DE SENHA
+========================================= */
+
+.forgot-password {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+.forgot-password-button {
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    color: #735543;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.forgot-password-button:hover {
+    color: #55320d;
+    text-decoration: underline;
+}
+
+.forgot-password-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
