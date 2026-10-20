@@ -469,10 +469,18 @@ const user = authData?.user;
 
             if (!access?.allowed) return access;
 
-            const apply = () => {
-                showBuyerIdentity(access);
-                applyReadOnlyMode(access);
-            };
+const apply = () => {
+    showBuyerIdentity(access);
+
+    applyReadOnlyMode(access);
+
+    // Exibir a página somente após validar a autenticação.
+    const app = document.querySelector(".app");
+
+    if (app) {
+        app.style.visibility = "visible";
+    }
+};
 
             if (document.readyState === "loading") {
                 document.addEventListener(
