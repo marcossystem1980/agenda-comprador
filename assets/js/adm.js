@@ -172,15 +172,19 @@ async function initializeAdmin() {
             .eq("user_id", user.id)
             .maybeSingle();
 
-if (profileError) {
-    console.error(
-        "Erro ao consultar perfil:",
-        profileError
-    );
+        if (profileError) {
+            console.error(
+                "Erro ao consultar perfil:",
+                profileError
+            );
 
-    window.location.replace("./login.html");
-    return;
-}
+            showAdminMessage(
+                "Não foi possível verificar as permissões. " +
+                "Confira as políticas do Supabase."
+            );
+
+            return;
+        }
 
         if (
             !profile ||

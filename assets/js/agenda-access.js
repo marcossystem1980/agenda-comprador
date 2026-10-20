@@ -99,36 +99,80 @@ button.addEventListener("click", () => {
         }
     }
 
-    function showBuyerIdentity(access) {
-        const name = access.compradorNome || "Comprador";
+function showBuyerIdentity(access) {
+    const name = access.compradorNome || "Comprador";
 
-        const nameElement = document.querySelector(
-            ".user-info strong"
-        );
+    const nameElement = document.querySelector(
+        ".user-info strong"
+    );
 
-        const roleElement = document.querySelector(
-            ".user-info span"
-        );
+    const roleElement = document.querySelector(
+        ".user-info span"
+    );
 
-        const avatarElement = document.querySelector(
-            ".user-avatar"
-        );
+    const avatars = document.querySelectorAll(
+        ".user-avatar"
+    );
 
-        if (nameElement) {
-            nameElement.textContent = name;
-        }
-
-        if (roleElement) {
-            // A página continua apresentando o ambiente normal
-            // do comprador, sem uma faixa ou aviso administrativo.
-            roleElement.textContent = "Comprador";
-        }
-
-        if (avatarElement) {
-            avatarElement.textContent =
-                name.trim().charAt(0).toUpperCase() || "C";
-        }
+    if (nameElement) {
+        nameElement.textContent = name;
     }
+
+    if (roleElement) {
+        roleElement.textContent = "Comprador";
+    }
+
+    // Mostrar a inicial enquanto a foto é carregada.
+    avatars.forEach(avatar => {
+        avatar.textContent =
+            name.trim().charAt(0).toUpperCase() || "C";
+
+        avatar.style.backgroundImage = "";
+    });
+
+    const photoPath = access.compradorFotoUrl;
+
+    if (!photoPath) {
+        return;
+    }
+
+    // O bucket é privado: gerar URL assinada para a foto.
+    (async () => {
+        let photoUrl = photoPath;
+
+        if (!/^https?:\/\//i.test(photoPath)) {
+            const { data, error } = await supabaseClient
+                .storage
+                .from("fotos-compradores")
+                .createSignedUrl(photoPath, 3600);
+
+            if (error) {
+                throw error;
+            }
+
+            photoUrl = data?.signedUrl;
+        }
+
+        if (!photoUrl) {
+            return;
+        }
+
+        avatars.forEach(avatar => {
+            avatar.style.backgroundImage =
+                `url("${photoUrl}")`;
+
+            avatar.style.backgroundPosition = "center";
+            avatar.style.backgroundRepeat = "no-repeat";
+            avatar.style.backgroundSize = "cover";
+            avatar.textContent = "";
+        });
+    })().catch(error => {
+        console.error(
+            "Erro ao carregar foto do comprador:",
+            error
+        );
+    });
+}
 
     function applyReadOnlyMode(access) {
         if (!access.readOnly) return;

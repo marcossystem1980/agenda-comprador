@@ -1,660 +1,417 @@
 /* =========================================================
-   CONFIGURAÇÕES
-   AGENDA COMPRADOR
-   VERSÃO DE TESTE COM LOCALSTORAGE
-========================================================= */
+   CONFIGURACOES | AGENDA COMPRADOR
+   Versao conectada ao Supabase
+   ========================================================= */
 
+(() => {
+    "use strict";
 
-/* =========================================================
-   ELEMENTOS
-========================================================= */
+    const PHOTO_BUCKET = "fotos-compradores";
+    const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+    const ALLOWED_PHOTO_TYPES = new Set([
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ]);
 
-const saveSettings =
-    document.getElementById("saveSettings");
+    const saveSettings = document.getElementById("saveSettings");
+    const photoButton = document.getElementById("photoButton");
+    const photoInput = document.getElementById("photoInput");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const buyerName = document.getElementById("buyerName");
+    const buyerProfile = document.getElementById("buyerProfile");
 
-const photoButton =
-    document.getElementById("photoButton");
+    let accessContext = null;
+    let currentBuyer = null;
+    let groupCatalog = [];
+    let classificationCatalog = [];
+    let groupsByCode = new Map();
+    let classificationsByCode = new Map();
+    let savedPhotoPath = null;
+    let currentPhotoDisplayUrl = null;
+    let pendingPhotoFile = null;
+    let pendingPhotoPreviewUrl = null;
 
-const photoInput =
-    document.getElementById("photoInput");
-
-const profileAvatar =
-    document.getElementById("profileAvatar");
-
-const buyerName =
-    document.getElementById("buyerName");
-
-
-/* =========================================================
-   NORMALIZAR CÓDIGOS
-========================================================= */
-
-function normalizeCode(value) {
-
-    return String(value || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase()
-        .trim();
-
-}
-
-
-/* =========================================================
-   NORMALIZAR GRUPOS ANTIGOS
-========================================================= */
-
-function normalizeGroupCode(value) {
-
-    const code =
-        normalizeCode(value);
-
-    const aliases = {
-        "ZTT": "ZTT",
-        "CELLA": "CELLA",
-        "FENIX": "FENIX"
-    };
-
-    return aliases[code] || code;
-
-}
-
-
-/* =========================================================
-   MIGRAR CLASSIFICAÇÕES ANTIGAS
-========================================================= */
-
-function normalizeClassificationCodes(values) {
-
-    const result = new Set();
-
-    const aliases = {
-
-        "FRALDAS E LEITES": [
-            "FRALDAS",
-            "LEITES"
-        ],
-
-        "GENERICO": [
-            "GENERICOS"
-        ],
-
-        "SUPLEMENTO": [
-            "SUPLEMENTOS"
-        ]
-
-    };
-
-
-    if (!Array.isArray(values)) {
-        return [];
+    function normalizeCode(value) {
+        return String(value || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
     }
 
-
-    values.forEach(value => {
-
-        const code =
-            normalizeCode(value);
-
-        const mapped =
-            aliases[code];
-
-
-        if (mapped) {
-
-            mapped.forEach(item => {
-                result.add(item);
-            });
-
-        } else {
-
-            result.add(code);
-
-        }
-
-    });
-
-
-    return [...result];
-
-}
-
-
-/* =========================================================
-   LER CONFIGURAÇÕES SALVAS
-========================================================= */
-
-function getSavedSettings() {
-
-    const savedData =
-        localStorage.getItem(
-            "agendaComprador_configuracoes"
-        );
-
-
-    if (!savedData) {
-        return null;
+    function getInitial(name) {
+        return String(name || "Comprador").trim().charAt(0).toUpperCase() || "C";
     }
 
-
-    try {
-
-        return JSON.parse(savedData);
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao interpretar configurações salvas:",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   CARREGAR CONFIGURAÇÕES
-========================================================= */
-
-function loadSettings() {
-
-    const data =
-        getSavedSettings();
-
-
-    /* =================================================
-       NOME
-    ================================================= */
-
-    if (
-        data &&
-        data.name &&
-        buyerName
-    ) {
-
-        buyerName.value =
-            data.name;
-
-    }
-
-
-    /* =================================================
-       GRUPOS
-    ================================================= */
-
-    if (
-        data &&
-        Array.isArray(data.groups)
-    ) {
-
-        const savedGroups =
-            new Set(
-                data.groups.map(
-                    normalizeGroupCode
-                )
-            );
-
-
-        document
-            .querySelectorAll(
-                'input[name="groups"]'
-            )
-            .forEach(input => {
-
-                input.checked =
-                    savedGroups.has(
-                        normalizeGroupCode(
-                            input.value
-                        )
-                    );
-
-            });
-
-    }
-
-
-    /* =================================================
-       CLASSIFICAÇÕES
-    ================================================= */
-
-    if (
-        data &&
-        Array.isArray(data.classifications)
-    ) {
-
-        const savedClassifications =
-            new Set(
-                normalizeClassificationCodes(
-                    data.classifications
-                )
-            );
-
-
-        document
-            .querySelectorAll(
-                'input[name="classifications"]'
-            )
-            .forEach(input => {
-
-                input.checked =
-                    savedClassifications.has(
-                        normalizeCode(
-                            input.value
-                        )
-                    );
-
-            });
-
-    }
-
-
-    /* =================================================
-       FOTO
-    ================================================= */
-
-    const savedPhoto =
-        localStorage.getItem(
-            "agendaComprador_foto"
-        )
-        ||
-        (
-            data
-                ? data.photo
-                : null
-        );
-
-
-    if (
-        savedPhoto &&
-        profileAvatar
-    ) {
-
-        profileAvatar.style.backgroundImage =
-            `url("${savedPhoto}")`;
-
-        profileAvatar.textContent = "";
-
-    }
-
-}
-
-
-/* =========================================================
-   SALVAR CONFIGURAÇÕES
-========================================================= */
-
-if (saveSettings) {
-
-saveSettings.addEventListener(
-    "click",
-    async () => {
-
-        const access = await window.AgendaAccess?.ready;
-
-        if (!access?.allowed) {
-            return;
-        }
-
-        if (access.readOnly) {
-            alert(
-                "O ADM pode consultar esta página, mas não salvar alterações."
-            );
-            return;
-        }
-
-            const groups = [];
-
-            const classifications = [];
-
-
-            /* =================================================
-               PEGAR GRUPOS
-            ================================================= */
-
-            document
-                .querySelectorAll(
-                    'input[name="groups"]:checked'
-                )
-                .forEach(input => {
-
-                    groups.push(
-                        normalizeGroupCode(
-                            input.value
-                        )
-                    );
-
-                });
-
-
-            /* =================================================
-               PEGAR CLASSIFICAÇÕES
-            ================================================= */
-
-            document
-                .querySelectorAll(
-                    'input[name="classifications"]:checked'
-                )
-                .forEach(input => {
-
-                    classifications.push(
-                        normalizeCode(
-                            input.value
-                        )
-                    );
-
-                });
-
-
-            /* =================================================
-               NOME
-            ================================================= */
-
-            const name =
-                buyerName
-                    ? buyerName.value.trim()
-                    : "";
-
-
-            /* =================================================
-               FOTO ATUAL
-            ================================================= */
-
-            let currentPhoto =
-                localStorage.getItem(
-                    "agendaComprador_foto"
-                );
-
-
-            if (!currentPhoto) {
-
-                const previousSettings =
-                    getSavedSettings();
-
-                currentPhoto =
-                    previousSettings
-                        ? previousSettings.photo || null
-                        : null;
-
+    function setAvatarImage(url, name) {
+        const initial = getInitial(name);
+        const avatars = [
+            profileAvatar,
+            document.querySelector(".user-avatar")
+        ].filter(Boolean);
+
+        avatars.forEach(avatar => {
+            if (url) {
+                avatar.style.backgroundImage = `url("${url}")`;
+                avatar.style.backgroundPosition = "center";
+                avatar.style.backgroundRepeat = "no-repeat";
+                avatar.style.backgroundSize = "cover";
+                avatar.textContent = "";
+            } else {
+                avatar.style.backgroundImage = "";
+                avatar.textContent = initial;
             }
-
-
-            /* =================================================
-               MONTAR DADOS
-            ================================================= */
-
-            const data = {
-
-                name,
-
-                groups,
-
-                classifications,
-
-                photo: currentPhoto
-
-            };
-
-
-            /* =================================================
-               SALVAR LOCALMENTE
-            ================================================= */
-
-            try {
-
-                localStorage.setItem(
-                    "agendaComprador_configuracoes",
-                    JSON.stringify(data)
-                );
-
-
-                alert(
-                    "Configurações salvas com sucesso."
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Erro ao salvar configurações:",
-                    error
-                );
-
-
-                alert(
-                    "Não foi possível salvar as configurações. Verifique o espaço disponível no navegador."
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ALTERAR FOTO
-========================================================= */
-
-if (
-    photoButton &&
-    photoInput
-) {
-
-photoButton.addEventListener(
-    "click",
-    async () => {
-
-        const access = await window.AgendaAccess?.ready;
-
-        if (!access?.allowed || access.readOnly) {
-            return;
-        }
-
-        photoInput.click();
-
+        });
     }
-);
 
-photoInput.addEventListener(
-    "change",
-    async () => {
+    async function resolvePhotoUrl(photoPath) {
+        if (!photoPath) return null;
 
-        const access = await window.AgendaAccess?.ready;
-
-        if (!access?.allowed || access.readOnly) {
-            photoInput.value = "";
-            return;
+        // Compatibilidade de leitura caso exista alguma URL antiga no cadastro.
+        if (/^https?:\/\//i.test(photoPath)) {
+            return photoPath;
         }
 
-if (!access?.allowed || access.readOnly) {
-    photoInput.value = "";
-    return;
-}
+        const { data, error } = await supabaseClient
+            .storage
+            .from(PHOTO_BUCKET)
+            .createSignedUrl(photoPath, 60 * 60);
 
-            const file =
-                photoInput.files &&
-                photoInput.files[0];
+        if (error) {
+            console.warn("Nao foi possivel carregar a foto do comprador:", error);
+            return null;
+        }
 
+        return data?.signedUrl || null;
+    }
 
-            if (!file) {
+    function showError(message, error) {
+        console.error(message, error || "");
+        const detail = error?.message ? `\n\nDetalhe: ${error.message}` : "";
+        alert(`${message}${detail}`);
+    }
+
+    function applyCatalogToCheckboxes(selector, catalogByCode, selectedIds, readOnly) {
+        document.querySelectorAll(selector).forEach(input => {
+            const catalogItem = catalogByCode.get(normalizeCode(input.value));
+            const card = input.closest(".selection-card");
+
+            input.dataset.catalogAvailable = catalogItem ? "true" : "false";
+
+            if (!catalogItem) {
+                input.checked = false;
+                input.disabled = true;
+                if (card) card.hidden = true;
                 return;
             }
 
-
-            /* =================================================
-               VALIDAR TIPO DA IMAGEM
-            ================================================= */
-
-            if (
-                !file.type.startsWith("image/")
-            ) {
-
-                alert(
-                    "Selecione uma imagem válida."
-                );
-
-                photoInput.value = "";
-
-                return;
-
-            }
-
-
-            /* =================================================
-               LER IMAGEM
-            ================================================= */
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload =
-                event => {
-
-                    const image =
-                        event.target.result;
-
-
-                    if (profileAvatar) {
-
-                        profileAvatar.style.backgroundImage =
-                            `url("${image}")`;
-
-                        profileAvatar.textContent = "";
-
-                    }
-
-
-                    try {
-
-                        localStorage.setItem(
-                            "agendaComprador_foto",
-                            image
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Erro ao salvar foto:",
-                            error
-                        );
-
-
-                        alert(
-                            "Não foi possível salvar a foto. A imagem pode ser muito grande."
-                        );
-
-                    }
-
-                };
-
-
-            reader.onerror = () => {
-
-                alert(
-                    "Não foi possível ler a imagem selecionada."
-                );
-
-            };
-
-
-            reader.readAsDataURL(file);
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   INICIALIZAÇÃO E CONTROLE DE ACESSO
-========================================================= */
-
-(async () => {
-
-    const access = await window.AgendaAccess?.ready;
-
-    if (!access?.allowed) {
-        return;
+            if (card) card.hidden = false;
+            input.checked = selectedIds.has(catalogItem.id);
+            input.disabled = Boolean(readOnly);
+        });
     }
 
-    if (access.readOnly) {
+    function collectSelectedIds(selector, catalogByCode) {
+        const ids = new Set();
 
-        // Identificar o comprador selecionado pelo ADM.
-        if (buyerName) {
-            buyerName.value = access.compradorNome || "";
-            buyerName.readOnly = true;
-        }
-
-        const headerName = document.querySelector(
-            ".user-info strong"
-        );
-
-        const avatar = document.querySelector(
-            ".user-avatar"
-        );
-
-        if (headerName) {
-            headerName.textContent =
-                access.compradorNome || "Comprador";
-        }
-
-        if (avatar) {
-            avatar.textContent =
-                (access.compradorNome || "C")
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase();
-        }
-
-        // Bloquear edição das responsabilidades.
-        document.querySelectorAll(
-            'input[name="groups"], input[name="classifications"]'
-        ).forEach(input => {
-            input.disabled = true;
+        document.querySelectorAll(`${selector}:checked`).forEach(input => {
+            const row = catalogByCode.get(normalizeCode(input.value));
+            if (row?.id) ids.add(row.id);
         });
 
-        // Ocultar controles de alteração.
-        if (photoButton) {
-            photoButton.hidden = true;
+        return [...ids];
+    }
+
+    function applyIdentity(name, roleLabel = "Comprador") {
+        const headerName = document.querySelector(".user-info strong");
+        const headerRole = document.querySelector(".user-info span");
+
+        if (headerName) headerName.textContent = name || "Comprador";
+        if (headerRole) headerRole.textContent = roleLabel;
+        if (buyerProfile) buyerProfile.value = "Comprador";
+    }
+
+    async function uploadPendingPhoto(compradorId) {
+        if (!pendingPhotoFile) return savedPhotoPath;
+
+        const extensionByType = {
+            "image/jpeg": "jpg",
+            "image/png": "png",
+            "image/webp": "webp"
+        };
+        const extension = extensionByType[pendingPhotoFile.type];
+        const token = window.crypto?.randomUUID
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        const path = `${compradorId}/${token}.${extension}`;
+
+        const { error } = await supabaseClient
+            .storage
+            .from(PHOTO_BUCKET)
+            .upload(path, pendingPhotoFile, {
+                cacheControl: "3600",
+                contentType: pendingPhotoFile.type,
+                upsert: false
+            });
+
+        if (error) throw error;
+        return path;
+    }
+
+    async function initialize() {
+        const access = await window.AgendaAccess?.ready;
+
+        if (!access?.allowed) return;
+
+        if (typeof supabaseClient === "undefined") {
+            showError("A conexao com o Supabase nao foi inicializada.");
+            return;
         }
 
-        if (photoInput) {
-            photoInput.disabled = true;
+        accessContext = access;
+
+        const buyerId = access.compradorId;
+        if (!buyerId) {
+            showError("Nao foi possivel identificar o comprador desta agenda.");
+            return;
+        }
+
+        try {
+            const [buyerResult, groupsResult, classificationsResult, linksResult] =
+                await Promise.all([
+                    supabaseClient
+                        .from("compradores")
+                        .select("id, nome, email, foto_url, ativo")
+                        .eq("id", buyerId)
+                        .maybeSingle(),
+                    supabaseClient
+                        .from("grupos")
+                        .select("id, codigo, nome, ativo")
+                        .eq("ativo", true)
+                        .order("codigo"),
+                    supabaseClient
+                        .from("classificacoes")
+                        .select("id, codigo, nome, ativo")
+                        .eq("ativo", true)
+                        .order("codigo"),
+                    supabaseClient
+                        .from("comprador_grupo_classificacoes")
+                        .select("id, grupo_id, classificacao_id, ativo")
+                        .eq("comprador_id", buyerId)
+                ]);
+
+            const results = [
+                ["compradores", buyerResult],
+                ["grupos", groupsResult],
+                ["classificacoes", classificationsResult],
+                ["responsabilidades", linksResult]
+            ];
+
+            for (const [label, result] of results) {
+                if (result.error) {
+                    throw new Error(`${label}: ${result.error.message}`);
+                }
+            }
+
+            currentBuyer = buyerResult.data;
+            if (!currentBuyer || currentBuyer.ativo !== true) {
+                throw new Error("O cadastro do comprador nao existe ou esta inativo.");
+            }
+
+            groupCatalog = groupsResult.data || [];
+            classificationCatalog = classificationsResult.data || [];
+            groupsByCode = new Map(
+                groupCatalog.map(item => [normalizeCode(item.codigo), item])
+            );
+            classificationsByCode = new Map(
+                classificationCatalog.map(item => [normalizeCode(item.codigo), item])
+            );
+
+            const activeLinks = (linksResult.data || []).filter(item => item.ativo === true);
+            const selectedGroupIds = new Set(activeLinks.map(item => item.grupo_id));
+            const selectedClassificationIds = new Set(
+                activeLinks.map(item => item.classificacao_id)
+            );
+
+            if (buyerName) {
+                buyerName.value = currentBuyer.nome || "";
+                buyerName.readOnly = Boolean(access.readOnly);
+            }
+
+            applyIdentity(currentBuyer.nome || access.compradorNome || "Comprador");
+
+            applyCatalogToCheckboxes(
+                'input[name="groups"]',
+                groupsByCode,
+                selectedGroupIds,
+                access.readOnly
+            );
+            applyCatalogToCheckboxes(
+                'input[name="classifications"]',
+                classificationsByCode,
+                selectedClassificationIds,
+                access.readOnly
+            );
+
+            savedPhotoPath = currentBuyer.foto_url || null;
+            currentPhotoDisplayUrl = await resolvePhotoUrl(savedPhotoPath);
+            setAvatarImage(currentPhotoDisplayUrl, currentBuyer.nome);
+
+            if (access.readOnly) {
+                if (photoButton) photoButton.hidden = true;
+                if (photoInput) photoInput.disabled = true;
+                if (saveSettings) saveSettings.hidden = true;
+            }
+
+            bindEvents();
+        } catch (error) {
+            showError(
+                "Nao foi possivel carregar as configuracoes do comprador no Supabase.",
+                error
+            );
+        }
+    }
+
+    function bindEvents() {
+        if (photoButton && photoInput) {
+            photoButton.addEventListener("click", async () => {
+                const access = await window.AgendaAccess?.ready;
+                if (!access?.allowed || access.readOnly) return;
+                photoInput.click();
+            });
+
+            photoInput.addEventListener("change", () => {
+                const file = photoInput.files?.[0];
+                if (!file) return;
+
+                if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
+                    photoInput.value = "";
+                    alert("Selecione uma imagem JPG, PNG ou WEBP.");
+                    return;
+                }
+
+                if (file.size > MAX_PHOTO_BYTES) {
+                    photoInput.value = "";
+                    alert("A foto deve ter no maximo 5 MB.");
+                    return;
+                }
+
+                if (pendingPhotoPreviewUrl) {
+                    URL.revokeObjectURL(pendingPhotoPreviewUrl);
+                }
+
+                pendingPhotoFile = file;
+                pendingPhotoPreviewUrl = URL.createObjectURL(file);
+                setAvatarImage(pendingPhotoPreviewUrl, buyerName?.value || currentBuyer?.nome);
+            });
         }
 
         if (saveSettings) {
-            saveSettings.hidden = true;
+            saveSettings.addEventListener("click", async () => {
+                const access = await window.AgendaAccess?.ready;
+
+                if (!access?.allowed) return;
+                if (access.readOnly) {
+                    alert("O ADM pode consultar esta pagina, mas nao salvar alteracoes.");
+                    return;
+                }
+
+                const name = buyerName?.value.trim() || "";
+                const groupIds = collectSelectedIds('input[name="groups"]', groupsByCode);
+                const classificationIds = collectSelectedIds(
+                    'input[name="classifications"]',
+                    classificationsByCode
+                );
+
+                if (!name) {
+                    alert("Informe o nome do comprador.");
+                    buyerName?.focus();
+                    return;
+                }
+                if (groupIds.length === 0) {
+                    alert("Selecione pelo menos um grupo.");
+                    return;
+                }
+                if (classificationIds.length === 0) {
+                    alert("Selecione pelo menos uma classificacao.");
+                    return;
+                }
+
+                const originalLabel = saveSettings.textContent;
+                saveSettings.disabled = true;
+                saveSettings.textContent = "Salvando...";
+
+                let uploadedPath = null;
+                const oldPhotoPath = savedPhotoPath;
+
+                try {
+                    const photoPath = await uploadPendingPhoto(access.compradorId);
+                    if (pendingPhotoFile) uploadedPath = photoPath;
+
+                    const { error: saveError } = await supabaseClient.rpc(
+                        "salvar_configuracoes_comprador",
+                        {
+                            p_nome: name,
+                            p_foto_url: photoPath,
+                            p_grupos: groupIds,
+                            p_classificacoes: classificationIds
+                        }
+                    );
+
+                    if (saveError) {
+                        if (uploadedPath) {
+                            const { error: cleanupError } = await supabaseClient
+                                .storage
+                                .from(PHOTO_BUCKET)
+                                .remove([uploadedPath]);
+                            if (cleanupError) {
+                                console.warn("Nao foi possivel remover o arquivo temporario:", cleanupError);
+                            }
+                        }
+                        throw saveError;
+                    }
+
+                    savedPhotoPath = photoPath || null;
+                    currentBuyer.nome = name;
+                    currentBuyer.foto_url = savedPhotoPath;
+                    applyIdentity(name);
+
+                    if (pendingPhotoPreviewUrl) {
+                        URL.revokeObjectURL(pendingPhotoPreviewUrl);
+                        pendingPhotoPreviewUrl = null;
+                    }
+                    pendingPhotoFile = null;
+                    if (photoInput) photoInput.value = "";
+
+                    currentPhotoDisplayUrl = await resolvePhotoUrl(savedPhotoPath);
+                    setAvatarImage(currentPhotoDisplayUrl, name);
+
+                    // Remover a foto anterior somente depois que a nova configuracao foi salva.
+                    if (
+                        oldPhotoPath &&
+                        oldPhotoPath !== savedPhotoPath &&
+                        oldPhotoPath.startsWith(`${access.compradorId}/`)
+                    ) {
+                        const { error: removeError } = await supabaseClient
+                            .storage
+                            .from(PHOTO_BUCKET)
+                            .remove([oldPhotoPath]);
+                        if (removeError) {
+                            console.warn("A configuracao foi salva, mas a foto antiga nao foi removida:", removeError);
+                        }
+                    }
+
+                    alert("Configuracoes salvas com sucesso no banco de dados.");
+                } catch (error) {
+                    showError("Nao foi possivel salvar as configuracoes.", error);
+                } finally {
+                    saveSettings.disabled = false;
+                    saveSettings.textContent = originalLabel || "Salvar configuracoes";
+                }
+            });
         }
-
-        // Informar a limitação dos dados desta versão.
-        const notice = document.createElement("p");
-
-        notice.textContent =
-            "Visualização administrativa: as configurações de grupos e classificações desta tela ainda são demonstrativas e não estão vinculadas ao cadastro real do comprador no Supabase.";
-
-        notice.setAttribute("role", "status");
-
-        notice.style.cssText = [
-            "padding:12px 16px",
-            "margin:16px 0",
-            "border:1px solid #ddd3c7",
-            "border-radius:8px",
-            "color:#756b63",
-            "background:#f8f6f1"
-        ].join(";");
-
-        document.querySelector(".page-heading")
-            ?.insertAdjacentElement("afterend", notice);
-
-    } else {
-
-        // O comprador continua utilizando o comportamento atual.
-        loadSettings();
-
     }
 
+    initialize();
 })();
