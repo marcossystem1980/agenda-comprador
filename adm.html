@@ -41,14 +41,19 @@
                     Visão geral
                 </a>
 
-<a href="#compradoresLista" class="adm-nav-item">
-    <span>▦</span>
-    Agendas dos compradores
-</a>
+                <a href="#compradoresLista" class="adm-nav-item">
+                    <span>▦</span>
+                    Agendas dos compradores
+                </a>
 
                 <a href="#cadastros" class="adm-nav-item">
                     <span>♙</span>
                     Compradores e acessos
+                </a>
+
+                <a href="#importacoes" class="adm-nav-item">
+                    <span>⇧</span>
+                    Importação de dados
                 </a>
 
                 <a href="#configuracoes" class="adm-nav-item">
@@ -69,6 +74,7 @@
         <!-- CONTEÚDO PRINCIPAL -->
         <main class="adm-main" id="inicio">
 
+            <!-- CABEÇALHO -->
             <header class="adm-topbar">
 
                 <div>
@@ -126,7 +132,7 @@
 
                     <p>
                         Gerencie os compradores, consulte suas agendas
-                        e acompanhe a operação em um único ambiente.
+                        e atualize os dados operacionais em um único ambiente.
                     </p>
                 </div>
 
@@ -137,7 +143,9 @@
             </section>
 
 
-            <!-- ÁREAS ADMINISTRATIVAS -->
+            <!-- =========================================
+                 GESTÃO DA OPERAÇÃO
+            ========================================== -->
             <section class="adm-section" id="agendas">
 
                 <div class="adm-section-heading">
@@ -150,46 +158,80 @@
                     </div>
                 </div>
 
-
                 <div class="adm-card-grid">
 
-<article class="adm-card">
+                    <!-- AGENDAS -->
+                    <article class="adm-card">
 
-    <div class="adm-card-icon">▦</div>
+                        <div class="adm-card-icon">▦</div>
 
-    <h3>Agendas dos compradores</h3>
+                        <h3>Agendas dos compradores</h3>
 
-    <p>
-        Consulte a agenda dos compradores cadastrados
-        e acompanhe seus agendamentos.
-    </p>
+                        <p>
+                            Consulte a agenda dos compradores cadastrados
+                            e acompanhe seus agendamentos.
+                        </p>
 
-    <a href="#compradoresLista" class="adm-card-link">
-        Consultar agendas →
-    </a>
+                        <a
+                            href="#compradoresLista"
+                            class="adm-card-link"
+                        >
+                            Consultar agendas →
+                        </a>
 
-</article>
-
-
-<article class="adm-card">
-
-    <div class="adm-card-icon">♙</div>
-
-    <h3>Compradores e acessos</h3>
-
-    <p>
-        Cadastre novos acessos e consulte os compradores
-        vinculados ao sistema.
-    </p>
-
-    <a href="#cadastros" class="adm-card-link">
-        Gerenciar acessos →
-    </a>
-
-</article>
+                    </article>
 
 
-                    <article class="adm-card" id="configuracoes">
+                    <!-- COMPRADORES -->
+                    <article class="adm-card">
+
+                        <div class="adm-card-icon">♙</div>
+
+                        <h3>Compradores e acessos</h3>
+
+                        <p>
+                            Cadastre novos acessos e consulte os compradores
+                            vinculados ao sistema.
+                        </p>
+
+                        <a
+                            href="#cadastros"
+                            class="adm-card-link"
+                        >
+                            Gerenciar acessos →
+                        </a>
+
+                    </article>
+
+
+                    <!-- IMPORTAÇÕES -->
+                    <article class="adm-card">
+
+                        <div class="adm-card-icon">⇧</div>
+
+                        <h3>Importação de dados</h3>
+
+                        <p>
+                            Atualize os dados operacionais e os fabricantes,
+                            validando os arquivos antes de substituir
+                            a base vigente.
+                        </p>
+
+                        <a
+                            href="#importacoes"
+                            class="adm-card-link"
+                        >
+                            Abrir importações →
+                        </a>
+
+                    </article>
+
+
+                    <!-- CONFIGURAÇÕES -->
+                    <article
+                        class="adm-card"
+                        id="configuracoes"
+                    >
 
                         <div class="adm-card-icon">⚙</div>
 
@@ -217,239 +259,436 @@
                 <div class="adm-info-icon">i</div>
 
                 <div>
-                    <h3>Próxima implementação</h3>
+                    <h3>Importações controladas</h3>
 
                     <p>
-                        A seleção do comprador, a consulta das agendas
-                        e a gestão dos cadastros serão conectadas às
-                        tabelas existentes no Supabase após a revisão
-                        das permissões de acesso.
+                        Os arquivos são validados antes da substituição
+                        dos dados vigentes. As agendas, os usuários e
+                        as responsabilidades dos compradores devem
+                        permanecer preservados.
                     </p>
                 </div>
 
             </section>
 
-            <!-- =========================================
-     CADASTRO DE ACESSOS
-========================================= -->
-
-<section class="adm-section" id="cadastros">
-
-    <div class="adm-section-heading">
-        <div>
-            <h2>Compradores e acessos</h2>
-
-            <p>
-                Crie acessos de compradores e administradores.
-                O usuário receberá um convite para definir sua senha.
-            </p>
-        </div>
-    </div>
-
-    <form id="accessForm">
-
-        <div class="form-group">
-            <label for="accessName">
-                Nome completo
-            </label>
-
-            <input
-                type="text"
-                id="accessName"
-                name="nome"
-                placeholder="Digite o nome completo"
-                minlength="2"
-                maxlength="120"
-                autocomplete="name"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="accessEmail">
-                E-mail de acesso
-            </label>
-
-            <input
-                type="email"
-                id="accessEmail"
-                name="email"
-                placeholder="Digite o e-mail do usuário"
-                maxlength="254"
-                autocomplete="email"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="accessProfile">
-                Tipo de acesso
-            </label>
-
-            <select
-                id="accessProfile"
-                name="perfil"
-                required
-            >
-                <option value="comprador">
-                    Comprador
-                </option>
-
-                <option value="adm">
-                    Administrador
-                </option>
-            </select>
-        </div>
-
-        <div
-            class="form-group"
-            id="accessCargoGroup"
-        >
-            <label for="accessCargo">
-                Cargo
-            </label>
-
-            <input
-                type="text"
-                id="accessCargo"
-                name="cargo"
-                placeholder="Ex.: Comprador de Perfumaria"
-                maxlength="100"
-            >
-        </div>
-
-        <div
-            id="accessFormMessage"
-            class="adm-inline-message"
-            role="status"
-            aria-live="polite"
-            hidden
-        ></div>
-
-        <button
-            type="submit"
-            id="createAccessButton"
-            class="adm-table-action"
-        >
-            Enviar convite
-        </button>
-
-    </form>
-
-</section>
 
             <!-- =========================================
-     LISTA REAL DE COMPRADORES
-========================================= -->
+                 CADASTRO DE ACESSOS
+            ========================================== -->
+            <section class="adm-section" id="cadastros">
 
-<section class="adm-section" id="compradoresLista">
+                <div class="adm-section-heading">
+                    <div>
+                        <h2>Compradores e acessos</h2>
 
-    <div class="adm-section-heading">
-        <div>
-            <h2>Agendas dos compradores</h2>
-            <p>
-                Selecione um comprador para consultar sua agenda.
-            </p>
-        </div>
-    </div>
+                        <p>
+                            Crie acessos de compradores e administradores.
+                            O usuário receberá um convite para definir sua senha.
+                        </p>
+                    </div>
+                </div>
 
-    <div class="adm-list-tools">
-        <input
-            type="search"
-            id="buyerSearch"
-            placeholder="Buscar por nome ou e-mail..."
-            aria-label="Buscar compradores"
-        >
+                <form id="accessForm">
 
-        <span id="buyersCount">Carregando...</span>
-    </div>
+                    <div class="form-group">
 
-    <div class="adm-table-wrap">
-        <table class="adm-data-table">
-            <thead>
-                <tr>
-                    <th>Comprador</th>
-                    <th>E-mail</th>
-                    <th>Cargo</th>
-                    <th>Situação</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
+                        <label for="accessName">
+                            Nome completo
+                        </label>
 
-            <tbody id="buyersTableBody">
-                <tr>
-                    <td colspan="5">
-                        Carregando compradores...
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                        <input
+                            type="text"
+                            id="accessName"
+                            name="nome"
+                            placeholder="Digite o nome completo"
+                            minlength="2"
+                            maxlength="120"
+                            autocomplete="name"
+                            required
+                        >
 
-</section>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="accessEmail">
+                            E-mail de acesso
+                        </label>
+
+                        <input
+                            type="email"
+                            id="accessEmail"
+                            name="email"
+                            placeholder="Digite o e-mail do usuário"
+                            maxlength="254"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="accessProfile">
+                            Tipo de acesso
+                        </label>
+
+                        <select
+                            id="accessProfile"
+                            name="perfil"
+                            required
+                        >
+
+                            <option value="comprador">
+                                Comprador
+                            </option>
+
+                            <option value="adm">
+                                Administrador
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div
+                        class="form-group"
+                        id="accessCargoGroup"
+                    >
+
+                        <label for="accessCargo">
+                            Cargo
+                        </label>
+
+                        <input
+                            type="text"
+                            id="accessCargo"
+                            name="cargo"
+                            placeholder="Ex.: Comprador de Perfumaria"
+                            maxlength="100"
+                        >
+
+                    </div>
+
+                    <div
+                        id="accessFormMessage"
+                        class="adm-inline-message"
+                        role="status"
+                        aria-live="polite"
+                        hidden
+                    ></div>
+
+                    <button
+                        type="submit"
+                        id="createAccessButton"
+                        class="adm-table-action"
+                    >
+                        Enviar convite
+                    </button>
+
+                </form>
+
+            </section>
 
 
-<!-- =========================================
-     AGENDA DO COMPRADOR SELECIONADO
-========================================= -->
+            <!-- =========================================
+                 LISTA DE COMPRADORES
+            ========================================== -->
+            <section
+                class="adm-section"
+                id="compradoresLista"
+            >
 
-<section
-    class="adm-section"
-    id="selectedAgendaSection"
-    hidden
->
-    <div class="adm-section-heading">
-        <div>
-            <h2 id="selectedAgendaHeading">
-                Agenda do comprador
-            </h2>
+                <div class="adm-section-heading">
+                    <div>
+                        <h2>Agendas dos compradores</h2>
 
-            <p id="selectedAgendaDescription"></p>
-        </div>
+                        <p>
+                            Selecione um comprador para consultar sua agenda.
+                        </p>
+                    </div>
+                </div>
 
-        <button
-            type="button"
-            id="backToBuyersButton"
-            class="adm-logout"
-        >
-            Voltar aos compradores
-        </button>
-    </div>
+                <div class="adm-list-tools">
 
-    <div
-        id="buyerAgendaMessage"
-        class="adm-inline-message"
-        role="status"
-        aria-live="polite"
-        hidden
-    ></div>
+                    <input
+                        type="search"
+                        id="buyerSearch"
+                        placeholder="Buscar por nome ou e-mail..."
+                        aria-label="Buscar compradores"
+                    >
 
-    <div class="adm-table-wrap">
-        <table class="adm-data-table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Horário</th>
-                    <th>Grupo</th>
-                    <th>Agendamento</th>
-                    <th>Fabricante</th>
-                    <th>Classificação</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+                    <span id="buyersCount">
+                        Carregando...
+                    </span>
 
-            <tbody id="buyerAgendaBody">
-                <tr>
-                    <td colspan="7">
-                        Selecione um comprador.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</section>
+                </div>
+
+                <div class="adm-table-wrap">
+
+                    <table class="adm-data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Comprador</th>
+                                <th>E-mail</th>
+                                <th>Cargo</th>
+                                <th>Situação</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="buyersTableBody">
+
+                            <tr>
+                                <td colspan="5">
+                                    Carregando compradores...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
 
 
+            <!-- =========================================
+                 AGENDA DO COMPRADOR SELECIONADO
+            ========================================== -->
+            <section
+                class="adm-section"
+                id="selectedAgendaSection"
+                hidden
+            >
+
+                <div class="adm-section-heading">
+
+                    <div>
+                        <h2 id="selectedAgendaHeading">
+                            Agenda do comprador
+                        </h2>
+
+                        <p id="selectedAgendaDescription"></p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="backToBuyersButton"
+                        class="adm-logout"
+                    >
+                        Voltar aos compradores
+                    </button>
+
+                </div>
+
+                <div
+                    id="buyerAgendaMessage"
+                    class="adm-inline-message"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+                <div class="adm-table-wrap">
+
+                    <table class="adm-data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Grupo</th>
+                                <th>Agendamento</th>
+                                <th>Fabricante</th>
+                                <th>Classificação</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="buyerAgendaBody">
+
+                            <tr>
+                                <td colspan="7">
+                                    Selecione um comprador.
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 IMPORTAÇÃO DE DADOS
+            ========================================== -->
+            <section
+                class="adm-section"
+                id="importacoes"
+            >
+
+                <div class="adm-section-heading">
+
+                    <div>
+                        <h2>Importação de dados</h2>
+
+                        <p>
+                            Atualize a base operacional e os mapeamentos
+                            de fabricantes. Os arquivos serão validados
+                            antes de substituir os dados vigentes.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="adm-card-grid">
+
+                    <!-- =================================
+                         IMPORTAÇÃO OPERACIONAL
+                    ================================== -->
+                    <article class="adm-card">
+
+                        <div class="adm-card-icon">▤</div>
+
+                        <h3>Dados operacionais</h3>
+
+                        <p>
+                            Importe os dados de ruptura e substitua
+                            a carga operacional vigente.
+                            Não será mantido histórico de cargas anteriores.
+                        </p>
+
+                        <form id="operationalImportForm">
+
+                            <div class="form-group">
+
+                                <label for="operationalImportFile">
+                                    Arquivo operacional (CSV, XLS ou XLSX)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    id="operationalImportFile"
+                                    accept=".csv,.xls,.xlsx,.xlsm"
+                                    required
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="operationalReferenceDate">
+                                    Data de referência
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="operationalReferenceDate"
+                                    required
+                                >
+
+                            </div>
+
+                            <p>
+                                Colunas esperadas: grupo_codigo, uf,
+                                classificacao_codigo, fabricante_nome,
+                                curva_qtd, curva_valor, total_vendido,
+                                dias_sem_estoque, ruptura_quantidade
+                                e ruptura_valor.
+                            </p>
+
+                            <div
+                                id="operationalImportMessage"
+                                class="adm-inline-message"
+                                role="status"
+                                aria-live="polite"
+                                hidden
+                            ></div>
+
+                            <button
+                                type="submit"
+                                id="operationalImportButton"
+                                class="adm-table-action"
+                            >
+                                Validar e substituir dados
+                            </button>
+
+                        </form>
+
+                    </article>
+
+
+                    <!-- =================================
+                         IMPORTAÇÃO DE FABRICANTES
+                    ================================== -->
+                    <article class="adm-card">
+
+                        <div class="adm-card-icon">♙</div>
+
+                        <h3>Fabricantes</h3>
+
+                        <p>
+                            Atualize o mapeamento de fabricantes.
+                            Os IDs de fabricantes que possuem vínculos
+                            com agendas e decisões serão preservados.
+                        </p>
+
+                        <form id="manufacturersImportForm">
+
+                            <div class="form-group">
+
+                                <label for="manufacturersImportFile">
+                                    Arquivo de fabricantes (CSV, XLS ou XLSX)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    id="manufacturersImportFile"
+                                    accept=".csv,.xls,.xlsx,.xlsm"
+                                    required
+                                >
+
+                            </div>
+
+                            <p>
+                                Colunas esperadas: grupo, nome_visual,
+                                fabricante_conexao, ativo e,
+                                opcionalmente, origem.
+                            </p>
+
+                            <div
+                                id="manufacturersImportMessage"
+                                class="adm-inline-message"
+                                role="status"
+                                aria-live="polite"
+                                hidden
+                            ></div>
+
+                            <button
+                                type="submit"
+                                id="manufacturersImportButton"
+                                class="adm-table-action"
+                            >
+                                Validar e substituir fabricantes
+                            </button>
+
+                        </form>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- RODAPÉ -->
             <footer class="adm-footer">
                 Agenda Comprador · Área administrativa
             </footer>
@@ -459,12 +698,24 @@
     </div>
 
 
-    <!-- SUPABASE -->
+    <!-- =========================================
+         SCRIPTS
+    ========================================== -->
+
+    <!-- Biblioteca Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Conexão com o projeto Supabase -->
     <script src="assets/js/supabase.js"></script>
 
+    <!-- Administração existente -->
     <script src="assets/js/adm.js"></script>
+
+    <!-- Leitura de arquivos CSV e Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Importação de dados do ADM -->
+    <script src="assets/js/adm-importacao.js"></script>
 
 </body>
 </html>
