@@ -5,15 +5,29 @@
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async () => {
 
         /* =================================================
-           COMPRADOR DE TESTE
-           TEMPORÁRIO
+           IDENTIFICAR COMPRADOR AUTENTICADO
         ================================================= */
 
-        const COMPRADOR_ID =
-            "c84c12af-5c2c-4734-9d2b-e075ac4cf0f2";
+        const access = await window.AgendaAccess?.ready;
+
+        if (
+            !access?.allowed ||
+            !access?.compradorId
+        ) {
+            console.error(
+                "Agendamento bloqueado: comprador não identificado."
+            );
+
+            return;
+        }
+
+        // ID real do comprador vinculado à sessão ou
+        // selecionado pelo ADM no modo somente leitura.
+        const COMPRADOR_ID = access.compradorId;
+
 
 
         /* =================================================
