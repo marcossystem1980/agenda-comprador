@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compradores e acessos | Agenda Comprador</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/adm.css">
+    <link rel="stylesheet" href="assets/css/adm-profissional.css">
+</head>
+<body class="adm-page">
+    <div class="adm-layout">
+        <aside class="adm-sidebar">
+            <a class="adm-brand" href="adm.html" aria-label="Agenda Comprador, início">
+                <img src="assets/img/logo.png" alt="Logo da empresa">
+                <div><strong>AGENDA</strong><span>COMPRADOR</span></div>
+            </a>
+            <div class="adm-menu-title">ADMINISTRAÇÃO</div>
+            <nav class="adm-navigation" aria-label="Menu administrativo">
+                <a href="adm.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">⌂</span>
+                    <span>Visão geral</span>
+                </a>
+                <a href="adm-compradores.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">▦</span>
+                    <span>Agendas dos compradores</span>
+                </a>
+                <a href="adm-acessos.html" class="adm-nav-item active" aria-current="page">
+                    <span class="adm-nav-icon" aria-hidden="true">♙</span>
+                    <span>Compradores e acessos</span>
+                </a>
+                <a href="adm-importacoes.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">⇧</span>
+                    <span>Importação de dados</span>
+                </a>
+                <a href="adm-configuracoes.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">⚙</span>
+                    <span>Meu perfil</span>
+                </a>
+            </nav>
+            <div class="adm-sidebar-footer"><span class="adm-status-dot"></span> Ambiente administrativo</div>
+        </aside>
+        <main class="adm-main">
+            <header class="adm-topbar">
+                <div class="adm-heading-block">
+                    <span class="adm-eyebrow">PAINEL ADMINISTRATIVO</span>
+                    <h1>Compradores e acessos</h1>
+                </div>
+                <div class="adm-user-area">
+                    <div class="adm-user-info"><strong id="adminName">Verificando acesso...</strong><span id="adminEmail"></span></div>
+                    <div class="adm-avatar" id="adminAvatar" aria-label="Foto do administrador">A</div>
+                    <button type="button" id="logoutButton" class="adm-logout">Sair</button>
+                </div>
+            </header>
+            <div id="adminAlert" class="adm-alert" role="status" aria-live="polite" hidden></div>
+            
+            <section class="adm-page-intro">
+                <div><span class="adm-section-label">USUÁRIOS</span><h2>Compradores e acessos</h2><p>Cadastre um novo acesso. O usuário receberá um convite para definir a própria senha.</p></div>
+            </section>
+            <section class="adm-section adm-form-section" aria-labelledby="accessSectionTitle">
+                <div class="adm-section-heading"><div><h2 id="accessSectionTitle">Novo acesso</h2><p>Preencha os dados e confira o e-mail antes de enviar o convite.</p></div></div>
+                <form id="accessForm" class="adm-form-grid">
+                    <div class="form-group"><label for="accessName">Nome completo</label><input type="text" id="accessName" name="nome" placeholder="Digite o nome completo" minlength="2" maxlength="120" autocomplete="name" required></div>
+                    <div class="form-group"><label for="accessEmail">E-mail de acesso</label><input type="email" id="accessEmail" name="email" placeholder="nome@empresa.com.br" maxlength="254" autocomplete="email" required></div>
+                    <div class="form-group"><label for="accessProfile">Tipo de acesso</label><select id="accessProfile" name="perfil" required><option value="comprador">Comprador</option><option value="adm">Administrador</option></select></div>
+                    <div class="form-group" id="accessCargoGroup"><label for="accessCargo">Cargo</label><input type="text" id="accessCargo" name="cargo" placeholder="Ex.: Comprador de Perfumaria" maxlength="100"></div>
+                    <div id="accessFormMessage" class="adm-inline-message adm-form-message" role="status" aria-live="polite" hidden></div>
+                    <div class="adm-form-actions"><button type="submit" id="createAccessButton" class="adm-table-action">Enviar convite</button></div>
+                </form>
+            </section>
+            <section class="adm-info-panel adm-info-panel-spaced"><div class="adm-info-icon">i</div><div><h3>Antes de enviar</h3><p>Confirme se o endereço de e-mail está correto. O envio de convites depende do limite e das configurações de e-mail do Supabase.</p></div></section>
+
+            <footer class="adm-footer">Agenda Comprador · Área administrativa</footer>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/adm.js"></script>
+    
+</body>
+</html>

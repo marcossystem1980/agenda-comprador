@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importação de dados | Agenda Comprador</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/adm.css">
+    <link rel="stylesheet" href="assets/css/adm-profissional.css">
+</head>
+<body class="adm-page">
+    <div class="adm-layout">
+        <aside class="adm-sidebar">
+            <a class="adm-brand" href="adm.html" aria-label="Agenda Comprador, início">
+                <img src="assets/img/logo.png" alt="Logo da empresa">
+                <div><strong>AGENDA</strong><span>COMPRADOR</span></div>
+            </a>
+            <div class="adm-menu-title">ADMINISTRAÇÃO</div>
+            <nav class="adm-navigation" aria-label="Menu administrativo">
+                <a href="adm.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">⌂</span>
+                    <span>Visão geral</span>
+                </a>
+                <a href="adm-compradores.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">▦</span>
+                    <span>Agendas dos compradores</span>
+                </a>
+                <a href="adm-acessos.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">♙</span>
+                    <span>Compradores e acessos</span>
+                </a>
+                <a href="adm-importacoes.html" class="adm-nav-item active" aria-current="page">
+                    <span class="adm-nav-icon" aria-hidden="true">⇧</span>
+                    <span>Importação de dados</span>
+                </a>
+                <a href="adm-configuracoes.html" class="adm-nav-item" >
+                    <span class="adm-nav-icon" aria-hidden="true">⚙</span>
+                    <span>Meu perfil</span>
+                </a>
+            </nav>
+            <div class="adm-sidebar-footer"><span class="adm-status-dot"></span> Ambiente administrativo</div>
+        </aside>
+        <main class="adm-main">
+            <header class="adm-topbar">
+                <div class="adm-heading-block">
+                    <span class="adm-eyebrow">PAINEL ADMINISTRATIVO</span>
+                    <h1>Importação de dados</h1>
+                </div>
+                <div class="adm-user-area">
+                    <div class="adm-user-info"><strong id="adminName">Verificando acesso...</strong><span id="adminEmail"></span></div>
+                    <div class="adm-avatar" id="adminAvatar" aria-label="Foto do administrador">A</div>
+                    <button type="button" id="logoutButton" class="adm-logout">Sair</button>
+                </div>
+            </header>
+            <div id="adminAlert" class="adm-alert" role="status" aria-live="polite" hidden></div>
+            
+            <section class="adm-page-intro">
+                <div><span class="adm-section-label">ATUALIZAÇÃO DA BASE</span><h2>Importação de dados</h2><p>Atualize a informação operacional vigente e a relação Grupo + Fabricante. A validação ocorre antes da substituição.</p></div>
+            </section>
+            <section class="adm-section" aria-labelledby="importsSectionTitle">
+                <div class="adm-section-heading"><div><h2 id="importsSectionTitle">Escolha o tipo de importação</h2><p>Use arquivos completos. Não carregue exportações limitadas a 1.000 linhas se a base possui mais registros.</p></div></div>
+                <div class="adm-card-grid adm-import-grid">
+                    <article class="adm-card adm-import-card">
+                        <span class="adm-card-icon" aria-hidden="true">▤</span><h3>Dados operacionais</h3><p>Substitui a carga atual dos dados de ruptura após validar grupos, classificações, fabricantes e valores.</p>
+                        <form id="operationalImportForm" class="adm-form-stack">
+                            <div class="form-group"><label for="operationalImportFile">Arquivo operacional (CSV, XLS ou XLSX)</label><input type="file" id="operationalImportFile" accept=".csv,.xls,.xlsx,.xlsm" required></div>
+                            <div class="form-group"><label for="operationalReferenceDate">Data de referência</label><input type="date" id="operationalReferenceDate" required></div>
+                            <p class="adm-help-text">Colunas: grupo_codigo, uf, classificacao_codigo, fabricante_nome, curva_qtd, curva_valor, total_vendido, dias_sem_estoque, ruptura_quantidade e ruptura_valor.</p>
+                            <div id="operationalImportMessage" class="adm-inline-message" role="status" aria-live="polite" hidden></div>
+                            <button type="submit" id="operationalImportButton" class="adm-table-action">Validar e substituir dados</button>
+                        </form>
+                    </article>
+                    <article class="adm-card adm-import-card">
+                        <span class="adm-card-icon" aria-hidden="true">♙</span><h3>Catálogo de fabricantes</h3><p>Alimenta a pesquisa de fabricantes do formulário Novo Agendamento. A relação utilizada pelo catálogo é Grupo + Fabricante.</p>
+                        <form id="manufacturersImportForm" class="adm-form-stack">
+                            <div class="form-group"><label for="manufacturersImportFile">Arquivo de fabricantes (CSV, XLS ou XLSX)</label><input type="file" id="manufacturersImportFile" accept=".csv,.xls,.xlsx,.xlsm" required></div>
+                            <div class="adm-format-example"><strong>Formato esperado: duas colunas</strong><span>Grupo</span><b>+</b><span>Fabricante</span><p>Exemplo: ZTT + KRESS FARMACEUTICA. Não é necessário informar status, origem ou data de importação.</p></div>
+                            <div id="manufacturersImportMessage" class="adm-inline-message" role="status" aria-live="polite" hidden></div>
+                            <button type="submit" id="manufacturersImportButton" class="adm-table-action">Validar e substituir catálogo</button>
+                        </form>
+                    </article>
+                </div>
+            </section>
+            <section class="adm-info-panel adm-info-panel-spaced"><div class="adm-info-icon">i</div><div><h3>Substituição segura</h3><p>Os novos arquivos precisam conter a carga completa. Se a validação do banco falhar, a transação deve preservar a base operacional anterior. Agendas e IDs de fabricantes utilizados pelo sistema devem ser preservados.</p></div></section>
+
+            <footer class="adm-footer">Agenda Comprador · Área administrativa</footer>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase.js"></script>
+    <script src="assets/js/adm.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="assets/js/adm-importacao.js"></script>
+</body>
+</html>

@@ -237,44 +237,97 @@
     }
 
     function mapManufacturerRows(sourceRows) {
+        if (!Array.isArray(sourceRows) || sourceRows.length === 0) {
+            throw new Error("O arquivo de fabricantes não contém linhas para importar.");
+        }
+
         const headers = Object.keys(sourceRows[0] || {});
-        const columnMap = {
-            grupo: findColumn(headers, ["grupo", "grupo_codigo", "codigo_grupo"]),
-            nome_visual: findColumn(headers, ["nome_visual", "nome visual", "fabricante_visual"]),
-            fabricante_conexao: findColumn(headers, ["fabricante_conexao", "fabricante conexao", "conexao", "fabricante_nome"]),
-            ativo: findColumn(headers, ["ativo", "situacao", "status"]),
-            origem: findColumn(headers, ["origem", "fonte"])
-        };
+        const groupHeader = findColumn(headers, [
+            "grupo",
+            "grupo_codigo",
+            "codigo_grupo",
+            "código do grupo"
+        ]);
 
-        const missing = Object.entries(columnMap)
-            .filter(([field, header]) => field !== "origem" && !header)
-            .map(([field]) => field);
+        // Formato simples oficial: Grupo + Fabricante.
+        const simpleManufacturerHeader = findColumn(headers, [
+            "fabricante",
+            "fabricante_nome",
+            "nome_fabricante",
+            "nome do fabricante",
+            "nome da fabricante"
+        ]);
 
-        if (missing.length) {
+        // Compatibilidade opcional com planilhas antigas que já separam
+        // o nome do catálogo do nome usado nos dados de ruptura.
+        const visualHeader = findColumn(headers, [
+            "nome_visual",
+            "nome visual",
+            "fabricante_visual"
+        ]);
+        const connectionHeader = findColumn(headers, [
+            "fabricante_conexao",
+            "fabricante conexao",
+            "conexao",
+            "nome_ruptura",
+            "fabricante_ruptura"
+        ]);
+
+        if (!groupHeader) {
             throw new Error(
-                "Não encontrei todas as colunas obrigatórias no arquivo de fabricantes. " +
-                "Colunas ausentes: " + missing.join(", ") + ". " +
-                "O arquivo deve conter grupo, nome_visual, fabricante_conexao e ativo."
+                "Não encontrei a coluna Grupo. O arquivo deve conter duas colunas: Grupo e Fabricante."
             );
         }
 
-        const mapped = sourceRows.map(source => {
-            const get = field => columnMap[field] ? valueAsText(source[columnMap[field]]) : "";
+        const hasExplicitMapping = Boolean(visualHeader && connectionHeader);
+        const singleNameHeader = simpleManufacturerHeader || visualHeader || connectionHeader;
+
+        if (!hasExplicitMapping && !singleNameHeader) {
+            throw new Error(
+                "Não encontrei a coluna Fabricante. O formato esperado é Grupo + Fabricante."
+            );
+        }
+
+        const mapped = sourceRows.map((source, index) => {
+            const rowNumber = index + 2;
+            const get = header => header ? valueAsText(source[header]) : "";
+            const grupo = get(groupHeader);
+
+            let nomeVisual;
+            let fabricanteConexao;
+
+            if (hasExplicitMapping) {
+                // Arquivo legado com mapeamento explícito.
+                nomeVisual = get(visualHeader);
+                fabricanteConexao = get(connectionHeader);
+            } else {
+                // No modelo padrão, o mesmo nome atende ao catálogo e à
+                // correspondência com dados operacionais.
+                const fabricante = get(singleNameHeader);
+                nomeVisual = fabricante;
+                fabricanteConexao = fabricante;
+            }
+
+            if (!grupo || !nomeVisual || !fabricanteConexao) {
+                throw new Error(
+                    `Linha ${rowNumber}: Grupo e Fabricante são obrigatórios. ` +
+                    (hasExplicitMapping
+                        ? "Confira também nome_visual e fabricante_conexao."
+                        : "")
+                );
+            }
+
             return {
-                grupo: get("grupo"),
-                nome_visual: get("nome_visual"),
-                fabricante_conexao: get("fabricante_conexao"),
-                ativo: get("ativo"),
-                origem: get("origem")
+                grupo,
+                nome_visual: nomeVisual,
+                fabricante_conexao: fabricanteConexao,
+                // Esses campos são preenchidos internamente para manter
+                // compatibilidade com a estrutura SQL existente. Não são
+                // exigidos nem usados como regra de seleção no arquivo fonte.
+                ativo: "SIM",
+                origem: "IMPORTAÇÃO ADM"
             };
         });
-
-        const invalidIndex = mapped.findIndex(row =>
-            !row.grupo || !row.nome_visual || !row.fabricante_conexao || !row.ativo
-        );
-        if (invalidIndex >= 0) {
-            throw new Error(`Há um campo obrigatório vazio próximo à linha ${invalidIndex + 2}.`);
-        }
 
         if (mapped.length > MAX_MANUFACTURER_ROWS) {
             throw new Error(`O arquivo ultrapassa o limite de ${MAX_MANUFACTURER_ROWS} linhas.`);
